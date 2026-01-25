@@ -3,17 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   app.module.ts                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nboer <nboer@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lieselotdetaeye <lieselotdetaeye@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:17:58 by lde-taey          #+#    #+#             */
-/*   Updated: 2026/01/25 17:22:13 by nboer            ###   ########.fr       */
+/*   Updated: 2026/02/09 11:27:28 by lieselotdet      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { Module } from '@nestjs/common';
-import { AuthController } from './auth/auth.controller';
-import { AuthModule } from './auth/auth.module';
-
+import { Module } from '@nestjs/common'
+import { UsersModule } from './users/users.module'
 
 @Module
 ({
@@ -21,7 +19,7 @@ import { AuthModule } from './auth/auth.module';
     //ConfigModule,//would need to be installe seperately
     //DatabaseModule,
     //AuthModule,
-    //UsersModule,
+    UsersModule,
     //GameModule,
   controllers: [AuthController]
 
