@@ -12,7 +12,7 @@ export interface RoomTimer {
 
 export interface Prompt {
   text: string;
-  round: number;
+  // round: number;
 }
 
 export interface Participant {
@@ -30,7 +30,7 @@ export interface RoomState {
   roomId: string;
 
   phase: RoomPhase;
-  round: number;
+  // round: number;
 
   timer: RoomTimer | null;
   prompt: Prompt | null;

@@ -1,11 +1,12 @@
-// room.mock.ts
+// TODO: Replace with real backend data when ready
+
 import type { RoomState } from "./room.types";
 
 export const mockRoomState: RoomState = {
   roomId: "mock-room",
 
   phase: "drawing",
-  round: 1,
+  // round: 1,
 
   timer: {
     startedAt: Date.now(),
@@ -13,8 +14,8 @@ export const mockRoomState: RoomState = {
   },
 
   prompt: {
-    text: "A very confused octopus",
-    round: 1,
+    text: "Igloo",
+    // round: 1,
   },
 
   participants: [

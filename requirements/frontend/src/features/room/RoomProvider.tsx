@@ -10,7 +10,7 @@ interface RoomProviderProps {
 }
 
 export function RoomProvider({ roomId, children }: RoomProviderProps) {
-  const [room, setRoom] = useState<RoomState>({
+  const [room /*, setRoom*/] = useState<RoomState>({
     ...mockRoomState,
     roomId,
   });

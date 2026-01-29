@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "../layouts/appLayout";
-import App from "./App";
-import { ComponentSandbox } from "../pages/componentSandbox.tsx";
+// import App from "./App";
+// import { ComponentSandbox } from "../pages/componentSandbox.tsx";
 import HomePage from "../pages/homePage.tsx";
 import Terms from "../pages/static/terms";
 import LoginPage from "../features/auth/loginPage.tsx";
