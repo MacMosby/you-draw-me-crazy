@@ -6,7 +6,7 @@ export const mockRoomState: RoomState = {
   roomId: "mock-room",
 
   phase: "drawing",
-  // round: 1,
+  round: 1,
 
   timer: {
     startedAt: Date.now(),
@@ -15,7 +15,7 @@ export const mockRoomState: RoomState = {
 
   prompt: {
     text: "Igloo",
-    // round: 1,
+    round: 1,
   },
 
   participants: [
@@ -37,7 +37,7 @@ export const mockRoomState: RoomState = {
 
   me: {
     id: "1",
-    name: "Alice",
+    name: "Natalia",
     role: "drawer",
     status: "connected",
     score: 10,

@@ -12,7 +12,7 @@ export interface RoomTimer {
 
 export interface Prompt {
   text: string;
-  // round: number;
+  round: number;
 }
 
 export interface Participant {
@@ -20,8 +20,8 @@ export interface Participant {
   name: string;
   avatarUrl?: string;
 
-  role: "drawer" | "guesser" | "spectator";
-  status: "connected" | "disconnected";
+  role: "drawer" | "guesser" /*| "spectator"*/;
+  status: "connected" | "disconnected"; // guessed correctly 
 
   score: number;
 }
@@ -30,7 +30,7 @@ export interface RoomState {
   roomId: string;
 
   phase: RoomPhase;
-  // round: number;
+  round: number;
 
   timer: RoomTimer | null;
   prompt: Prompt | null;
