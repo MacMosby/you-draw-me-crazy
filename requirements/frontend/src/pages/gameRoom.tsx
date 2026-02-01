@@ -1,17 +1,30 @@
-import { useAuth } from "../features/auth/AuthContext";
+import { useParams } from "react-router-dom";
+import { RoomProvider } from "../features/room/roomProvider";
+import { RoomLayout } from "../layouts/roomLayout";
+import DrawingBoard from "../components/room/drawingBoard";
+import PromptBox from "../components/room/promptBox";
 
 export default function GamePage() {
-  const { auth } = useAuth();
+  const { roomId } = useParams<{ roomId: string }>();
+
+  if (!roomId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-600">Room ID is required</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6">
-      <h1 className="text-4xl font-bold">
-        Hi{auth ? `, ${auth.user.email}` : ""} 👋
-      </h1>
-
-      <p className="text-gray-600">
-        Game room in progress, come back in one week
-      </p>
-    </div>
+    <RoomProvider roomId={roomId}>
+      <RoomLayout>
+        {/* Prompt overlaid on top */}
+        <div className="absolute top-8 left-8 z-10 max-w-sm">
+          <PromptBox />
+        </div>
+        
+        <DrawingBoard />
+      </RoomLayout>
+    </RoomProvider>
   );
 }
