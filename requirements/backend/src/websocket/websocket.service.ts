@@ -29,7 +29,7 @@ export class ConnectionRegistry {
 	return Array.from(this.connections.get(userId) ?? []);
   }
 
-  getSAllSockets(): Socket[] {
+  getAllSockets(): Socket[] {
 	return Array.from(this.connections.values()).flatMap(set => [...set]);
   }
 }
