@@ -17,13 +17,18 @@ import { AuthModule } from './auth/auth.module';
 import { UsersController } from './users/users.controller';
 import { DatabaseModule } from './database/database.module';
 import { WebsocketModule } from './websocket/websocket.module';
+import { GameController } from './game_tmp/game_tmp.controller';
+import { GameModule } from './game_tmp/game_tmp.module';
+import { TmpModule } from './tmp/tp.module';
 
 @Module
 ({
   imports: [AuthModule,
 	UsersModule,
 	DatabaseModule,
-	WebsocketModule],
+	WebsocketModule,
+	GameModule,
+	TmpModule],
     //ConfigModule,//would need to be installe seperately
     //DatabaseModule,
     //AuthModule,
