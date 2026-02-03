@@ -1,0 +1,35 @@
+import { Injectable } from "@nestjs/common";
+import { Socket } from "socket.io";
+
+@Injectable()
+export class ConnectionRegistry {
+	/*
+   * userId -> Set of sockets
+   * One user may have multiple connections (tabs, refresh, phone, etc.)
+   */
+  private connections = new Map<number, Set<Socket>>();
+
+  addConnection(userId: number, socket: Socket) {
+	if (!this.connections.has(userId)) {
+		this.connections.set(userId, new Set());
+	}
+	this.connections.get(userId)!.add(socket);
+  }
+
+  removeConnection(userId: number, socket: Socket) {
+	const set = this.connections.get(userId);
+	if (!set) return;
+	set.delete(socket);
+	if (set.size === 0) {
+		this.connections.delete(userId);
+	}
+  }
+
+  getSocketsByUserId(userId: number): Socket[] {
+	return Array.from(this.connections.get(userId) ?? []);
+  }
+
+  getSAllSockets(): Socket[] {
+	return Array.from(this.connections.values()).flatMap(set => [...set]);
+  }
+}
