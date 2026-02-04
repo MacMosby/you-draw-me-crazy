@@ -1,12 +1,16 @@
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 import { RoomProvider } from "../features/room/roomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
+import { socket } from "../api/socket";
 
 export default function GamePage() {
   const { roomId } = useParams<{ roomId: string }>();
 
+
+  // maybe this check after attemoting connection??? no idea
   if (!roomId) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -14,6 +18,43 @@ export default function GamePage() {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (!roomId) return;
+
+    // connect once when entering the room page
+    socket.connect();
+
+    // join room after connection is established
+
+	// do i need to check smth else?? tbd
+    const onConnect = () => {
+      socket.emit("room:join", { roomId });
+      console.log("[ws] connected:", socket.id, "joined:", roomId); //delete
+    };
+
+    const onDisconnect = () => {
+      console.log("[ws] disconnected"); //delete
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    // debug any server ack/eventm
+    socket.on("room:joined", (payload) => {
+      console.log("[ws] room:joined", payload);  //delete the whole function 
+    });
+
+    return () => {
+      // leave listeners clean
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("room:joined");
+
+      // disconnect when leaving room page ????
+      socket.disconnect();
+    };
+  }, [roomId]);
 
   return (
     <RoomProvider roomId={roomId}>
