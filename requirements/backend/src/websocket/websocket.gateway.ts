@@ -11,15 +11,21 @@ import { ConnectionRegistry } from './websocket.service';
 
 @WebSocketGateway()
 export class WebsocketGateway {
-	constructor(
-		private readonly registry: ConnectionRegistry,
-	) {}
-	afterInit() {
-		console.log('WebSocket Gateway initialized');
-	}
-	//follwing two are automatically claled by NestJS
+	constructor( private readonly registry: ConnectionRegistry) {}
+	afterInit() { console.log('WebSocket Gateway initialized') }
+
+	//Lifecycle hooks
 	handleConnection(client: Socket) {
 		console.log('Client conencted: ', client.id);
+		client.emit('pleaseIdentify');
+		//after timeout (in ms) is up, check if condition is met)
+		const timer = setTimeout(() => {
+			if (!client.data.userId) {
+				console.log('Identify timeout missed by client with id: ', client.id)
+				client.disconnect(true);
+			}
+		}, 5000);
+		client.data.identifyTimer = timer;
 	}
 
 	handleDisconnect(client: Socket) {
@@ -29,9 +35,22 @@ export class WebsocketGateway {
 		console.log(`Client ${client.id} with user id ${client.data.userId} disconnected`);
 	}
 
+	//events from here on downwards
+	@SubscribeMessage('identify')
+	handleIdentify(
+		@MessageBody() data: { userId: number },
+		@ConnectedSocket() socket: Socket,
+	) {
+		socket.data.userId = data.userId;
+		clearTimeout(socket.data.identifyTimer);
+		this.registry.addConnection(data.userId, socket);
+		console.log(`Socket ${socket.id} identified as user ${data.userId}`);
+		socket.emit('identified');
+	}
+	
 	@SubscribeMessage('whoAmI')
-	handlePing(
-		@MessageBody() data: any,
+	handleWhoAmI(
+		@MessageBody() data: any,//call with empty data {}
 		@ConnectedSocket() client: Socket,
 	) {
 		console.log('Received whoAmI from', client.data.userId, 'with data: ', data);
@@ -40,14 +59,4 @@ export class WebsocketGateway {
 		});
 	}
 
-	@SubscribeMessage('identify')
-	handleIdentify(
-		@MessageBody() data: { userId: number },
-		@ConnectedSocket() socket: Socket,
-	) {
-		socket.data.userId = data.userId;
-		this.registry.addConnection(data.userId, socket);
-		console.log(`Socket ${socket.id} identified as user ${data.userId}`);
-		socket.emit('identified');
-	}
 }
