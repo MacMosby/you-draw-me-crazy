@@ -46,6 +46,7 @@ export class WebsocketGateway {
 		this.registry.addConnection(data.userId, socket);
 		console.log(`Socket ${socket.id} identified as user ${data.userId}`);
 		socket.emit('identified');
+		this.registry.printRegistry();
 	}
 	
 	@SubscribeMessage('whoAmI')

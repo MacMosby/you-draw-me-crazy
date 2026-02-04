@@ -26,10 +26,20 @@ export class ConnectionRegistry {
   }
 
   getSocketsByUserId(userId: number): Socket[] {
+	console.log(`get sockets by user id: ${userId}`);
 	return Array.from(this.connections.get(userId) ?? []);
   }
 
   getAllSockets(): Socket[] {
 	return Array.from(this.connections.values()).flatMap(set => [...set]);
+  }
+
+  // --- debug method ---
+  printRegistry() {
+    console.log('--- Current ConnectionRegistry ---');
+    for (const [userId, set] of this.connections.entries()) {
+      console.log(`User ${userId} → ${set.size} socket(s):`, [...set].map(s => s.id));
+    }
+    console.log('---------------------------------');
   }
 }

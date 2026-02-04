@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param } from '@nestjs/common';
+import { Controller, Post, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { ConnectionRegistry } from '../websocket/websocket.service';
 //copy paste for testing
 
@@ -24,8 +24,9 @@ export class TmpController {
   @Post('singlecast/:id')
   handleSinglecast(
 	@Body('message') message: string,
-	@Param('id') receiver: number,
+	@Param('id', ParseIntPipe) receiver: number,
   ) {
+	this.registry.printRegistry();
 	const sockets = this.registry.getSocketsByUserId(receiver);
 	sockets.forEach(socket => {
 		console.log('singlecast to ', socket.data.userId);
