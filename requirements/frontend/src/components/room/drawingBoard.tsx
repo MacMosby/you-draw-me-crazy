@@ -1,7 +1,28 @@
 import { Button } from "../button";
 import { Input } from "../input";
+import { useState } from "react";
+import { socket } from "../../api/socket";
 
-export default function DrawingBoard() {
+
+type Props = {
+  roomId: string;
+};
+
+
+export default function DrawingBoard({ roomId }: Props) {
+	const [text, setText] = useState("");
+
+	function send() {
+		const trimmed = text.trim();
+		if (!trimmed) return;
+
+		// input-only goal: just emit, no chat rendering yet
+		socket.emit("chat:send", { roomId, text: trimmed });
+		console.log("[ws] chat:send", { roomId, text: trimmed });
+
+		setText("");
+	}
+
   return (
     <div className="bg-surface rounded-lg p-4 flex flex-col h-full border border-gray-200">
       {/* Canvas area */}
@@ -24,8 +45,15 @@ export default function DrawingBoard() {
           <Input
             placeholder="Type your guess..."
             className="flex-1"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") send();
+            }}
           />
-          <Button variant="primary">Send</Button>
+          <Button variant="primary" onClick={send}>
+            Send
+          </Button>
         </div>
       </div>
     </div>
