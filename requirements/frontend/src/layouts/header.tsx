@@ -1,7 +1,3 @@
-/*
-just a random generated place holder!
-to be changed and styled later with custom components
-*/
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import icon from "../assets/icon2.png";
@@ -65,7 +61,7 @@ export default function Header() {
               </Link>
               <Link
                 to="/sign-up"
-                className="rounded-md bg-gray-900 px-3 py-1.5 text-white hover:bg-gray-800 transition-colors"
+                className="rounded-md bg-primary px-3 py-1.5 text-textPrimary hover:bg-primary/80 transition-colors"
               >
                 Sign up
               </Link>
