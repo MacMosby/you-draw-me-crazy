@@ -5,6 +5,7 @@ to be changed and styled later with custom components
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import icon from "../assets/icon2.png";
+import letters from "../assets/letters.png";
 
 export default function Header() {
   const { auth, logout } = useAuth();
@@ -21,9 +22,7 @@ export default function Header() {
         {/* Logo / Brand */}
         <div className="flex items-center gap-2">
           <img src={icon} alt="icon" className="h-5 w-auto" />
-          <span className="text-lg font-semibold text-textPrimary">
-            You Draw Me Crazy
-          </span>
+          <img src={letters} alt="You Draw Me Crazy" className="h-12 w-auto" />
         </div>
 
         {/* Navigation */}
@@ -66,7 +65,7 @@ export default function Header() {
               </Link>
               <Link
                 to="/sign-up"
-                className="rounded-md bg-primary px-3 py-1.5 text-textPrimary hover:bg-primary/80 transition-colors"
+                className="rounded-md bg-gray-900 px-3 py-1.5 text-white hover:bg-gray-800 transition-colors"
               >
                 Sign up
               </Link>

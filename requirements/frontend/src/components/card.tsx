@@ -9,7 +9,7 @@ export function Card({ children, className, ...props }: CardProps) {
         w-full
         max-w-lg
         bg-surface
-        p-12
+        p-6
         rounded-xl
         border border-gray-200
         ${className || ""}

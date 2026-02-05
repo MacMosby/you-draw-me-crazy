@@ -6,7 +6,7 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 bg-background">
+    <div className="flex items-center justify-center px-6 py-4 bg-background">
       {children}
     </div>
   );
