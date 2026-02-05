@@ -80,11 +80,11 @@ export default function SignUpForm() {
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-background p-8">
         <div className="max-w-sm mx-auto space-y-6">
-          <h1 className="text-xl font-semibold text-gray-900">Sign up</h1>
+          <h1 className="text-xl font-semibold text-textPrimary">Sign up</h1>
 
-          <label className="text-sm font-medium">Email</label>
+          <label className="text-sm font-medium text-textPrimary">Email</label>
           <Input
             error={emailError}
             value={email}
@@ -96,7 +96,7 @@ export default function SignUpForm() {
             onBlur={() => setEmailError(validateEmail(email))}
           />
 
-          <label className="text-sm font-medium">Username</label>
+          <label className="text-sm font-medium text-textPrimary">Username</label>
           <Input
             error={usernameError}
             value={username}
@@ -108,7 +108,7 @@ export default function SignUpForm() {
             onBlur={() => setUsernameError(validateUsername(username))}
           />
 
-          <label className="text-sm font-medium">Password</label>
+          <label className="text-sm font-medium text-textPrimary">Password</label>
           <Input
             error={passwordError}
             type="password"
@@ -121,9 +121,9 @@ export default function SignUpForm() {
             onBlur={() => setPasswordError(validatePassword(password))}
           />
 
-          {formError && <p className="text-sm text-red-600">{formError}</p>}
+          {formError && <p className="text-sm text-error">{formError}</p>}
           {successMsg && (
-            <p className="text-sm text-green-700">{successMsg}</p>
+            <p className="text-sm text-green-400">{successMsg}</p>
           )}
 
           <Button disabled={!canSubmit || isSubmitting} type="submit">

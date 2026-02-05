@@ -18,10 +18,10 @@ export default function HomePage() {
       <Card>
         <div className="flex flex-col items-center gap-8">
           <div className="text-center">
-            <h1 className="text-2xl font-semibold mb-2">
+            <h1 className="text-2xl font-semibold mb-2 text-textPrimary">
               Welcome{auth ? `, ${auth.user.email}` : ""}
             </h1>
-            <p className="text-sm text-gray-600">You are all set</p>
+            <p className="text-sm text-textMuted">You are all set</p>
           </div>
 
           <div className="flex flex-col gap-4 w-full">

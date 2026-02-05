@@ -8,6 +8,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Comfortaa', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+        clock: ['Space Mono', 'monospace'],
       },
       colors: {
         primary: "#5B6CFF",

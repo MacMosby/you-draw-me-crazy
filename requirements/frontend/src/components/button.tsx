@@ -23,10 +23,10 @@ const variants = {
     "focus:outline-none focus:ring-2 focus:ring-green-400",
 
   secondary:
-  "bg-white text-gray-700 border border-gray-300 " +
-  "hover:bg-gray-50 hover:border-gray-400 " +
+  "bg-surface text-textPrimary border border-surface " +
+  "hover:bg-primary/10 hover:border-primary " +
   "transition-colors " +
-  "focus:outline-none focus:ring-2 focus:ring-gray-300",
+  "focus:outline-none focus:ring-2 focus:ring-primary",
 };
 
 const disabledStyles =

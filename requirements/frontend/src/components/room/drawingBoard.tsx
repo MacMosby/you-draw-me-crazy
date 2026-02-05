@@ -3,9 +3,9 @@ import { Input } from "../input";
 
 export default function DrawingBoard() {
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 flex flex-col h-full">
+    <div className="bg-surface rounded-lg p-4 flex flex-col h-full border border-gray-200">
       {/* Canvas area */}
-      <div className="relative bg-white border-2 border-gray-300 rounded flex-1 min-h-0">
+      <div className="relative bg-surface border border-surface rounded flex-1 min-h-0">
         <canvas
           className="w-full h-full rounded cursor-crosshair"
           width={1600}
