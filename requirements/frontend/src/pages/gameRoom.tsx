@@ -1,5 +1,8 @@
 import { useParams } from "react-router-dom";
+<<<<<<< HEAD
 import { useEffect } from "react";
+=======
+>>>>>>> fix: import RoomProvider case sensitivity
 import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
