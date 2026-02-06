@@ -16,10 +16,13 @@ export default function DrawingBoard({ roomId }: Props) {
 		const trimmed = text.trim();
 		if (!trimmed) return;
 
-		// input-only goal: just emit, no chat rendering yet
-		socket.emit("chat:send", { roomId, text: trimmed });
-		console.log("[ws] chat:send", { roomId, text: trimmed });
+		// input-only: just emit, no chat rendering yet
+		// socket.emit("chat:send", { roomId, text: trimmed });
+		// console.log("[ws] chat:send", { roomId, text: trimmed });
 
+
+		// Input-only test: server logs it and replies with "youAre"
+    socket.emit("whoAmI", { text: trimmed });
 		setText("");
 	}
 
