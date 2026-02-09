@@ -1,16 +1,19 @@
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
+import WaitingRoom from "../components/room/waitingRoom";
 import { socket } from "../api/socket";
 import { initSocketWithIdentify } from "../api/socket";
 
 
 export default function GamePage() {
   const { roomId } = useParams<{ roomId: string }>();
-
+  
+  // Toggle this to show/hide waiting room (later connect to real room state)
+  const [isWaitingRoom, setIsWaitingRoom] = useState(true);
 
 
 
@@ -78,7 +81,15 @@ export default function GamePage() {
           <PromptBox />
         </div>
         
-        <DrawingBoard />
+        <DrawingBoard roomId={roomId} />
+        
+        {/* Waiting room overlay - conditionally shown */}
+        {isWaitingRoom && (
+          <WaitingRoom 
+            title="Room Full"
+            message="Room nr. 2 under construction. Please wait for a spot in room nr. 1 to become available."
+          />
+        )}
       </RoomLayout>
     </RoomProvider>
   );

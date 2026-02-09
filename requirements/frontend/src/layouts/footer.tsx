@@ -1,14 +1,6 @@
-/*
-
-just a random generated place holder! 
-
-to be changed and styled later with custom components 
-
-*/
-
 export default function Footer() {
   return (
-    <footer className="border-t border-gray-200 bg-background">
+    <footer className="border-t border-gray-200 bg-background relative z-[100]">
       <div className="mx-auto max-w-7xl px-6 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* Left */}
         <p className="text-sm text-textMuted">

@@ -13,7 +13,7 @@ export default function Header() {
   }
 
   return (
-    <header className="border-b border-gray-200 bg-surface">
+    <header className="border-b border-gray-200 bg-surface relative z-[100]">
       <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
         {/* Logo / Brand */}
         <div className="flex items-center gap-2">
