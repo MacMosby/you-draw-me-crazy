@@ -13,14 +13,14 @@ export default function GamePage() {
   const { roomId } = useParams<{ roomId: string }>();
   
   // Toggle this to show/hide waiting room (later connect to real room state)
-  const [isWaitingRoom, setIsWaitingRoom] = useState(true);
+  const [isWaitingRoom] = useState(true);
 
 
 
   // IMPORTANT: replace with real user id
   const userId = 42;
 
-    // maybe this check after attemoting connection??? no idea
+    // maybe this check after attempting connection??? no idea
   if (!roomId) {
     return (
       <div className="min-h-screen flex items-center justify-center">
