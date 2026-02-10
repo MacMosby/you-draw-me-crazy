@@ -4,7 +4,7 @@ import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
-import WaitingRoom from "../components/room/waitingRoom";
+import Lobby from "../components/room/lobby";
 import { socket } from "../api/socket";
 import { initSocketWithIdentify } from "../api/socket";
 
@@ -12,8 +12,8 @@ import { initSocketWithIdentify } from "../api/socket";
 export default function GamePage() {
   const { roomId } = useParams<{ roomId: string }>();
   
-  // Toggle this to show/hide waiting room (later connect to real room state)
-  const [isWaitingRoom] = useState(true);
+  // Toggle this to show/hide lobby (later connect to real room state)
+  const [isLobby] = useState(true);
 
 
   // IMPORTANT: replace with real user id
@@ -82,9 +82,9 @@ export default function GamePage() {
         
         <DrawingBoard roomId={roomId} />
         
-        {/* Waiting room overlay - conditionally shown */}
-        {isWaitingRoom && (
-          <WaitingRoom 
+        {/* Lobby overlay - conditionally shown */}
+        {isLobby && (
+          <Lobby 
             title="Room Full"
             message="Room nr. 2 under construction. Please wait for a spot in room nr. 1 to become available."
           />
