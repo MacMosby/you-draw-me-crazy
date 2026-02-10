@@ -68,7 +68,7 @@ export default function SignUpForm() {
         setLoggedIn({
           email: email.trim(),
         });
-        navigate("/game");
+        navigate("/play");
       }, 3000);
     } catch (err) {
       const msg =

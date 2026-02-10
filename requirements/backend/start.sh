@@ -2,7 +2,16 @@
 set -e
 
 echo "migration deploy"
-npx prisma migrate deploy
+set +e
+attempt=1
+max_attempts=10
+while [ "$attempt" -le "$max_attempts" ]; do
+	npx prisma migrate deploy && break
+	echo "database not ready, retrying ($attempt/$max_attempts)..."
+	attempt=$((attempt + 1))
+	sleep 2
+done
+set -e
 
 npx prisma generate
 

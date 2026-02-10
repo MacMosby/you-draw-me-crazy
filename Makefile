@@ -15,8 +15,12 @@ build:
 	docker compose -f $(DOCKER_COMPOSE_YML) build
 
 up:
-	@echo "$(GREEN)Starting containres in detached mode...$(RESET)"
+	@echo "$(GREEN)Starting containers in detached mode...$(RESET)"
 	docker compose -f $(DOCKER_COMPOSE_YML) up -d
+
+school: schoolclean build
+	@echo "$(GREEN)Starting containers without detached mode...$(RESET)"
+	docker compose -f $(DOCKER_COMPOSE_YML) up
 
 clean:
 	@echo "$(GREEN)Stopping all running containers...$(RESET)"
@@ -28,6 +32,9 @@ fclean: clean
 	@echo "$(GREEN)Removing all images$(RESET)"
 	docker compose down --rmi all --volumes --remove-orphans
 	@echo "$(GREEN)Full cleanup done.$(RESET)"
+
+schoolclean: clean fclean
+	docker system prune -af
 
 home: buildhome uphome
 
