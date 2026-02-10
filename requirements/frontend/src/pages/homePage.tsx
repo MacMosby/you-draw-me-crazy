@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
+import PageOrnaments from "../components/pageOrnaments";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -14,26 +15,28 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex items-center justify-center px-6 py-16">
-      <Card>
-        <div className="flex flex-col items-center gap-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold mb-2 text-textPrimary">
-              Welcome{auth ? `, ${auth.user.email}` : ""}
-            </h1>
-            <p className="text-sm text-textMuted">You are all set</p>
-          </div>
+    <PageOrnaments>
+      <div className="flex items-center justify-center px-6 py-16">
+        <Card>
+          <div className="flex flex-col items-center gap-8">
+            <div className="text-center">
+              <h1 className="text-2xl font-semibold mb-2 text-textPrimary">
+                Welcome{auth ? `, ${auth.user.email}` : ""}
+              </h1>
+              <p className="text-sm text-textMuted">You are all set</p>
+            </div>
 
-          <div className="flex flex-col gap-4 w-full">
-            <Button
-              onClick={handleStartGame}
-              variant="primary"
-            >
-              Play!
-            </Button>
+            <div className="flex flex-col gap-4 w-full">
+              <Button
+                onClick={handleStartGame}
+                variant="primary"
+              >
+                Play!
+              </Button>
+            </div>
           </div>
-        </div>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </PageOrnaments>
   );
 }
