@@ -16,7 +16,6 @@ export default function GamePage() {
   const [isWaitingRoom] = useState(true);
 
 
-
   // IMPORTANT: replace with real user id
   const userId = 42;
 
