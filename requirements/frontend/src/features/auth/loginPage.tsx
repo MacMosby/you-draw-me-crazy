@@ -48,7 +48,7 @@ const { setLoggedIn } = useAuth();
     try {
       const result = await login({ email, password });
       console.log("SERVER RESPONSE:", result); //delete
-      // step 3 later: save auth + navigate("/game")
+      // step 3 later: save auth + navigate("/play")
 	  setLoggedIn({ email: email.trim() });
 	  
   		navigate("/play");

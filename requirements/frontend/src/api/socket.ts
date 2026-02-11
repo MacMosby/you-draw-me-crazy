@@ -11,7 +11,7 @@ export const socket: Socket = io(WS_URL, {
 let listenersBound = false;
 
 
-export function initSocketWithIdentify(userId: number) {
+export function initSocketWithIdentify(userId: number | string) {
   if (!listenersBound) {
     listenersBound = true;
 

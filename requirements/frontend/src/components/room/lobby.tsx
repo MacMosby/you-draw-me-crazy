@@ -3,13 +3,15 @@ import clockImage from "../../assets/clock.png";
 interface LobbyProps {
   title: string;
   message: string;
+  // players?: Player[];
   icon?: string;
   actions?: React.ReactNode;
 }
 
 export default function Lobby({ 
   title, 
-  message, 
+  message,
+  // players,
   icon = clockImage,
   actions 
 }: LobbyProps) {

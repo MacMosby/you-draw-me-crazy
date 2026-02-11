@@ -1,6 +1,7 @@
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { RoomProvider } from "../features/room/RoomProvider";
+import { useAuth } from "../features/auth/AuthContext";
+// import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
@@ -8,33 +9,62 @@ import Lobby from "../components/room/lobby";
 import { socket } from "../api/socket";
 import { initSocketWithIdentify } from "../api/socket";
 
+type RoomState = 
+  | 'connecting'      // Initial connection
+  | 'waiting'         // In room, waiting for other players
+  | 'full'            // Room is full, can't join
+  | 'playing'         // Game in progress
+  | 'error'           // Error (with editable error message)
+  | 'finished';       // Game ended
 
+interface Player {
+	Nickname: String
+	User_ID: Number
+	Score:  Number
+}
+
+// changed everything to just one room (MVP)
 export default function GamePage() {
-  const { roomId } = useParams<{ roomId: string }>();
+  const { auth } = useAuth();
+  const [roomState, setRoomState] = useState<RoomState>('connecting');
+  // const [players, setPlayers] = useState<Player[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  // const { roomId } = useParams<{ roomId: string }>(); // only one room
   
   // Toggle this to show/hide lobby (later connect to real room state)
-  const [isLobby] = useState(true);
+  // Local boolean for now. Will later be integrated with actual room states
+  // const [isLobby] = useState(false);
 
 
   // IMPORTANT: replace with real user id
-  const userId = 42;
-
-    // maybe this check after attempting connection??? no idea
-  if (!roomId) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-600">Room ID is required</p>
-      </div>
-    );
-  }
+  // const userId = 42;
 
   useEffect(() => {
-	initSocketWithIdentify(userId);
+    if (!auth?.user?.email) {
+      setRoomState('error');
+      setErrorMessage('You must be logged in');
+      return;
+    }
+
+    // maybe this check after attempting connection??? no idea
+    // if (!roomId) {
+    //   return (
+    //     <div className="min-h-screen flex items-center justify-center">
+    //       <p className="text-red-600">Room ID is required</p>
+    //     </div>
+    //   );
+    // }
+
+  // useEffect(() => {
+	initSocketWithIdentify(auth.user.email);
+
+  // set up event listeners here
+
 	return () => {
 		 // disconnect when leaving room page
       socket.disconnect();
     };
-  }, [userId, roomId]);
+  }, [auth]);
 
     
 
@@ -72,24 +102,77 @@ export default function GamePage() {
 //     };
 //   }, [roomId]);
 
+
+const renderRoomContent = () => {
+    switch (roomState) {
+      case 'connecting':
+        return (
+          <Lobby 
+            title="Connecting..."
+            message="Connecting to the game room..."
+          />
+        );
+
+      case 'waiting':
+        return (
+          <Lobby 
+            title="Waiting for Players"
+            message="Not enough players in room. Game will start when room is full"
+            // players={players}
+          />
+        );
+
+      case 'full':
+        return (
+          <Lobby 
+            title="Room Full"
+            message={errorMessage || "The room is currently full. Please wait for a spot to become available."}
+          />
+        );
+
+      case 'playing':
+        return (
+          <>
+            {/* Prompt overlaid on top */}
+            <div className="absolute top-8 left-8 z-10 max-w-sm">
+              <PromptBox />
+            </div>
+            <DrawingBoard />
+          </>
+        );
+
+      case 'finished':
+        return (
+          <Lobby 
+            title="Game Finished!"
+            message="Thanks for playing! The next round will start soon."
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
-    <RoomProvider roomId={roomId}>
+    // <RoomProvider>
       <RoomLayout>
         {/* Prompt overlaid on top */}
-        <div className="absolute top-8 left-8 z-10 max-w-sm">
+        {/* <div className="absolute top-8 left-8 z-10 max-w-sm">
           <PromptBox />
         </div>
         
-        <DrawingBoard roomId={roomId} />
+        <DrawingBoard/> */}
         
         {/* Lobby overlay - conditionally shown */}
-        {isLobby && (
+        {/* {isLobby && (
           <Lobby 
             title="Room Full"
             message="Room nr. 2 under construction. Please wait for a spot in room nr. 1 to become available."
           />
-        )}
+        )} */}
+        {renderRoomContent()}
       </RoomLayout>
-    </RoomProvider>
+    // </RoomProvider>
   );
 }

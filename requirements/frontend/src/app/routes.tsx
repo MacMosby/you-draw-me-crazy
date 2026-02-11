@@ -26,7 +26,7 @@ export const router = createBrowserRouter(
 					element: <Privacy />,
 				},
 				{
-					path: "/room/:roomId",
+					path: "/room",
 					element: <Game />,
 				},
 				{

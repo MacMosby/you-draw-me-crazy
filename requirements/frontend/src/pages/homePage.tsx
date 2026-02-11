@@ -8,10 +8,17 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { auth } = useAuth();
 
-  const handleStartGame = () => {
-    // Auto-generate a mock room ID
-    const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-    navigate(`/room/${roomId}`);
+// For now: auto-generate a mock room ID
+// const handleStartGame = () => {
+//     const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+//     navigate(`/room/${roomId}`);
+//   };
+
+// Commented out: handler that communicates with backend
+
+  const handlePlay = () => {
+    // Very simple for MVP. We just navigate to the single room we have
+    navigate("/room");
   };
 
   return (
@@ -28,7 +35,7 @@ export default function HomePage() {
 
             <div className="flex flex-col gap-4 w-full">
               <Button
-                onClick={handleStartGame}
+                onClick={handlePlay}
                 variant="primary"
               >
                 Play!

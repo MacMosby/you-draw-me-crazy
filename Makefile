@@ -34,7 +34,7 @@ fclean: clean
 	@echo "$(GREEN)Full cleanup done.$(RESET)"
 
 schoolclean: clean fclean
-	docker system prune -af
+	docker system prune -af --volumes
 
 home: buildhome uphome
 
@@ -44,7 +44,7 @@ buildhome:
 	docker-compose -f $(DOCKER_COMPOSE_YML) build
 
 uphome:
-	@echo "$(GREEN)Starting containres in detached mode...$(RESET)"
+	@echo "$(GREEN)Starting containers in detached mode...$(RESET)"
 	docker-compose -f $(DOCKER_COMPOSE_YML) up -d
 
 cleanhome:
@@ -63,4 +63,4 @@ rehome: fcleanhome home
 
 re: fclean all
 
-.PHONY: all build up clean fclean re buildhome build uphome cleanhome fcleanhome rehome
+.PHONY: all build up clean fclean schoolclean school re buildhome build uphome cleanhome fcleanhome rehome

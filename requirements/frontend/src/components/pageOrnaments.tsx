@@ -7,6 +7,7 @@ type PageOrnamentsProps = React.HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
 };
 
+// TODO avoid that images appear behind card
 export default function PageOrnaments({
   children,
   className,
@@ -31,14 +32,14 @@ export default function PageOrnaments({
         alt=""
         aria-hidden="true"
         className="pointer-events-none absolute w-28 opacity-90 sm:w-36 md:w-44"
-        style={{ right: sideOffset, top: "70%", transform: "translateY(-50%)" }}
+        style={{ right: `calc(${sideOffset} - 40px)`, top: "70%", transform: "translateY(-50%)" }}
       />
       <img
         src={bee}
         alt=""
         aria-hidden="true"
         className="pointer-events-none absolute w-16 opacity-90 sm:w-20 md:w-24"
-        style={{ right: sideOffset, top: "20%", transform: "translateY(-50%)" }}
+        style={{ right: `calc(${sideOffset} - 120px)`, top: "20%", transform: "translateY(-50%)" }}
       />
       <div className="relative z-10">{children}</div>
     </div>
