@@ -9,7 +9,6 @@ import {
   validateUsername,
 } from "./inputValidators";
 import { useAuth } from "../auth/AuthContext";
-import PageOrnaments from "../../components/pageOrnaments";
 
 export default function SignUpForm() {
   const navigate = useNavigate();
@@ -81,7 +80,6 @@ export default function SignUpForm() {
 
   return (
     <form onSubmit={onSubmit}>
-      <PageOrnaments>
         <div className="min-h-screen p-8">
           <div className="max-w-sm mx-auto space-y-6">
             <h1 className="text-xl font-semibold text-textPrimary">Sign up</h1>
@@ -133,7 +131,6 @@ export default function SignUpForm() {
           </Button>
           </div>
         </div>
-      </PageOrnaments>
     </form>
   );
 }

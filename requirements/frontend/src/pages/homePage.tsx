@@ -2,19 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
-import PageOrnaments from "../components/pageOrnaments";
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { auth } = useAuth();
-
-// For now: auto-generate a mock room ID
-// const handleStartGame = () => {
-//     const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-//     navigate(`/room/${roomId}`);
-//   };
-
-// Commented out: handler that communicates with backend
 
   const handlePlay = () => {
     // Very simple for MVP. We just navigate to the single room we have
@@ -22,7 +13,6 @@ export default function HomePage() {
   };
 
   return (
-    <PageOrnaments>
       <div className="flex items-center justify-center px-6 py-16">
         <Card>
           <div className="flex flex-col items-center gap-8">
@@ -44,6 +34,5 @@ export default function HomePage() {
           </div>
         </Card>
       </div>
-    </PageOrnaments>
   );
 }

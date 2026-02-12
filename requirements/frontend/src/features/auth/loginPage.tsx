@@ -5,7 +5,6 @@ import { Button } from "../../components/button";
 import { validateEmail, validatePassword } from "./inputValidators";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import PageOrnaments from "../../components/pageOrnaments";
 /*
 
 Valid email: has min 1 alfanumericl char, then @, then min 1 alfanumericl char then . then min 1 alfanumericl char
@@ -65,7 +64,6 @@ const { setLoggedIn } = useAuth();
 
   return (
     <form onSubmit={onSubmit}>
-      <PageOrnaments>
         <div className="min-h-screen p-8">
         <div className="max-w-sm mx-auto space-y-6">
           <label className="text-sm font-medium text-textPrimary">Email</label>
@@ -105,7 +103,6 @@ const { setLoggedIn } = useAuth();
 			)}
         </div>
         </div>
-      </PageOrnaments>
 
     </form>
   );

@@ -4,12 +4,12 @@ import { useState } from "react";
 import { socket } from "../../api/socket";
 
 
-type Props = {
-  roomId: string;
-};
+// type Props = {
+//   roomId: string;
+// };
 
 
-export default function DrawingBoard({ roomId }: Props) {
+export default function DrawingBoard() {
 	const [text, setText] = useState("");
 
 	function send() {

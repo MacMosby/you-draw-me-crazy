@@ -1,3 +1,5 @@
+// these are temporary! should come from the backend in a next step
+
 export type RoomPhase =
   | "waiting"
   | "starting"
@@ -20,7 +22,7 @@ export interface Participant {
   name: string;
   avatarUrl?: string;
 
-  role: "drawer" | "guesser" /*| "spectator"*/;
+  role: "drawer" | "guesser";
   status: "connected" | "disconnected"; // guessed correctly 
 
   score: number;
