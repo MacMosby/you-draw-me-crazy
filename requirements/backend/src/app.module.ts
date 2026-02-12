@@ -31,7 +31,7 @@ import { TmpModule } from './tmp/tp.module';
     //AuthModule,
    //  UsersModule,
     //GameModule,
-  controllers: [AuthController]
+  controllers: [AuthController, UsersController]
 
 })
 export class AppModule {}

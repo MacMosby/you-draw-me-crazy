@@ -9,7 +9,7 @@ type Props = {
 };
 
 
-export default function DrawingBoard() {
+export default function DrawingBoard({ roomId }: Props) {
 	const [text, setText] = useState("");
 
 	function send() {
