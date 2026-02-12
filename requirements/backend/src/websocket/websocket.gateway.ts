@@ -60,4 +60,48 @@ export class WebsocketGateway {
 		});
 	}
 
+
+
+	//start of the mock data
+	//replace with real handlers
+
+	@SubscribeMessage('play')
+	handlePlay(
+	@MessageBody() data: { userId: number },
+	@ConnectedSocket() client: Socket,
+	) {
+	console.log('Received play from', data?.userId, 'socket userId:', client.data.userId);
+
+	// (optional) basic guard: make sure identify happened
+	if (!client.data.userId) {
+		// Socket.IO ACK: return an error to the client callback
+		return { ok: false, message: 'Not identified yet' };
+	}
+
+	// 1) Immediately send "room_state" (waiting state)
+	client.emit('room_state', {
+		members: [
+		{ Nickname: 'Nata', User_ID: client.data.userId, Score: 0 },
+		{ Nickname: 'Bot', User_ID: 999, Score: 0 },
+		],
+		round: -1,
+		turn: -1,
+	});
+
+	// 2) After 2 seconds send "start_game"
+	setTimeout(() => {
+		client.emit('start_game', {
+		members: [
+			{ Nickname: 'Nata', User_ID: client.data.userId, Score: 0 },
+			{ Nickname: 'Bot', User_ID: 999, Score: 0 },
+		],
+		round: 1,
+		turn: 1,
+		});
+	}, 2000);
+
+	// ACK success (this is the "ack" object your FE callback receives)
+	return { ok: true, message: 'Mocked play accepted' };
+	}
+
 }
