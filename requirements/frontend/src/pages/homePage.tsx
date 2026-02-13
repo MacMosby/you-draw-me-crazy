@@ -7,7 +7,7 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { auth } = useAuth();
 
-  const handlePlay = () => {
+  const join_room = () => {
     // Very simple for MVP. We just navigate to the single room we have
     navigate("/room");
   };
@@ -25,7 +25,7 @@ export default function HomePage() {
 
             <div className="flex flex-col gap-4 w-full">
               <Button
-                onClick={handlePlay}
+                onClick={join_room}
                 variant="primary"
               >
                 Play!

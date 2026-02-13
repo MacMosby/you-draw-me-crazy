@@ -104,7 +104,7 @@ export default function GamePage() {
     {wsState === 'finished' && (
       <Lobby 
         title="Game Finished!"
-        message="Thanks for playing!" // change
+        message="Thanks for playing!" // change to rematch
       />
     )}
 

@@ -66,7 +66,7 @@ export class WebsocketGateway {
 	//replace with real handlers
 
 	@SubscribeMessage('play')
-	handlePlay(
+	join_room(
 	@MessageBody() data: { userId: number },
 	@ConnectedSocket() client: Socket,
 	) {
