@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   app.module.ts                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nboer <nboer@student.42.fr>                +#+  +:+       +#+        */
+/*   By: lieselotdetaeye <lieselotdetaeye@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:17:58 by lde-taey          #+#    #+#             */
-/*   Updated: 2026/01/25 17:22:13 by nboer            ###   ########.fr       */
+/*   Updated: 2026/02/09 11:40:14 by lieselotdet      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ import { TmpModule } from './tmp/tp.module';
     //ConfigModule,//would need to be installe seperately
     //DatabaseModule,
     //AuthModule,
-    //UsersModule,
+   //  UsersModule,
     //GameModule,
   controllers: [AuthController, UsersController]
 

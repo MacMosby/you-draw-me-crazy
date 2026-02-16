@@ -7,33 +7,32 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { auth } = useAuth();
 
-  const handleStartGame = () => {
-    // Auto-generate a mock room ID
-    const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-    navigate(`/room/${roomId}`);
+  const join_room = () => {
+    // Very simple for MVP. We just navigate to the single room we have
+    navigate("/room");
   };
 
   return (
-    <div className="flex items-center justify-center px-6 py-16">
-      <Card>
-        <div className="flex flex-col items-center gap-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold mb-2">
-              Welcome{auth ? `, ${auth.user.email}` : ""}
-            </h1>
-            <p className="text-sm text-gray-600">You are all set</p>
-          </div>
+      <div className="flex items-center justify-center px-6 py-16">
+        <Card>
+          <div className="flex flex-col items-center gap-8">
+            <div className="text-center">
+              <h1 className="text-2xl font-semibold mb-2 text-textPrimary">
+                Welcome{auth ? `, ${auth.user.email}` : ""}
+              </h1>
+              <p className="text-sm text-textMuted">You are all set</p>
+            </div>
 
-          <div className="flex flex-col gap-4 w-full">
-            <Button
-              onClick={handleStartGame}
-              variant="primary"
-            >
-              Play!
-            </Button>
+            <div className="flex flex-col gap-4 w-full">
+              <Button
+                onClick={join_room}
+                variant="primary"
+              >
+                Play!
+              </Button>
+            </div>
           </div>
-        </div>
-      </Card>
-    </div>
+        </Card>
+      </div>
   );
 }

@@ -47,10 +47,10 @@ const { setLoggedIn } = useAuth();
     try {
       const result = await login({ email, password });
       console.log("SERVER RESPONSE:", result); //delete
-      // step 3 later: save auth + navigate("/game")
+      // step 3 later: save auth + navigate("/play")
 	  setLoggedIn({ email: email.trim() });
 	  
-  		navigate("/game");
+  		navigate("/play");
     } catch (err) {
 		console.log(err);
       const message =
@@ -64,9 +64,9 @@ const { setLoggedIn } = useAuth();
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-sm mx-auto space-y-6">
-        <label className="text-sm font-medium">Email</label>
+        <div className="min-h-screen p-8">
+        <div className="max-w-sm mx-auto space-y-6">
+          <label className="text-sm font-medium text-textPrimary">Email</label>
           <Input
 		  	error={emailError}
             type="email"
@@ -80,7 +80,7 @@ const { setLoggedIn } = useAuth();
 				onBlur={() => setEmailError(validateEmail(email))} // show error after leaving field
 			/>
 
-          <label className="text-sm font-medium">Password</label>
+          <label className="text-sm font-medium text-textPrimary">Password</label>
           <Input
             error={passwordError}
             type="password"
@@ -99,10 +99,10 @@ const { setLoggedIn } = useAuth();
             {isSubmitting ? "Logging in..." : "Log in"}
           </Button> 
 		  {formError && (
-			<p className="text-sm text-red-600">{formError}</p>
+			<p className="text-sm text-error">{formError}</p>
 			)}
-      </div>
-      </div>
+        </div>
+        </div>
 
     </form>
   );

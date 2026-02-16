@@ -16,7 +16,7 @@ export class WebsocketGateway {
 
 	//Lifecycle hooks
 	handleConnection(client: Socket) {
-		console.log('Client conencted: ', client.id);
+		console.log('Client connected: ', client.id);
 		client.emit('pleaseIdentify');
 		//after timeout (in ms) is up, check if condition is met)
 		const timer = setTimeout(() => {
@@ -66,7 +66,7 @@ export class WebsocketGateway {
 	//replace with real handlers
 
 	@SubscribeMessage('play')
-	handlePlay(
+	join_room(
 	@MessageBody() data: { userId: number },
 	@ConnectedSocket() client: Socket,
 	) {

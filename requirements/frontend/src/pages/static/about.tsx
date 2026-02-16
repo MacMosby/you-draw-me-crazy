@@ -1,13 +1,13 @@
 export default function About() {
   return (
-    <main className="bg-gray-50 min-h-screen">
+    <main className="bg-background min-h-screen">
       <section className="mx-auto max-w-3xl px-6 py-16">
         {/* Header */}
         <header className="mb-10">
-          <h1 className="text-3xl font-semibold text-gray-900">
+          <h1 className="text-3xl font-semibold text-textPrimary">
             About This Project
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-4 text-lg text-textMuted">
             A student-built web application developed as part of the{" "}
             <strong>ft_transcendence</strong> project at 42.
           </p>
@@ -16,10 +16,10 @@ export default function About() {
         {/* Content */}
         <div className="space-y-10">
           <section>
-            <h2 className="text-xl font-medium text-gray-900 mb-3">
+            <h2 className="text-xl font-medium text-textPrimary mb-3">
               Project Goal
             </h2>
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-textPrimary leading-relaxed">
               The goal of this project is to design and implement a complete web
               application featuring real-time interaction, user management, and
               modern web technologies. The focus lies on building a coherent,
@@ -28,10 +28,10 @@ export default function About() {
           </section>
 
           <section>
-            <h2 className="text-xl font-medium text-gray-900 mb-3">
+            <h2 className="text-xl font-medium text-textPrimary mb-3">
               Key Features
             </h2>
-            <ul className="list-disc pl-5 space-y-2 text-gray-700">
+            <ul className="list-disc pl-5 space-y-2 text-textPrimary">
               <li>User accounts and authentication</li>
               <li>Multiplayer gameplay</li>
               <li>Real-time communication</li>
@@ -40,24 +40,24 @@ export default function About() {
           </section>
 
           <section>
-            <h2 className="text-xl font-medium text-gray-900 mb-3">
+            <h2 className="text-xl font-medium text-textPrimary mb-3">
               Technology Stack
             </h2>
-            <ul className="space-y-2 text-gray-700">
+            <ul className="space-y-2 text-textPrimary">
               <li>
-                <span className="font-medium text-gray-900">Frontend:</span>{" "}
+                <span className="font-medium text-textPrimary">Frontend:</span>{" "}
                 React / Next.js
               </li>
               <li>
-                <span className="font-medium text-gray-900">Backend:</span>{" "}
+                <span className="font-medium text-textPrimary">Backend:</span>{" "}
                 Node.js with a web framework
               </li>
               <li>
-                <span className="font-medium text-gray-900">Database:</span>{" "}
+                <span className="font-medium text-textPrimary">Database:</span>{" "}
                 PostgreSQL
               </li>
               <li>
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-textPrimary">
                   Real-time features:
                 </span>{" "}
                 WebSockets
@@ -65,8 +65,8 @@ export default function About() {
             </ul>
           </section>
 
-          <section className="pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-500">
+          <section className="pt-6 border-t border-surface">
+            <p className="text-sm text-textMuted">
               This project is intended as a learning experience and is not
               offered as a commercial service.
             </p>

@@ -8,10 +8,10 @@ export function Card({ children, className, ...props }: CardProps) {
       className={`
         w-full
         max-w-lg
-        bg-white
+        bg-surface
         p-12
         rounded-xl
-        shadow-sm
+        border border-gray-200
         ${className || ""}
       `}
       {...props}

@@ -7,11 +7,11 @@ interface RoomLayoutProps {
 
 export function RoomLayout({ children }: RoomLayoutProps) {
   return (
-    <div className="bg-gray-50 p-4 min-h-full">
+    <div className="bg-background p-4 min-h-full">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {/* Left sidebar - Participants */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 flex flex-col max-h-[calc(100vh-200px)]">
             <ParticipantsList />
           </div>
 

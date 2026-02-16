@@ -4,12 +4,12 @@ import { useState } from "react";
 import { socket } from "../../api/socket";
 
 
-type Props = {
-  roomId: string;
-};
+// type Props = {
+//   roomId: string;
+// };
 
 
-export default function DrawingBoard({ roomId }: Props) {
+export default function DrawingBoard() {
 	const [text, setText] = useState("");
 
 	function send() {
@@ -27,9 +27,9 @@ export default function DrawingBoard({ roomId }: Props) {
 	}
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 flex flex-col h-full">
+    <div className="bg-surface rounded-lg p-4 flex flex-col h-full border border-gray-200">
       {/* Canvas area */}
-      <div className="relative bg-white border-2 border-gray-300 rounded flex-1 min-h-0">
+      <div className="relative bg-surface border border-surface rounded flex-1 min-h-0">
         <canvas
           className="w-full h-full rounded cursor-crosshair"
           width={1600}

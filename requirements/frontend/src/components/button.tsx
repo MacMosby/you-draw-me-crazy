@@ -19,14 +19,12 @@ const variants = {
     "shadow-[0_6px_0_0_#15803d] " + // darker green “base”
     "hover:translate-y-1 hover:shadow-[0_4px_0_0_#15803d] " +
     "active:translate-y-2 active:shadow-[0_2px_0_0_#15803d] " +
-    "transition-all duration-150 ease-out " +
-    "focus:outline-none focus:ring-2 focus:ring-green-400",
+    "transition-all duration-150 ease-out ",
 
   secondary:
-  "bg-white text-gray-700 border border-gray-300 " +
-  "hover:bg-gray-50 hover:border-gray-400 " +
-  "transition-colors " +
-  "focus:outline-none focus:ring-2 focus:ring-gray-300",
+  "bg-surface text-textPrimary border border-gray-300 " +
+  "hover:bg-primary/10 hover:border-primary " +
+  "transition-colors ",
 };
 
 const disabledStyles =
