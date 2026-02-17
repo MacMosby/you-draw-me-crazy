@@ -88,18 +88,6 @@ export default function GamePage() {
             >
               Highlight Steph (ID: 2)
             </button>
-            <button
-              onClick={() => setRecentlyCorrectGuesser(3)}
-              className="block w-full px-2 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded text-xs"
-            >
-              Highlight Marc (ID: 3)
-            </button>
-            <button
-              onClick={() => setRecentlyCorrectGuesser(4)}
-              className="block w-full px-2 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded text-xs"
-            >
-              Highlight Nick (ID: 4)
-            </button>
           </div>
         </div>
 

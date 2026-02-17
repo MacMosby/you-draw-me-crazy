@@ -33,12 +33,12 @@ export default function ParticipantsList({ highlightedPlayerId }: ParticipantsLi
         {participants.map((participant) => (
           <div
             key={participant.id}
-            className={`p-2 border-2 rounded-lg transition-all duration-300 ${
+            className={`px-2 py-1.5 rounded-md transition-colors duration-300 ${
               participant.status === "disconnected" ? "opacity-50" : ""
             } ${
               activeHighlight === parseInt(participant.id)
-                ? "bg-emerald-50 border-green-500"
-                : "border-gray-200"
+                ? "bg-emerald-50"
+                : "bg-transparent"
             }`}
           >
             <div className="flex justify-between items-center">

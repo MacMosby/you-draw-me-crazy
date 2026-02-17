@@ -70,7 +70,7 @@ export function ChatMessageRow({ message, isOwn }: ChatMessageProps) {
         <div
           className={`mt-0.5 rounded-lg px-2.5 py-1.5 text-sm ${
             isOwn
-              ? "bg-gray-900 text-white"
+              ? "bg-amber-200/60 text-amber-900 border border-amber-200"
               : "bg-gray-100 text-gray-900"
           }`}
         >
@@ -78,8 +78,8 @@ export function ChatMessageRow({ message, isOwn }: ChatMessageProps) {
         </div>
       </div>
       {isOwn && (
-        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-[10px] font-semibold text-white">
-          You
+        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-200/60 text-[10px] font-semibold text-amber-900 border border-amber-200">
+          {message.username.slice(0, 2).toUpperCase()}
         </div>
       )}
     </div>

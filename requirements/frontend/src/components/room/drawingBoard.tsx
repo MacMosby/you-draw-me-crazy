@@ -6,12 +6,12 @@ import { ChatMessageRow, type ChatMessage } from "./chatMessageRow";
 import { mockMessages } from "./chat.mock";
 
 
-// type Props = {
-//   roomId: string;
-// };
+type Props = {
+  onGuessCorrect?: (userId: number) => void;
+};
 
 
-export default function DrawingBoard({ onGuessCorrect }) {
+export default function DrawingBoard({ onGuessCorrect }: Props) {
 	const [text, setText] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
