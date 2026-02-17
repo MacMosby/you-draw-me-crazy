@@ -44,7 +44,7 @@ export default function ParticipantsList({ highlightedPlayerId }: ParticipantsLi
             <div className="flex justify-between items-center">
               <div>
                 <div
-                  className={`text-sm font-semibold transition-colors ${
+                  className={`text-xl font-semibold transition-colors ${
                     activeHighlight === parseInt(participant.id)
                       ? "text-emerald-700"
                       : "text-textPrimary"
@@ -52,12 +52,12 @@ export default function ParticipantsList({ highlightedPlayerId }: ParticipantsLi
                 >
                   {participant.name}
                 </div>
-                <div className="text-[11px] text-textMuted">
+                <div className="text-xs text-textMuted">
                   {participant.role === "drawer" ? "Drawing" : "Guessing"}
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-semibold text-textPrimary">
+                <div className="text-base font-semibold text-textPrimary">
                   {participant.score}
                 </div>
                 <div className="text-[11px] text-textMuted">pts</div>
