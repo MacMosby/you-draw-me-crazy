@@ -19,6 +19,7 @@ export default function GamePage() {
   const [members, setMembers] = useState<RoomStatePayload["members"]>([]);
   const [round, setRound] = useState<number>(-1);
   const [turn, setTurn] = useState<number>(-1);
+  const [recentlyCorrectGuesser, setRecentlyCorrectGuesser] = useState<number | null>(null);
 
   // suggestion. should we maybe use separate states for WebSocket connection (wsState) and updates about the room state (just roomState all in one component)
   // i think it would be better if the UI depends on the second one only
@@ -71,13 +72,35 @@ export default function GamePage() {
   }, [userId]);
 
   return (
-    <RoomLayout>
+    <RoomLayout highlightedPlayerId={recentlyCorrectGuesser}>
 
-		{/* feel free to delete or change */}
-		<div className="absolute top-50 left-50 z-10 max-w-sm bg-white/90 rounded p-2 text-xs">
+		{/* Debugging stuff: feel free to delete or change */}
+		<div className="absolute top-50 left-50 z-10 max-w-sm bg-white/90 rounded p-3 text-xs space-y-2">
+          <div className="font-semibold">Debugging information:</div>
           <div>wsState: {wsState}</div>
           <div>round: {round} turn: {turn}</div>
           <div>players: {members.length}</div>
+          <div className="border-t pt-2 space-y-1">
+            <div className="font-semibold">Test Highlight:</div>
+            <button
+              onClick={() => setRecentlyCorrectGuesser(2)}
+              className="block w-full px-2 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded text-xs"
+            >
+              Highlight Steph (ID: 2)
+            </button>
+            <button
+              onClick={() => setRecentlyCorrectGuesser(3)}
+              className="block w-full px-2 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded text-xs"
+            >
+              Highlight Marc (ID: 3)
+            </button>
+            <button
+              onClick={() => setRecentlyCorrectGuesser(4)}
+              className="block w-full px-2 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded text-xs"
+            >
+              Highlight Nick (ID: 4)
+            </button>
+          </div>
         </div>
 
     {wsState === 'connecting' && (
@@ -122,7 +145,7 @@ export default function GamePage() {
         <div className="absolute top-8 left-8 z-10 max-w-sm">
           <PromptBox />
         </div>
-        <DrawingBoard />
+        <DrawingBoard onGuessCorrect={setRecentlyCorrectGuesser} />
       </>
     )}
     </RoomLayout>
