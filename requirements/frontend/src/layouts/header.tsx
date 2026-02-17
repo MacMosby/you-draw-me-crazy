@@ -46,7 +46,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={onLogout}
-                className="rounded-md bg-primary px-3 py-1.5 text-textPrimary hover:bg-primary/80 transition-colors"
+                className="rounded-md bg-gray-900 px-3 py-1.5 text-white hover:bg-gray-800 transition-colors"
               >
                 Log out
               </button>
