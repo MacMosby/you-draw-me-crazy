@@ -2,6 +2,7 @@
 import { io, Socket } from "socket.io-client";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { PlayerDto } from "../../shared/player.dto";
 import { WS_EVENTS } from "../../shared/ws.events";
 import type { ResultsPayload, TurnInfoPayload } from "../../shared/ws.payloads";
@@ -12,6 +13,9 @@ import { WS_EVENTS } from "../../shared/ws.events"; //change to shared folder
 =======
 import { useSessionStore } from "../state/sessionStore";
 >>>>>>> b0c2ad0 (add: session storage)
+=======
+import { useSessionStore } from "../state/sessionStore";
+>>>>>>> 106c835 (add: session storage)
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? "http://localhost:3000";
 
