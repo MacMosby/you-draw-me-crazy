@@ -1,12 +1,13 @@
 // import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useAuth } from "../features/auth/AuthContext";
+// import { useAuth } from "../features/auth/AuthContext";
 // import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
-import { socket, initSocketWithIdentify, play, onRoomState, onStartGame, type RoomStatePayload } from "../api/socket";
+import { socket, joinRoom, onTurnInfo, onRoomFull } from "../api/socket";
+import type { TurnInfoPayload } from "../../shared/ws.payloads";
 
 export default function GamePage() {
   // const { auth } = useAuth();
@@ -16,47 +17,45 @@ export default function GamePage() {
   const userId = 42;
 
   const [wsState, setWsState] = useState<"connecting" | "waiting" | "playing" | "full" | "finished" | "error">("connecting");  
-  const [members, setMembers] = useState<RoomStatePayload["members"]>([]);
+  const [members, setMembers] = useState<TurnInfoPayload["players"]>([]);
   const [round, setRound] = useState<number>(-1);
   const [turn, setTurn] = useState<number>(-1);
+  // const [room_id, setRoomId] = useState<number>(-1);
   const [recentlyCorrectGuesser, setRecentlyCorrectGuesser] = useState<number | null>(null);
 
-  // suggestion. should we maybe use separate states for WebSocket connection (wsState) and updates about the room state (just roomState all in one component)
-  // i think it would be better if the UI depends on the second one only
-  
-  // const [wsState, setWsState] = useState<"connecting" | "connected" | "error">("connecting");
-  // const [roomState, setRoomState] = useState<RoomStatePayload | null>(null);
-
-
   useEffect(() => {
-    let unsubRoomState = () => {};
-    let unsubStartGame = () => {};
+    let unsubTurnInfo = () => {};
+    let unsubRoomFull = () => {};
 
     (async () => {
       try {
         setWsState("connecting");
 
-        // 1) identify + 2) send play(userId)
-        await play(userId);
+        // 1) identify + 2) send joinRoom(userId)
+        await joinRoom(userId);
+        console.log("[gameRoom] joinRoom successful");
 
         // 3) subscribe to BE pushes
-        unsubRoomState = onRoomState((payload) => {
-          console.log("[ws] room_state:", payload);
+        unsubTurnInfo = onTurnInfo((payload) => {
+          console.log("[ws] turnInfo:", payload);
 
-          setMembers(payload.members); // !!! change name to align with BE !!! 
-          setRound(payload.round); // !!! change name to align with BE !!! 
-          setTurn(payload.turn); // !!! change name to align with BE !!! 
+          if (payload.room_id === -1) {
+            setWsState("full");
+            return;
+          }
 
-          //round/turn -1 means waiting
-          setWsState(payload.round === -1 ? "waiting" : "playing");
-        });
-
-        unsubStartGame = onStartGame((payload) => {
-          console.log("[ws] start_game:", payload);
-          setMembers(payload.members);
+          // setRoomId(payload.room_id);
+          setMembers(payload.players);
           setRound(payload.round);
           setTurn(payload.turn);
-          setWsState("playing");
+
+          // round > 0 means game is active
+          setWsState(payload.round > 0 ? "playing" : "waiting");
+        });
+
+        unsubRoomFull = onRoomFull(() => {
+          console.log("[ws] room full");
+          setWsState("full");
         });
       } catch (e) {
         console.error(e);
@@ -65,8 +64,8 @@ export default function GamePage() {
     })();
 
     return () => {
-      unsubRoomState();
-      unsubStartGame();
+      unsubTurnInfo();
+      unsubRoomFull();
       socket.disconnect();
     };
   }, [userId]);
