@@ -8,11 +8,14 @@ import {
   validatePassword,
   validateUsername,
 } from "./inputValidators";
-import { useAuth } from "../auth/AuthContext";
+// import { useAuth } from "../auth/AuthContext";
+import { useSessionStore } from "../../state/sessionStore";
+
+
 
 export default function SignUpForm() {
   const navigate = useNavigate();
-  const { setLoggedIn } = useAuth();
+//   const { setLoggedIn } = useAuth();
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -25,7 +28,7 @@ export default function SignUpForm() {
   const [formError, setFormError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+const setAuth = useSessionStore((s) => s.setAuth);
   const canSubmit = useMemo(() => {
     return (
       validateEmail(email) === "" &&
@@ -54,20 +57,24 @@ export default function SignUpForm() {
     setSuccessMsg("");
 
     try {
-      const res = await signup({
+      const result = await signup({
         email: email.trim(),
         username: username.trim(),
         password,
       });
-
+	  	setAuth("temp-token", {
+			id: result.id,
+			email: result.email,
+			username: result.username,
+		});
       // 3) show success
-      setSuccessMsg(res.message || "Account created successfully 🎉");
+      setSuccessMsg(result.message || "Account created successfully 🎉");
 
       // 4) after 3s → authorize + redirect
       setTimeout(() => {
-        setLoggedIn({
-          email: email.trim(),
-        });
+        // setLoggedIn({
+        //   email: email.trim(),
+        // });
         navigate("/play");
       }, 3000);
     } catch (err) {

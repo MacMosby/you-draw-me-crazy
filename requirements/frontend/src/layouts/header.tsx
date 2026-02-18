@@ -1,12 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../features/auth/AuthContext";
+// import { useAuth } from "../features/auth/AuthContext";
 import icon from "../assets/icon2.png";
 import letters from "../assets/letters.png";
+import { useSessionStore } from "../state/sessionStore";
 
 export default function Header() {
-  const { auth, logout } = useAuth();
+//   const { auth, logout } = useAuth();
+  const user = useSessionStore((s) => s.user);
   const navigate = useNavigate();
 
+  const logout = useSessionStore((s) => s.logout);
   function onLogout() {
     logout();          // clears auth state (+ localStorage if you do it there)
     navigate("/");     // send user somewhere safe after logout
@@ -33,8 +36,9 @@ export default function Header() {
             About
           </Link>
 
-          {/* Auth placeholders */}
-          {auth ? (
+          {/* Auth placeholders 
+		   replace with cheking token*/}
+          {user ? (
             <div className="flex items-center gap-3 ml-4">
               <Link
                 to="/profile"
