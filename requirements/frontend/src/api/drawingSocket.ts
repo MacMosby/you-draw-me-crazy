@@ -54,6 +54,9 @@ export function onStrokeAppend(cb: (payload: DrawPayload) => void) {
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> db0f2be (add: set up for svg dravwing)
 // src/api/socket/drawingSocket.ts
 import type { Socket } from "socket.io-client";
 import {
@@ -99,7 +102,10 @@ export function onClear(socket: Socket, cb: (p: ClearPayload) => void) {
   socket.on(DRAWING_EVENTS.CLEAR, cb);
   return () => socket.off(DRAWING_EVENTS.CLEAR, cb);
 }
+<<<<<<< HEAD
 >>>>>>> 26ed7ed (add: set up for svg dravwing)
 =======
 // src/api/socket/drawingSocket.ts
 >>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
+=======
+>>>>>>> db0f2be (add: set up for svg dravwing)

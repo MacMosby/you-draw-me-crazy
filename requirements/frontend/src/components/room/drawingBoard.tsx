@@ -36,6 +36,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   const currentUserId = useSessionStore((s: any) => s.userId)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const roomId = useSessionStore((s:any) => s.roomId)
 
   const [color, setColor] = useState("#111111");
@@ -62,6 +63,13 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 
   const isDrawer = true; 
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
+=======
+  const roomId = useSessionStore((s: any) => s.roomId)
+
+  const role = useSessionStore((s: any) => s.role);
+
+  const isDrawer = role === "drawer";
+>>>>>>> db0f2be (add: set up for svg dravwing)
 
   const sortedMessages = useMemo(
     () => [...messages].sort((a, b) => a.timestamp - b.timestamp),
