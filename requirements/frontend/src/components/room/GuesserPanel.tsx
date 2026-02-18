@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 export default function GuesserPanel(){ return (<div></div>);}
 =======
 export default function GuesserPanel(){}
@@ -19,3 +20,6 @@ export default function GuesserPanel(){}
 =======
 export default function GuesserPanel(){ return (<div></div>);}
 >>>>>>> c20143a (sync: WIP local storage and drawing wip)
+=======
+export default function GuesserPanel(){}
+>>>>>>> 8677b65 (add: set up for svg dravwing)

@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
 =======
@@ -65,3 +66,6 @@ export default function DrawerPanel(){ return(<div></div>);}
 >>>>>>> c20143a (sync: WIP local storage and drawing wip)
 =======
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+export default function DrawerPanel(){ return;}
+>>>>>>> 8677b65 (add: set up for svg dravwing)

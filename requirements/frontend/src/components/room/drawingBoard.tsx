@@ -8,6 +8,7 @@ import { mockMessages } from "./chat.mock";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // import SvgBoard from "../../features/drawing/SvgBoard";
 import { DrawingCanvas } from "./DrawingCanvas";
 import {DrawerPanel} from "./DrawerPanel";
@@ -38,6 +39,12 @@ import GuesserPanel from "./GuesserPanel";
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
 import { useSessionStore } from "../../state/sessionStore";
 >>>>>>> aca3e26 (add: set up for svg dravwing)
+=======
+import SvgBoard from "../../features/drawing/SvgBoard";
+import DrawerPanel from "./DrawerPanel";
+import GuesserPanel from "./GuesserPanel";
+import { useSessionStore } from "../../state/sessionStore";
+>>>>>>> 8677b65 (add: set up for svg dravwing)
 
 type Props = {
   onGuessCorrect?: (userId: number) => void;
@@ -50,6 +57,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
   const currentUserId = useSessionStore((s: any) => s.userId)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -87,6 +95,13 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 
   const isDrawer = true; 
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+  const roomId = useSessionStore((s: any) => s.roomId)
+
+  const role = useSessionStore((s: any) => s.role);
+
+  const isDrawer = role === "drawer";
+>>>>>>> 8677b65 (add: set up for svg dravwing)
 
   const sortedMessages = useMemo(
     () => [...messages].sort((a, b) => a.timestamp - b.timestamp),
@@ -94,6 +109,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   );
 
   function send() {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 		const trimmed = text.trim();
@@ -114,6 +130,10 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 	const trimmed = text.trim();
 	if (!trimmed) return;
 >>>>>>> aca3e26 (add: set up for svg dravwing)
+=======
+	const trimmed = text.trim();
+	if (!trimmed) return;
+>>>>>>> 8677b65 (add: set up for svg dravwing)
     socket.emit("whoAmI", { text: trimmed });
 
     setMessages((prev) => [
@@ -198,6 +218,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         />
 		{/* <SvgBoard roomId={roomId} socket={socket} mode={isDrawer ? "draw" : "view"} /> */}
 		{/* tools panel */}
@@ -237,10 +258,13 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 		)}
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
 =======
+=======
+>>>>>>> 8677b65 (add: set up for svg dravwing)
         /> */}
 		<SvgBoard roomId={roomId} socket={socket} mode={isDrawer ? "draw" : "view"} />
 		{/* tools panel */}
         {isDrawer ? <DrawerPanel /> : <GuesserPanel />}
+<<<<<<< HEAD
 >>>>>>> aca3e26 (add: set up for svg dravwing)
 =======
         />
@@ -254,6 +278,8 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 			/>
 		)}
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+>>>>>>> 8677b65 (add: set up for svg dravwing)
       </div>
 
 
