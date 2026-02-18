@@ -1,5 +1,6 @@
 // types.ts
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import type { StrokeId } from "./protocol";
 
@@ -13,3 +14,5 @@ export type DrawingState = {
   order: StrokeId[]; // render order
 };
 >>>>>>> aca3e26 (add: set up for svg dravwing)
+=======
+>>>>>>> c20143a (sync: WIP local storage and drawing wip)

@@ -90,6 +90,7 @@ export function emitCanvasUndo() {
 
 
 
+<<<<<<< HEAD
 >>>>>>> aca3e26 (add: set up for svg dravwing)
 // src/api/socket/drawingSocket.ts
 import type { Socket } from "socket.io-client";
@@ -166,3 +167,6 @@ export function onStrokeAppend(cb: (payload: DrawPayload) => void) {
 >>>>>>> 31389cf (add: sockets for drawing)
 =======
 >>>>>>> aca3e26 (add: set up for svg dravwing)
+=======
+// src/api/socket/drawingSocket.ts
+>>>>>>> c20143a (sync: WIP local storage and drawing wip)

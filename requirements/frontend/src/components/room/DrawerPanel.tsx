@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
 type Props = {
@@ -55,3 +56,6 @@ export default function DrawerPanel(){ return(<div></div>);}
 =======
 export default function DrawerPanel(){ return;}
 >>>>>>> aca3e26 (add: set up for svg dravwing)
+=======
+export default function DrawerPanel(){ return(<div></div>);}
+>>>>>>> c20143a (sync: WIP local storage and drawing wip)
