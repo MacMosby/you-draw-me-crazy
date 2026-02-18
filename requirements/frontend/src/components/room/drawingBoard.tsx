@@ -1,18 +1,28 @@
 import { Button } from "../button";
 import { Input } from "../input";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { socket } from "../../api/socket";
+import { ChatMessageRow, type ChatMessage } from "./chatMessageRow";
+import { mockMessages } from "./chat.mock";
 
 
-// type Props = {
-//   roomId: string;
-// };
+type Props = {
+  onGuessCorrect?: (userId: number) => void;
+};
 
 
-export default function DrawingBoard() {
+export default function DrawingBoard({ onGuessCorrect }: Props) {
 	const [text, setText] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
+  const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
+  const currentUserId = 42;
 
-	function send() {
+  const sortedMessages = useMemo(
+    () => [...messages].sort((a, b) => a.timestamp - b.timestamp),
+    [messages]
+  );
+
+  function send() {
 		const trimmed = text.trim();
 		if (!trimmed) return;
 
@@ -23,13 +33,58 @@ export default function DrawingBoard() {
 
 		// Input-only test: server logs it and replies with "youAre"
     socket.emit("whoAmI", { text: trimmed });
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `msg-${Date.now()}`,
+        userId: currentUserId,
+        username: "You",
+        text: trimmed,
+        timestamp: Date.now(),
+        type: "chat",
+      },
+    ]);
 		setText("");
 	}
 
+  useEffect(() => {
+    scrollAnchorRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [sortedMessages.length]);
+
+  useEffect(() => {
+    const handleGuessUpdate = (data: { guesser: { Nickname: string; User_ID: number }; correct: boolean; Score: number; guess: string | null }) => {
+      if (data.correct) {
+        // Add system message visible to everyone
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `guess-${Date.now()}`,
+            userId: 0,
+            username: "System",
+            text: `${data.guesser.Nickname} guessed correctly! (+${data.Score} points)`,
+            timestamp: Date.now(),
+            type: "system",
+          },
+        ]);
+
+        // Notify parent component to highlight the player
+        if (onGuessCorrect) {
+          onGuessCorrect(data.guesser.User_ID);
+        }
+      }
+    };
+
+    socket.on("guess_update", handleGuessUpdate);
+    return () => {
+      socket.off("guess_update", handleGuessUpdate);
+    };
+  }, [onGuessCorrect]);
+
   return (
-    <div className="bg-surface rounded-lg p-4 flex flex-col h-full border border-gray-200">
+    <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
       {/* Canvas area */}
-      <div className="relative bg-surface border border-surface rounded flex-1 min-h-0">
+      <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 min-h-[280px] lg:min-h-0">
         <canvas
           className="w-full h-full rounded cursor-crosshair"
           width={1600}
@@ -38,13 +93,18 @@ export default function DrawingBoard() {
       </div>
 
       {/* Chat/Guesses section */}
-      <div className="mt-4 flex-shrink-0">
-        <div className="space-y-1 mb-3 h-20 overflow-y-auto text-sm">
-          <div>Marc: Crystal ball</div>
-          <div>Nick: Sphere? </div>
-          <div>Steph: Axolotl! </div>
+      <div className="w-full lg:w-64 xl:w-72 flex flex-col min-h-0 bg-surface border border-gray-200 rounded-lg p-3">
+        <div className="mb-3 flex-1 min-h-0 overflow-y-auto space-y-2">
+          {sortedMessages.map((message) => (
+            <ChatMessageRow
+              key={message.id}
+              message={message}
+              isOwn={message.userId === currentUserId}
+            />
+          ))}
+          <div ref={scrollAnchorRef} />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 border-t border-gray-200 pt-3">
           <Input
             placeholder="Type your guess..."
             className="flex-1"

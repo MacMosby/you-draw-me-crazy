@@ -31,7 +31,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 ? "border-error focus:ring-error"
                 : "border-surface focus:border-primary focus:ring-primary"
             }
-            focus:ring-2
+            focus:ring-1
             ${className || ""}
           `}
           {...props}
