@@ -107,5 +107,4 @@ export class RoomsService {
 		console.log('player', userId, 'removed from Room', roomId);
 		//if < min players, end game early, send final results
 	}
-
 }
