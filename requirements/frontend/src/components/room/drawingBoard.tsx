@@ -4,10 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { socket } from "../../api/socket";
 import { ChatMessageRow, type ChatMessage } from "./chatMessageRow";
 import { mockMessages } from "./chat.mock";
+<<<<<<< HEAD
 // import SvgBoard from "../../features/drawing/SvgBoard";
 import { DrawingCanvas } from "./DrawingCanvas";
 import {DrawerPanel} from "./DrawerPanel";
 
+=======
+import SvgBoard from "../../features/drawing/SvgBoard";
+import DrawerPanel from "./DrawerPanel";
+import GuesserPanel from "./GuesserPanel";
+>>>>>>> 26ed7ed (add: set up for svg dravwing)
 import { useSessionStore } from "../../state/sessionStore";
 
 type Props = {
@@ -21,6 +27,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
   const currentUserId = useSessionStore((s: any) => s.userId)
+<<<<<<< HEAD
   const roomId = useSessionStore((s:any) => s.roomId)
 
   const [color, setColor] = useState("#111111");
@@ -29,6 +36,13 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   const isDrawer = role === "drawer"; //get role from storage, update storage from socket
 
   //const isDrawer = true; 
+=======
+  const roomId = useSessionStore((s: any) => s.roomId)
+
+  const role = useSessionStore((s: any) => s.role);
+
+  const isDrawer = role === "drawer";
+>>>>>>> 26ed7ed (add: set up for svg dravwing)
 
   const sortedMessages = useMemo(
     () => [...messages].sort((a, b) => a.timestamp - b.timestamp),
@@ -36,6 +50,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   );
 
   function send() {
+<<<<<<< HEAD
 		const trimmed = text.trim();
 		if (!trimmed) return;
 		if (trimmed.length > 100) return;
@@ -46,6 +61,10 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 
 
 		// Input-only test: server logs it and replies with "youAre"
+=======
+	const trimmed = text.trim();
+	if (!trimmed) return;
+>>>>>>> 26ed7ed (add: set up for svg dravwing)
     socket.emit("whoAmI", { text: trimmed });
 
     setMessages((prev) => [
@@ -107,6 +126,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
     <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
       {/* Canvas area */}
       <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 min-h-[280px] lg:min-h-0">
+<<<<<<< HEAD
 		{/* drawing tools panel */}
         {/* {isDrawer ? <DrawerPanel />} */}
 		<DrawingCanvas isDrawer={isDrawer} color={color} />
@@ -119,6 +139,16 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 			onClear={() => socket.emit("canvas:clear")}
 			/>
 		)}
+=======
+        {/* <canvas
+          className="w-full h-full rounded cursor-crosshair"
+          width={1600}
+          height={1200}
+        /> */}
+		<SvgBoard roomId={roomId} socket={socket} mode={isDrawer ? "draw" : "view"} />
+		{/* tools panel */}
+        {isDrawer ? <DrawerPanel /> : <GuesserPanel />}
+>>>>>>> 26ed7ed (add: set up for svg dravwing)
       </div>
 
 
