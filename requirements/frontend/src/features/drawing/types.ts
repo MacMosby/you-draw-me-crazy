@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 8677b65 (add: set up for svg dravwing)
@@ -23,3 +24,5 @@ export type DrawingState = {
 =======
 };
 >>>>>>> 8677b65 (add: set up for svg dravwing)
+=======
+>>>>>>> 0d34e02 (sync: WIP local storage and drawing wip)

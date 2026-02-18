@@ -98,6 +98,7 @@ export function emitCanvasUndo() {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> aca3e26 (add: set up for svg dravwing)
 =======
 >>>>>>> 8677b65 (add: set up for svg dravwing)
@@ -182,3 +183,6 @@ export function onStrokeAppend(cb: (payload: DrawPayload) => void) {
 >>>>>>> c20143a (sync: WIP local storage and drawing wip)
 =======
 >>>>>>> 8677b65 (add: set up for svg dravwing)
+=======
+// src/api/socket/drawingSocket.ts
+>>>>>>> 0d34e02 (sync: WIP local storage and drawing wip)
