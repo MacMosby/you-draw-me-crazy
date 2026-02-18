@@ -55,6 +55,7 @@ export function onStrokeAppend(cb: (payload: DrawPayload) => void) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> db0f2be (add: set up for svg dravwing)
 // src/api/socket/drawingSocket.ts
@@ -109,3 +110,6 @@ export function onClear(socket: Socket, cb: (p: ClearPayload) => void) {
 >>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
 =======
 >>>>>>> db0f2be (add: set up for svg dravwing)
+=======
+// src/api/socket/drawingSocket.ts
+>>>>>>> af527ff (sync: WIP local storage and drawing wip)

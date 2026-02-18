@@ -37,6 +37,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   const roomId = useSessionStore((s:any) => s.roomId)
 
   const [color, setColor] = useState("#111111");
@@ -65,8 +66,11 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
 =======
   const roomId = useSessionStore((s: any) => s.roomId)
+=======
+  const roomId = useSessionStore((s:any) => s.roomId)
+>>>>>>> af527ff (sync: WIP local storage and drawing wip)
 
-  const role = useSessionStore((s: any) => s.role);
+  const role = useSessionStore((s:any) => s.role);
 
   const isDrawer = role === "drawer";
 >>>>>>> db0f2be (add: set up for svg dravwing)
@@ -164,6 +168,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		{/* drawing tools panel */}
         {/* {isDrawer ? <DrawerPanel />} */}
 		<DrawingCanvas isDrawer={isDrawer} color={color} />
@@ -195,6 +200,9 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 >>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
 =======
         {/* <canvas
+=======
+        <canvas
+>>>>>>> af527ff (sync: WIP local storage and drawing wip)
           className="w-full h-full rounded cursor-crosshair"
           width={1600}
           height={1200}
