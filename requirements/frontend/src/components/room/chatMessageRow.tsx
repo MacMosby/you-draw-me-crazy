@@ -35,11 +35,6 @@ export function ChatMessageRow({ message, isOwn }: ChatMessageProps) {
   }
 
   const isCorrect = Boolean(message.isCorrectGuess);
-  
-  // Hide correct guesses from other players
-  if (isCorrect && !isOwn) {
-    return null;
-  }
 
   return (
     <div
@@ -64,13 +59,21 @@ export function ChatMessageRow({ message, isOwn }: ChatMessageProps) {
           </span>
         </div>
         <div
-          className={`mt-0.5 rounded-lg px-2.5 py-1.5 text-sm ${
+          className={`mt-0.5 rounded-lg px-2.5 py-1.5 text-sm flex items-center gap-2 ${
             isOwn
               ? "bg-amber-200/60 text-amber-900 border border-amber-200"
               : "bg-gray-100 text-gray-900"
           }`}
         >
-          {message.text}
+          <span className={isCorrect && !isOwn ? "blur-sm" : ""}>
+            {message.text}
+          </span>
+          {isCorrect && (
+            <span
+            className="text-xs font-bold bg-sky-400 text-sky-50 px-1.5 py-0.5 rounded-full whitespace-nowrap" >
+              Correct! + 50 pts
+            </span>
+          )}
         </div>
       </div>
     </div>
