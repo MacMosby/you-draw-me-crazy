@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 31389cf (add: sockets for drawing)
 import { WS_EVENTS } from "../../shared/ws.events"; //change to shared folder
@@ -44,10 +45,13 @@ export function onStrokeAppend(cb: (payload: DrawPayload) => void) {
   return () => socket.off(WS_EVENTS.STROKE_APPEND, cb);
 }
 =======
+=======
+>>>>>>> aca3e26 (add: set up for svg dravwing)
 // drawing:strokeStart
 // drawing:strokePoints
 // drawing:strokeEnd
 // drawing:clear
+<<<<<<< HEAD
 =======
 >>>>>>> 31389cf (add: sockets for drawing)
 
@@ -76,6 +80,17 @@ export function emitCanvasUndo() {
 <<<<<<< HEAD
 =======
 >>>>>>> db0f2be (add: set up for svg dravwing)
+=======
+
+
+// emitStrokeStart(roomId, payload)
+// emitStrokePoints(roomId, payload)
+// onStrokeStart(cb), onStrokePoints(cb), …
+
+
+
+
+>>>>>>> aca3e26 (add: set up for svg dravwing)
 // src/api/socket/drawingSocket.ts
 import type { Socket } from "socket.io-client";
 import {
@@ -122,6 +137,7 @@ export function onClear(socket: Socket, cb: (p: ClearPayload) => void) {
   return () => socket.off(DRAWING_EVENTS.CLEAR, cb);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 26ed7ed (add: set up for svg dravwing)
 =======
 // src/api/socket/drawingSocket.ts
@@ -148,3 +164,5 @@ export function onStrokeAppend(cb: (payload: DrawPayload) => void) {
   return () => socket.off(WS_EVENTS.STROKE_APPEND, cb);
 }
 >>>>>>> 31389cf (add: sockets for drawing)
+=======
+>>>>>>> aca3e26 (add: set up for svg dravwing)

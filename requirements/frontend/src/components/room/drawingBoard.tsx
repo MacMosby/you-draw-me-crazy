@@ -6,6 +6,7 @@ import { ChatMessageRow, type ChatMessage } from "./chatMessageRow";
 import { mockMessages } from "./chat.mock";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // import SvgBoard from "../../features/drawing/SvgBoard";
 import { DrawingCanvas } from "./DrawingCanvas";
 import {DrawerPanel} from "./DrawerPanel";
@@ -24,6 +25,12 @@ import GuesserPanel from "./GuesserPanel";
 import { useSessionStore } from "../../state/sessionStore";
 import { emitCanvasClear, emitCanvasUndo } from "../../api/drawingSocket";
 
+=======
+import SvgBoard from "../../features/drawing/SvgBoard";
+import DrawerPanel from "./DrawerPanel";
+import GuesserPanel from "./GuesserPanel";
+import { useSessionStore } from "../../state/sessionStore";
+>>>>>>> aca3e26 (add: set up for svg dravwing)
 
 type Props = {
   onGuessCorrect?: (userId: number) => void;
@@ -36,6 +43,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
   const currentUserId = useSessionStore((s: any) => s.userId)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -53,6 +61,13 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 
   //const isDrawer = true; 
 >>>>>>> 637ee7a (refactor: remove duplicated code)
+=======
+  const roomId = useSessionStore((s: any) => s.roomId)
+
+  const role = useSessionStore((s: any) => s.role);
+
+  const isDrawer = role === "drawer";
+>>>>>>> aca3e26 (add: set up for svg dravwing)
 
   const sortedMessages = useMemo(
     () => [...messages].sort((a, b) => a.timestamp - b.timestamp),
@@ -60,6 +75,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   );
 
   function send() {
+<<<<<<< HEAD
 <<<<<<< HEAD
 		const trimmed = text.trim();
 		if (!trimmed) return;
@@ -75,6 +91,10 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 	const trimmed = text.trim();
 	if (!trimmed) return;
 >>>>>>> 26ed7ed (add: set up for svg dravwing)
+=======
+	const trimmed = text.trim();
+	if (!trimmed) return;
+>>>>>>> aca3e26 (add: set up for svg dravwing)
     socket.emit("whoAmI", { text: trimmed });
 
     setMessages((prev) => [
@@ -148,6 +168,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
           className="w-full h-full rounded cursor-crosshair"
           width={1600}
           height={1200}
+<<<<<<< HEAD
         />
 		{/* <SvgBoard roomId={roomId} socket={socket} mode={isDrawer ? "draw" : "view"} /> */}
 		{/* tools panel */}
@@ -179,6 +200,12 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 			/>
 		)}
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
+=======
+        /> */}
+		<SvgBoard roomId={roomId} socket={socket} mode={isDrawer ? "draw" : "view"} />
+		{/* tools panel */}
+        {isDrawer ? <DrawerPanel /> : <GuesserPanel />}
+>>>>>>> aca3e26 (add: set up for svg dravwing)
       </div>
 
 
