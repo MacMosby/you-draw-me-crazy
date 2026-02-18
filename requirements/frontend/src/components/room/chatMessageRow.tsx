@@ -70,7 +70,7 @@ export function ChatMessageRow({ message, isOwn }: ChatMessageProps) {
           </span>
           {isCorrect && (
             <span
-            className="text-xs font-bold bg-sky-400 text-sky-50 px-1.5 py-0.5 rounded-full whitespace-nowrap" >
+            className="text-xs font-bold bg-cyan-400 text-cyan-50 px-1.5 py-0.5 rounded-full whitespace-nowrap" >
               Correct! + 50 pts
             </span>
           )}

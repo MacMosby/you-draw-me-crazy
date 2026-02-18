@@ -37,7 +37,7 @@ export default function ParticipantsList({ highlightedPlayerId }: ParticipantsLi
               participant.status === "disconnected" ? "opacity-50" : ""
             } ${
               activeHighlight === parseInt(participant.id)
-                ? "bg-sky-100/60"
+                ? "bg-cyan-100/60"
                 : "bg-transparent"
             }`}
           >
@@ -46,7 +46,7 @@ export default function ParticipantsList({ highlightedPlayerId }: ParticipantsLi
                 <div
                   className={`text-xl font-semibold transition-colors ${
                     activeHighlight === parseInt(participant.id)
-                      ? "text-sky-600"
+                      ? "text-cyan-600"
                       : "text-textPrimary"
                   }`}
                 >

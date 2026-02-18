@@ -54,14 +54,6 @@ export const mockMessages: ChatMessage[] = [
   },
   {
     id: "msg-7",
-    userId: 0,
-    username: "System",
-    text: "Steph guessed correctly! (+10 points)",
-    timestamp: Date.now() - 14000,
-    type: "system",
-  },
-  {
-    id: "msg-8",
     userId: 102,
     username: "Nick",
     text: "Natalya left the room",

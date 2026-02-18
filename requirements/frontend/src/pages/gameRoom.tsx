@@ -84,7 +84,7 @@ export default function GamePage() {
             <div className="font-semibold">Test Highlight:</div>
             <button
               onClick={() => setRecentlyCorrectGuesser(2)}
-              className="block w-full px-2 py-1 bg-sky-100 hover:bg-sky-200 border border-sky-300 rounded text-xs"
+              className="block w-full px-2 py-1 bg-cyan-100 hover:bg-cyan-200 border border-cyan-300 rounded text-xs"
             >
               Highlight Steph (ID: 2)
             </button>
