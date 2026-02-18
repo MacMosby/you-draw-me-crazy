@@ -5,12 +5,16 @@ import { socket } from "../../api/socket";
 import { ChatMessageRow, type ChatMessage } from "./chatMessageRow";
 import { mockMessages } from "./chat.mock";
 <<<<<<< HEAD
+<<<<<<< HEAD
 // import SvgBoard from "../../features/drawing/SvgBoard";
 import { DrawingCanvas } from "./DrawingCanvas";
 import {DrawerPanel} from "./DrawerPanel";
 
 =======
 import SvgBoard from "../../features/drawing/SvgBoard";
+=======
+// import SvgBoard from "../../features/drawing/SvgBoard";
+>>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
 import DrawerPanel from "./DrawerPanel";
 import GuesserPanel from "./GuesserPanel";
 >>>>>>> 26ed7ed (add: set up for svg dravwing)
@@ -28,6 +32,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
   const currentUserId = useSessionStore((s: any) => s.userId)
 <<<<<<< HEAD
+<<<<<<< HEAD
   const roomId = useSessionStore((s:any) => s.roomId)
 
   const [color, setColor] = useState("#111111");
@@ -38,8 +43,11 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   //const isDrawer = true; 
 =======
   const roomId = useSessionStore((s: any) => s.roomId)
+=======
+  const roomId = useSessionStore((s:any) => s.roomId)
+>>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
 
-  const role = useSessionStore((s: any) => s.role);
+  const role = useSessionStore((s:any) => s.role);
 
   const isDrawer = role === "drawer";
 >>>>>>> 26ed7ed (add: set up for svg dravwing)
@@ -102,6 +110,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   }, [onGuessCorrect]);
 
   const session = useSessionStore();
+<<<<<<< HEAD
 	console.log("useSessionStore():", session);
   useEffect(() => {
     const container = canvasContainerRef.current;
@@ -122,10 +131,14 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
     return () => observer.disconnect();
   }, []);
 
+=======
+	console.log(session);
+>>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
   return (
     <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
       {/* Canvas area */}
       <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 min-h-[280px] lg:min-h-0">
+<<<<<<< HEAD
 <<<<<<< HEAD
 		{/* drawing tools panel */}
         {/* {isDrawer ? <DrawerPanel />} */}
@@ -141,14 +154,21 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 		)}
 =======
         {/* <canvas
+=======
+        <canvas
+>>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
           className="w-full h-full rounded cursor-crosshair"
           width={1600}
           height={1200}
-        /> */}
-		<SvgBoard roomId={roomId} socket={socket} mode={isDrawer ? "draw" : "view"} />
+        />
+		{/* <SvgBoard roomId={roomId} socket={socket} mode={isDrawer ? "draw" : "view"} /> */}
 		{/* tools panel */}
+<<<<<<< HEAD
         {isDrawer ? <DrawerPanel /> : <GuesserPanel />}
 >>>>>>> 26ed7ed (add: set up for svg dravwing)
+=======
+        {/* {isDrawer ? <DrawerPanel /> : <GuesserPanel />} */}
+>>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
       </div>
 
 

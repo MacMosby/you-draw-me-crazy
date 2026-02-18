@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 type Props = {
   color: string;
   onColorChange: (next: string) => void;
@@ -41,3 +42,6 @@ export function DrawerPanel({ color, onColorChange, onUndo, onClear }: Props) {
 =======
 export default function DrawerPanel(){ return;}
 >>>>>>> 26ed7ed (add: set up for svg dravwing)
+=======
+export default function DrawerPanel(){ return(<div></div>);}
+>>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
