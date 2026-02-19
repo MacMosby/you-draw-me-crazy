@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 interface PromptBoxProps {
   prompt: string | null;
 }
+=======
+export default function PromptBox() {
+  // Mock prompt
+  const prompt = "Igloo";
+  const isDrawer = true; // Mock role
+  
+>>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
 
 export default function PromptBox({ prompt }: PromptBoxProps) {
   return (

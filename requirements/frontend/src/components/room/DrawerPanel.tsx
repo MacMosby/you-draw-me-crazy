@@ -1,5 +1,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
 type Props = {
   color: string;
   onColorChange: (next: string) => void;
@@ -39,9 +42,12 @@ export function DrawerPanel({ color, onColorChange, onUndo, onClear }: Props) {
     </div>
   );
 }
+<<<<<<< HEAD
 =======
 export default function DrawerPanel(){ return;}
 >>>>>>> 26ed7ed (add: set up for svg dravwing)
 =======
 export default function DrawerPanel(){ return(<div></div>);}
 >>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
+=======
+>>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
