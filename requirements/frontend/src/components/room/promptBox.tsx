@@ -8,7 +8,10 @@ export default function PromptBox() {
   const prompt = "Igloo";
   const isDrawer = true; // Mock role
   
+<<<<<<< HEAD
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
+=======
+>>>>>>> 553d042 (add: Canvas component and Drawer tools)
 
 export default function PromptBox({ prompt }: PromptBoxProps) {
   return (

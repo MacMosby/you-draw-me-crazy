@@ -13,6 +13,7 @@ import { DrawingCanvas } from "./DrawingCanvas";
 import {DrawerPanel} from "./DrawerPanel";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import SvgBoard from "../../features/drawing/SvgBoard";
 =======
@@ -33,6 +34,8 @@ import SvgBoard from "../../features/drawing/SvgBoard";
 >>>>>>> c20143a (sync: WIP local storage and drawing wip)
 import DrawerPanel from "./DrawerPanel";
 import GuesserPanel from "./GuesserPanel";
+=======
+>>>>>>> 553d042 (add: Canvas component and Drawer tools)
 import { useSessionStore } from "../../state/sessionStore";
 >>>>>>> aca3e26 (add: set up for svg dravwing)
 
@@ -56,6 +59,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   const roomId = useSessionStore((s:any) => s.roomId)
 
   const [color, setColor] = useState("#111111");
+<<<<<<< HEAD
   const role = useSessionStore((s:any) => s.role);
 
 <<<<<<< HEAD
@@ -76,6 +80,13 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 
   const isDrawer = role === "drawer";
 >>>>>>> aca3e26 (add: set up for svg dravwing)
+=======
+  const role = useSessionStore((s:any) => s.role);
+
+//   const isDrawer = role === "drawer"; //get role from storage, update storage from socket
+
+  const isDrawer = true; 
+>>>>>>> 553d042 (add: Canvas component and Drawer tools)
 
   const sortedMessages = useMemo(
     () => [...messages].sort((a, b) => a.timestamp - b.timestamp),
@@ -143,6 +154,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	console.log("useSessionStore():", session);
   useEffect(() => {
     const container = canvasContainerRef.current;
@@ -172,14 +184,18 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 =======
 	console.log(session);
 >>>>>>> c20143a (sync: WIP local storage and drawing wip)
+=======
+	console.log("useSessionStore():", session);
+>>>>>>> 553d042 (add: Canvas component and Drawer tools)
   return (
     <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
       {/* Canvas area */}
       <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 min-h-[280px] lg:min-h-0">
-        <canvas
+        {/* <canvas
           className="w-full h-full rounded cursor-crosshair"
           width={1600}
           height={1200}
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         />
@@ -203,11 +219,18 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 		{/* drawing tools panel */}
         {/* {isDrawer ? <DrawerPanel />} */}
 		<DrawingCanvas isDrawer={isDrawer} roomId={roomId} drawerId={currentUserId} color={color} />
+=======
+        /> */}
+		{/* drawing tools panel */}
+        {/* {isDrawer ? <DrawerPanel />} */}
+		<DrawingCanvas isDrawer={isDrawer} color={color} />
+>>>>>>> 553d042 (add: Canvas component and Drawer tools)
 
 		{isDrawer && (
 			<DrawerPanel
 			color={color}
 			onColorChange={setColor}
+<<<<<<< HEAD
 			onUndo={emitCanvasUndo}
   			onClear={emitCanvasClear}
 			/>
@@ -225,6 +248,12 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 		{/* tools panel */}
         {/* {isDrawer ? <DrawerPanel /> : <GuesserPanel />} */}
 >>>>>>> c20143a (sync: WIP local storage and drawing wip)
+=======
+			onUndo={() => socket.emit("canvas:undo")}
+			onClear={() => socket.emit("canvas:clear")}
+			/>
+		)}
+>>>>>>> 553d042 (add: Canvas component and Drawer tools)
       </div>
 
 
