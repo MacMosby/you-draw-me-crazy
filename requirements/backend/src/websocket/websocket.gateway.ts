@@ -9,9 +9,10 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConnectionRegistry } from './websocket.service';
-import type { JoinRoomPayload, TurnInfoPayload } from './dtos/ws.payloads';
+import type { GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload } from './dtos/ws.payloads';
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
+import { GameService } from 'src/game/game.service';
 
 @WebSocketGateway()
 export class WebsocketGateway {
@@ -21,7 +22,8 @@ export class WebsocketGateway {
 
 	constructor( 
 		private readonly registry: ConnectionRegistry,
-		private readonly roomService: RoomsService
+		private readonly roomService: RoomsService,
+		private readonly gameService: GameService
 	) {}
 	afterInit() { console.log('WebSocket Gateway initialized') }
 
@@ -50,7 +52,7 @@ export class WebsocketGateway {
 
 	//events from here on downwards
 	@SubscribeMessage('identify') //play
-	handleIdentify(
+	async handleIdentify(
 		@MessageBody() data: { userId: number },
 		@ConnectedSocket() socket: Socket,
 	) {
@@ -60,6 +62,7 @@ export class WebsocketGateway {
 		console.log(`Socket ${socket.id} identified as user ${data.userId}`);
 		socket.emit('identified'); // roomstate
 		this.registry.printRegistry();
+		await socket.join(`user-${data.userId}`);
 	}
 	
 	@SubscribeMessage('whoAmI')
@@ -81,14 +84,12 @@ export class WebsocketGateway {
 		console.log('[recv] JoinRoom', payload);
 		const room = await this.roomService.addPlayerToFirstAvailableRoom(payload.user_id);
 		if (room.id === -1) {
-			console.log('[send] ROOM_FULL');
 			client.emit(WS_EVENTS.ROOM_FULL);
 			return;
 		}
 
 		const socketRoom = `room-${room.id}`;
 		await client.join(socketRoom);
-		console.log('[send] joined socket room:', socketRoom);
 
 		const response: TurnInfoPayload = {
 			room_id: room.id,
@@ -98,36 +99,28 @@ export class WebsocketGateway {
 			round: room.round,
 			turn: room.turn,
 			players: room.players,
+			time_to_display: 0,//no timer
 		};
-		console.log('[send] TURN_INFO to room', socketRoom, ':', response);
 		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
+		if (room.players.length === 3) {
+			room.active = true;
+			this.gameService.startTurn(room, this.server);
+		} 
 	}
 
-	/*@SubscribeMessage('JoinRoom')
-	handleJoinRoom(
-		@MessageBody() data: { roomId: number; name: string },
-		@ConnectedSocket() socket: Socket,
+	@SubscribeMessage(WS_EVENTS.GUESS)
+	handleGuess(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: GuessPayload,
 	) {
-		const userId = socket.data.userId;
-		if (!userId)
-			return; //DEBUG return error?
-		const { roomId, name } = data;
-		console.log('JoinRoom');*/
-
-		// call the roomservice :)
-		/*const room = this.roomService.joinRoom(roomId, userId, name);
-
-		// setup a new roomstate
-		const roomState = {
-			roomId: room.id,
-			participants: room.getParticipants(),
-			round: room.round,
-			// turn:
-			me: room.getParticipants().find(p => p.id === userId)
-		}
- 
-		// emit the new roomstate to client
-		socket.emit('room_state', roomState);*/
-	//}
+		console.log('[recv] Guess', payload);
+		const socketRoom = `room-${payload.room_id}`;
+		const room = this.roomService.getRoom(payload.room_id);
+		if (room === undefined) return;
+		const response: any = this.gameService.guessValidation(payload, room);
+		if (!response) return;
+		this.server.to(socketRoom).emit(WS_EVENTS.GUESS_UPDATE, response);
+		this.gameService.checkEndOfTurn(room, this.server);
+	}
 
 }

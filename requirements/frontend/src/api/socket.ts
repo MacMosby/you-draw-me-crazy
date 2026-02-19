@@ -72,23 +72,11 @@ export function initSocketWithIdentify(userId: number): Promise<void> {
 // ack - acknowledgment callbacks
 //Socket.IO (Application Layer): Supports acknowledgment callbacks in emit functions, where the final argument is a function executed upon receipt.
 
-//Client -> Server: "play" + userId
-export async function play(userId: number) {
-    console.log("[ws] play() called with userId:", userId);
-    await initSocketWithIdentify(userId);
-    console.log("[ws] identified, now emitting play...");
-
-    socket.emit("play", {userId}, (ack?: {ok :boolean; message?: string}) => {
-        if (ack) console.log("[ws] play ack:", ack);
-        else console.log("[ws] play emitted but no ack received");
-    });
-}
-
 export async function joinRoom(userId: number) {
   console.log("[ws] joinRoom() called with userId:", userId);
   await initSocketWithIdentify(userId);
-  console.log("[ws] identified, now emitting join_room...");
-  socket.emit("join_room", { user_id: userId });
+  console.log("[ws] identified, now emitting joinRoom...");
+  socket.emit(WS_EVENTS.JOIN_ROOM, { user_id: userId });
 }
 
 // Helper to subscribe/unsubscribe cleanly from BE events.
