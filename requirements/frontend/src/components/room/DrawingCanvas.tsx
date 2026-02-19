@@ -3,6 +3,7 @@ import { socket } from "../../api/socket";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { WS_EVENTS } from "../../../shared/ws.events"; //change to shared folder
 import type { DrawPayload, Stroke, Point } from "../../../shared/ws.payloads"
 import {
@@ -56,6 +57,11 @@ export type Stroke = { id: string; color: string; width: number; points: Point[]
 export type Point = { x: number; y: number };
 export type Stroke = { id: string; color: string; width: number; points: Point[] };
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+
+export type Point = { x: number; y: number };
+export type Stroke = { id: string; color: string; width: number; points: Point[] };
+>>>>>>> e191f25 (add: Canvas component and Drawer tools)
 
 function drawStroke(
   ctx: CanvasRenderingContext2D,
@@ -110,6 +116,7 @@ function pointFromPointerEvent(
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 31389cf (add: sockets for drawing)
 // type Props = {
@@ -134,11 +141,14 @@ export function DrawingCanvas({ isDrawer,
 =======
 =======
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+>>>>>>> e191f25 (add: Canvas component and Drawer tools)
 type Props = {
   isDrawer: boolean;
   color?: string;
   strokeWidth?: number; // optional for later
 };
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> 31389cf (add: sockets for drawing)
@@ -160,6 +170,8 @@ export function DrawingCanvas({ isDrawer,
   
 >>>>>>> 31389cf (add: sockets for drawing)
 =======
+=======
+>>>>>>> e191f25 (add: Canvas component and Drawer tools)
 
 export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -168,7 +180,10 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
   const strokesRef = useRef<Stroke[]>([]);
   const activeStrokeIdRef = useRef<string | null>(null);
 
+<<<<<<< HEAD
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+>>>>>>> e191f25 (add: Canvas component and Drawer tools)
   // batching points for network
   const pendingPointsRef = useRef<Point[]>([]);
   const rafFlushRef = useRef<number | null>(null);
@@ -211,6 +226,7 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     // server emits: { room_id, strokes }
     const offInit = onInitDrawing((payload) => {
       if (payload.room_id !== roomId) return;
@@ -260,10 +276,13 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
 =======
 =======
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+>>>>>>> e191f25 (add: Canvas component and Drawer tools)
     const onInit = (payload: { strokes: Stroke[] }) => setStrokes(payload.strokes);
 
     const onStart = (stroke: Stroke) => {
       setStrokes((prev) => [...prev, stroke]);
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     // server emits: { room_id, strokes }
@@ -323,6 +342,8 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
   }, [roomId]);
 >>>>>>> 31389cf (add: sockets for drawing)
 =======
+=======
+>>>>>>> e191f25 (add: Canvas component and Drawer tools)
     };
 
     const onAppend = (payload: { id: string; points: Point[] }) => {
@@ -355,7 +376,10 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
       socket.off("canvas:undo", onUndo);
     };
   }, []);
+<<<<<<< HEAD
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+>>>>>>> e191f25 (add: Canvas component and Drawer tools)
 
 
   function flushPendingPoints() {
@@ -368,6 +392,7 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
     if (pts.length === 0) return;
 
     pendingPointsRef.current = [];
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -404,6 +429,9 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
 =======
     socket.emit("stroke:append", { id, points: pts });
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+    socket.emit("stroke:append", { id, points: pts });
+>>>>>>> e191f25 (add: Canvas component and Drawer tools)
   }
 
   function scheduleFlush() {
@@ -429,6 +457,7 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
     // local immediate
     setStrokes((prev) => [...prev, stroke]);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -459,6 +488,10 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
     // network
     socket.emit("stroke:start", stroke);
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
+=======
+    // network
+    socket.emit("stroke:start", stroke);
+>>>>>>> e191f25 (add: Canvas component and Drawer tools)
   }
 
   function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
