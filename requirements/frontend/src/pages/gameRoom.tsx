@@ -1,6 +1,5 @@
 // import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-// import { useAuth } from "../features/auth/AuthContext";
+import { useEffect, useRef, useState } from "react";
 // import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
@@ -18,10 +17,13 @@ export default function GamePage() {
 
   const [wsState, setWsState] = useState<"connecting" | "waiting" | "playing" | "full" | "finished" | "error">("connecting");  
   const [members, setMembers] = useState<TurnInfoPayload["players"]>([]);
-  const [round, setRound] = useState<number>(-1);
-  const [turn, setTurn] = useState<number>(-1);
+  const [round, setRound] = useState<number>(0);
+  const [turn, setTurn] = useState<number>(0);
   // const [room_id, setRoomId] = useState<number>(-1);
   const [recentlyCorrectGuesser, setRecentlyCorrectGuesser] = useState<number | null>(null);
+  const [showWaitingLobby, setShowWaitingLobby] = useState(false);
+  const [startCountdown, setStartCountdown] = useState<number | null>(null);
+  const prevWsStateRef = useRef<typeof wsState>("connecting");
 
   useEffect(() => {
     let unsubTurnInfo = () => {};
@@ -70,6 +72,58 @@ export default function GamePage() {
     };
   }, [userId]);
 
+  // timer which makes sure the waiting panel disappears after three seconds
+  useEffect(() => {
+    let waitingTimer: number | undefined;
+
+    if (wsState === "waiting") {
+      setShowWaitingLobby(true);
+      waitingTimer = window.setTimeout(() => {
+        setShowWaitingLobby(false);
+      }, 3000);
+    }
+
+    return () => {
+      if (waitingTimer) {
+        window.clearTimeout(waitingTimer);
+      }
+    };
+  }, [wsState]);
+
+  // countdown before play 
+  useEffect(() => {
+    let countdownInterval: number | undefined;
+    const prevState = prevWsStateRef.current;
+
+    if (wsState === "playing" && prevState !== "playing") {
+      setStartCountdown(3);
+      countdownInterval = window.setInterval(() => {
+        setStartCountdown((value) => {
+          if (value === null) return null;
+          if (value <= 1) {
+            if (countdownInterval) {
+              window.clearInterval(countdownInterval);
+            }
+            return null;
+          }
+          return value - 1;
+        });
+      }, 1000);
+    }
+
+    if (wsState !== "playing") {
+      setStartCountdown(null);
+    }
+
+    prevWsStateRef.current = wsState;
+
+    return () => {
+      if (countdownInterval) {
+        window.clearInterval(countdownInterval);
+      }
+    };
+  }, [wsState]);
+
   return (
     <RoomLayout highlightedPlayerId={recentlyCorrectGuesser}>
 
@@ -90,51 +144,55 @@ export default function GamePage() {
           </div>
         </div>
 
-    {wsState === 'connecting' && (
+    {wsState === "connecting" && (
       <Lobby 
         title="Connecting..."
         message="Connecting to the game room..."
       />
     )}
 
-    {wsState === 'waiting' && (
+    {wsState === "waiting" && showWaitingLobby && (
       <Lobby 
         title="Waiting for Players"
         message="Not enough players in room. For now, practice your drawing!" // this could be a temporary pop-up?
       />
     )}
 
-    {wsState === 'full' && (
+    {wsState === "full" && (
       <Lobby 
         title="Room Full"
         message="Room 2 is under construction. Please wait for a spot in Room 1 to become available."
       />
     )}
 
-    {wsState === 'finished' && (
+    {wsState === "finished" && (
       <Lobby 
         title="Game Finished!"
         message="Thanks for playing!" // change to rematch
       />
     )}
 
-    {wsState === 'error' && (
+    {wsState === "error" && (
       <Lobby 
         title="Connection Error"
         message="Unable to connect to the game. Please refresh the page."
       />
     )}
 
-    {wsState === 'playing' && (
-      // lobby with countdown?
-      <>
-        {/* Prompt overlaid on top */}
-        <div className="absolute top-8 left-8 z-10 max-w-sm">
-          <PromptBox />
-        </div>
-        <DrawingBoard onGuessCorrect={setRecentlyCorrectGuesser} />
-      </>
-    )}
+      {(wsState === "waiting" || wsState === "playing") && (
+        <>
+          {wsState === "playing" && (
+          <div className="absolute top-8 left-8 z-10 max-w-sm">
+            <PromptBox />
+          </div>
+          )}
+          <DrawingBoard onGuessCorrect={setRecentlyCorrectGuesser} />
+        </>
+      )}
+
+      {wsState === "playing" && startCountdown !== null && (
+        <Lobby title="Get Ready" message={`Game will start in: ${startCountdown}`} />
+      )}
     </RoomLayout>
   );
 }

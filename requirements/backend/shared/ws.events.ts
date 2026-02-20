@@ -4,6 +4,7 @@ export const WS_EVENTS = {
 	GUESS: "guess",
 	GUESS_UPDATE: "guessUpdate",
 	RESULTS: "results",
+	ROOM_FULL: "roomFull",
 	TURN_INFO: "turnInfo",
 	DRAWING: "drawing"
 } as const;

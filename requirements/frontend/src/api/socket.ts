@@ -1,6 +1,6 @@
 //import { resolve } from "path";
 import { io, Socket } from "socket.io-client";
-import type { PlayerDto } from "../../../shared/player.dto";
+import type { PlayerDto } from "../../shared/player.dto";
 import { WS_EVENTS } from "../../shared/ws.events";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
 
