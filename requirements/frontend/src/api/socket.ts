@@ -70,7 +70,7 @@ export function initSocketWithIdentify(userId: number): Promise<void> {
 }
 
 // ack - acknowledgment callbacks
-//Socket.IO (Application Layer): Supports acknowledgment callbacks in emit functions, where the final argument is a function executed upon receipt.
+// Socket.IO (Application Layer): Supports acknowledgment callbacks in emit functions, where the final argument is a function executed upon receipt.
 
 export async function joinRoom(userId: number) {
   console.log("[ws] joinRoom() called with userId:", userId);
@@ -78,6 +78,16 @@ export async function joinRoom(userId: number) {
   console.log("[ws] identified, now emitting joinRoom...");
   socket.emit(WS_EVENTS.JOIN_ROOM, { user_id: userId });
 }
+
+
+//Client -> Server: "joinRoom" + userId
+// export async function joinRoom(userId: number) {
+// 	await initSocketWithIdentify(userId);
+
+// 	socket.emit("joinRoom", {userId}, (ack?: {ok :boolean; message?: string}) => {
+// 		if (ack) console.log("[ws] joinRoom ack:", ack);
+// 	});
+// }
 
 // Helper to subscribe/unsubscribe cleanly from BE events.
 export function onRoomState(callback: (payload: RoomStatePayload) => void) {

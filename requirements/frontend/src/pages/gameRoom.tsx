@@ -8,6 +8,7 @@ import Lobby from "../components/room/lobby";
 import { socket, joinRoom, onTurnInfo, onRoomFull } from "../api/socket";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
 
+
 export default function GamePage() {
   // const { auth } = useAuth();
   // const [players, setPlayers] = useState<Player[]>([]);
@@ -28,6 +29,7 @@ export default function GamePage() {
   useEffect(() => {
     let unsubTurnInfo = () => {};
     let unsubRoomFull = () => {};
+    let unsubStartGame = () => {};
 
     (async () => {
       try {
@@ -46,8 +48,13 @@ export default function GamePage() {
             return;
           }
 
-          // setRoomId(payload.room_id);
-          setMembers(payload.players);
+          //round/turn 0 means waiting
+          setWsState(payload.round === 0 ? "waiting" : "playing");
+        });
+
+        unsubStartGame = onStartGame((payload) => {
+          console.log("[ws] start_game:", payload);
+          setMembers(payload.members);
           setRound(payload.round);
           setTurn(payload.turn);
 
@@ -68,6 +75,7 @@ export default function GamePage() {
     return () => {
       unsubTurnInfo();
       unsubRoomFull();
+      unsubStartGame();
       socket.disconnect();
     };
   }, [userId]);
@@ -198,3 +206,7 @@ export default function GamePage() {
     </RoomLayout>
   );
 }
+function onStartGame(arg0: (payload: any) => void): () => void {
+  throw new Error("Function not implemented.");
+}
+
