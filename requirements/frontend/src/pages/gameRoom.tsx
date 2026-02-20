@@ -179,13 +179,15 @@ export default function GamePage() {
       />
     )}
 
-      {(wsState === "waiting" || wsState === "playing") && (
+      {wsState === "waiting" && (
+        <DrawingBoard />
+      )}
+
+      {wsState === "playing" && (
         <>
-          {wsState === "playing" && (
           <div className="absolute top-8 left-8 z-10 max-w-sm">
             <PromptBox />
           </div>
-          )}
           <DrawingBoard onGuessCorrect={setRecentlyCorrectGuesser} />
         </>
       )}
