@@ -4,10 +4,6 @@ export interface JoinRoomPayload {
 	user_id: number;
 }
 
-/*
-room_id = -1 -> no room. You have been send a dummy to fulfill the payload type.
-example: if you receive this after joinRoom, there was no availbale room. 
-*/
 export interface TurnInfoPayload {
 	room_id: number;
 	drawer: number;
@@ -37,12 +33,14 @@ export interface ResultsPayload {
 	final: boolean;
 	solution: string;
 	time_to_display: number;
+	players: PlayerDto[];
 }
 
-export interface DrawingPayload {
+
+/*export interface DrawingPayload {
 	room_id: number;
 	drawer: Number;
 	coordinate_x: number;
 	coordinate_y: number;
 	color: `#${string}`// e.g. "#ff00ff"
-}
+}*/

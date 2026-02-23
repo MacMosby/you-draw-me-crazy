@@ -89,6 +89,7 @@ export class GameService {
 			final: isFinal,
 			solution: room.word!,
 			time_to_display: 1_000,//1s for quick testing
+			players: room.players,
 		};
 		const socketRoom = `room-${room.id}`;
 		server.to(socketRoom).emit(WS_EVENTS.RESULTS, response);

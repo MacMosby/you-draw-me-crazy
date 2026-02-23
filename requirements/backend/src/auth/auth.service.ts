@@ -29,10 +29,9 @@ export class AuthService {
     const passwordHash = await this.hashPassword(password);
 
     const newUser = await this.usersService.createUser(username, email, passwordHash);
-
     return {
       message: `Account for ${newUser.nickname} successfully created.`,
-      id: 1,
+      id: newUser.id,
       username: newUser.nickname,
       email:  newUser.email,
     };
@@ -60,7 +59,7 @@ export class AuthService {
     // later: return JWT here
     return {
       message: `${user.nickname} has successfully logged in.`,
-      id: 1,
+      id: user.id,
       username: user.nickname,
       email:  user.email,
     };
