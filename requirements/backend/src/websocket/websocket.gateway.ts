@@ -108,18 +108,11 @@ export class WebsocketGateway {
 			this.gameService.startTurn(room, this.server);
 		} 
 	}
-
-	/*@SubscribeMessage('JoinRoom')
->>>>>>> add: joinRoom
-	handleJoinRoom(
-		@MessageBody() data: { roomId: number; name: string },
-		@ConnectedSocket() socket: Socket,
-=======
+	
 	@SubscribeMessage(WS_EVENTS.GUESS)
 	handleGuess(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: GuessPayload,
->>>>>>> add: guess
 	) {
 		console.log('[recv] Guess', payload);
 		const socketRoom = `room-${payload.room_id}`;
@@ -130,5 +123,14 @@ export class WebsocketGateway {
 		this.server.to(socketRoom).emit(WS_EVENTS.GUESS_UPDATE, response);
 		this.gameService.checkEndOfTurn(room, this.server);
 	}
-
 }
+
+	/*@SubscribeMessage('JoinRoom')
+>>>>>>> add: joinRoom
+	handleJoinRoom(
+		@MessageBody() data: { roomId: number; name: string },
+		@ConnectedSocket() socket: Socket,
+=======
+	
+
+}*/
