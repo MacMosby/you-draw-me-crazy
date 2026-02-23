@@ -1,17 +1,30 @@
 import {
 	WebSocketGateway,
+	WebSocketServer,
 	OnGatewayInit,
 	OnGatewayConnection,
 	SubscribeMessage,
 	MessageBody,
 	ConnectedSocket,
 } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { ConnectionRegistry } from './websocket.service';
+import type { GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload } from './dtos/ws.payloads';
+import { WS_EVENTS } from './dtos/ws.events';
+import { RoomsService } from 'src/rooms/rooms.service';
+import { GameService } from 'src/game/game.service';
 
 @WebSocketGateway()
 export class WebsocketGateway {
-	constructor( private readonly registry: ConnectionRegistry) {}
+	//more flexible emit
+	@WebSocketServer()
+	server: Server;
+
+	constructor( 
+		private readonly registry: ConnectionRegistry,
+		private readonly roomService: RoomsService,
+		private readonly gameService: GameService
+	) {}
 	afterInit() { console.log('WebSocket Gateway initialized') }
 
 	//Lifecycle hooks
@@ -29,15 +42,17 @@ export class WebsocketGateway {
 	}
 
 	handleDisconnect(client: Socket) {
+		//automatically removes socket from socket.io rooms
 		const userId = client.data.userId;
 		if (!userId) return;
+		this.roomService.removePlayer(userId);
 		this.registry.removeConnection(userId, client);
 		console.log(`Client ${client.id} with user id ${client.data.userId} disconnected`);
 	}
 
 	//events from here on downwards
-	@SubscribeMessage('identify')
-	handleIdentify(
+	@SubscribeMessage('identify') //play
+	async handleIdentify(
 		@MessageBody() data: { userId: number },
 		@ConnectedSocket() socket: Socket,
 	) {
@@ -45,8 +60,9 @@ export class WebsocketGateway {
 		clearTimeout(socket.data.identifyTimer);
 		this.registry.addConnection(data.userId, socket);
 		console.log(`Socket ${socket.id} identified as user ${data.userId}`);
-		socket.emit('identified');
+		socket.emit('identified'); // roomstate
 		this.registry.printRegistry();
+		await socket.join(`user-${data.userId}`);
 	}
 	
 	@SubscribeMessage('whoAmI')
@@ -61,47 +77,60 @@ export class WebsocketGateway {
 	}
 
 
-
-	//start of the mock data
-	//replace with real handlers
-
-	@SubscribeMessage('play')
-	join_room(
-	@MessageBody() data: { userId: number },
-	@ConnectedSocket() client: Socket,
+	@SubscribeMessage(WS_EVENTS.JOIN_ROOM) 
+	async handleJoinRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: JoinRoomPayload,
 	) {
-	console.log('Received play from', data?.userId, 'socket userId:', client.data.userId);
+		console.log('[recv] JoinRoom', payload);
+		const room = await this.roomService.addPlayerToFirstAvailableRoom(payload.user_id);
+		if (room.id === -1) {
+			client.emit(WS_EVENTS.ROOM_FULL);
+			return;
+		}
 
-	// (optional) basic guard: make sure identify happened
-	if (!client.data.userId) {
-		// Socket.IO ACK: return an error to the client callback
-		return { ok: false, message: 'Not identified yet' };
+		const socketRoom = `room-${room.id}`;//add user to socket room for the game room
+		await client.join(socketRoom);
+
+		const response: TurnInfoPayload = {
+			room_id: room.id,
+			drawer: room.drawer,
+			word: room.word,
+			word_length: room.word_length,
+			round: room.round,
+			turn: room.turn,
+			players: room.players,
+			time_to_display: 0,//no timer
+		};
+		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
+		if (room.players.length === 3) {
+			//room.active = true;
+			this.gameService.startTurn(room, this.server);
+		} 
 	}
-
-	// 1) Immediately send "room_state" (waiting state)
-	client.emit('room_state', {
-		members: [
-		{ Nickname: 'Nata', User_ID: client.data.userId, Score: 0 },
-		{ Nickname: 'Bot', User_ID: 999, Score: 0 },
-		],
-		round: -1,
-		turn: -1,
-	});
-
-	// 2) After 2 seconds send "start_game"
-	setTimeout(() => {
-		client.emit('start_game', {
-		members: [
-			{ Nickname: 'Nata', User_ID: client.data.userId, Score: 0 },
-			{ Nickname: 'Bot', User_ID: 999, Score: 0 },
-		],
-		round: 1,
-		turn: 1,
-		});
-	}, 2000);
-
-	// ACK success (this is the "ack" object your FE callback receives)
-	return { ok: true, message: 'Mocked play accepted' };
+	
+	@SubscribeMessage(WS_EVENTS.GUESS)
+	handleGuess(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: GuessPayload,
+	) {
+		console.log('[recv] Guess', payload);
+		const socketRoom = `room-${payload.room_id}`;
+		const room = this.roomService.getRoom(payload.room_id);
+		if (room === undefined) return;
+		const response: any = this.gameService.guessValidation(payload, room);
+		if (!response) return;
+		this.server.to(socketRoom).emit(WS_EVENTS.GUESS_UPDATE, response);
+		this.gameService.checkEndOfTurn(room, this.server);
 	}
-
 }
+
+	/*@SubscribeMessage('JoinRoom')
+>>>>>>> add: joinRoom
+	handleJoinRoom(
+		@MessageBody() data: { roomId: number; name: string },
+		@ConnectedSocket() socket: Socket,
+=======
+	
+
+}*/
