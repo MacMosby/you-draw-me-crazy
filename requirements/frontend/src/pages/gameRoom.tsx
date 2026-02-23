@@ -5,7 +5,7 @@ import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
-import { socket, joinRoom, onTurnInfo, onRoomFull } from "../api/socket";
+import { socket, joinRoom, onTurnInfo, onRoomFull, onStartGame } from "../api/socket";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
 
 
@@ -205,8 +205,5 @@ export default function GamePage() {
       )}
     </RoomLayout>
   );
-}
-function onStartGame(arg0: (payload: any) => void): () => void {
-  throw new Error("Function not implemented.");
 }
 
