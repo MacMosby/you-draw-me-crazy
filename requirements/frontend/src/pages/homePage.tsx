@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-//import { useAuth } from "../features/auth/AuthContext";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
 import { useSessionStore } from "../state/sessionStore";

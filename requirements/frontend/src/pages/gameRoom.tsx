@@ -1,12 +1,11 @@
 // import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-// import { useAuth } from "../features/auth/AuthContext";
 // import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
-import { socket, initSocketWithIdentify, play, onRoomState, onStartGame, type RoomStatePayload } from "../api/socket";
+import { socket, play, onRoomState, onStartGame, type RoomStatePayload } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
 
 export default function GamePage() {

@@ -1,11 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
-// import { useAuth } from "../features/auth/AuthContext";
 import icon from "../assets/icon2.png";
 import letters from "../assets/letters.png";
 import { useSessionStore } from "../state/sessionStore";
 
 export default function Header() {
-//   const { auth, logout } = useAuth();
   const user = useSessionStore((s) => s.user);
   const navigate = useNavigate();
 
