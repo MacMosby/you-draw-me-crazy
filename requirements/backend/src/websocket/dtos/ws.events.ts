@@ -10,7 +10,8 @@ export const WS_EVENTS = {
 	STROKE_APPEND: "stroke:append",
 	CANVAS_CLEAR: "canvas:clear",
 	CANVAS_UNDO: "canvas:undo",
-	ROOM_FULL: "roomFull"
+	ROOM_FULL: "roomFull",
+	FRIENDS_LIST: "friendsList"
 } as const;
 
 export type WSEvent = typeof WS_EVENTS[keyof typeof WS_EVENTS]
