@@ -4,7 +4,9 @@ import { Input } from "../../components/input";
 import { Button } from "../../components/button";
 import { validateEmail, validatePassword } from "./inputValidators";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthContext";
+// import { useAuth } from "./AuthContext";
+import { useSessionStore } from "../../state/sessionStore";
+
 /*
 
 Valid email: has min 1 alfanumericl char, then @, then min 1 alfanumericl char then . then min 1 alfanumericl char
@@ -27,7 +29,9 @@ export default function LoginForm() {
 	return validateEmail(email) === "" && validatePassword(password) === "";
   },  [email, password]);
   const navigate = useNavigate();
-const { setLoggedIn } = useAuth();
+// const { setLoggedIn } = useAuth();
+const setAuth = useSessionStore((s) => s.setAuth);
+
   
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -48,8 +52,13 @@ const { setLoggedIn } = useAuth();
       const result = await login({ email, password });
       console.log("SERVER RESPONSE:", result); //delete
       // step 3 later: save auth + navigate("/play")
-	  setLoggedIn({ email: email.trim() });
-	  
+	//   setLoggedIn({ email: email.trim() });
+	   setAuth("temp-token", {
+			id: result.id,
+			email: result.email,
+			username: result.username,
+		});
+
   		navigate("/play");
     } catch (err) {
 		console.log(err);
