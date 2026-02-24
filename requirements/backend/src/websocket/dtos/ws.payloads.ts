@@ -76,3 +76,16 @@ export interface StrokeAppendPayload {
   // optional for debugging / future ordering guarantees:
   // seq?: number;
 }
+export interface FriendsList {
+	room_id: number;
+	friends: string[];
+}
+
+
+/*export interface DrawingPayload {
+	room_id: number;
+	drawer: Number;
+	coordinate_x: number;
+	coordinate_y: number;
+	color: `#${string}`// e.g. "#ff00ff"
+}*/

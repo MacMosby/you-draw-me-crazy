@@ -34,6 +34,11 @@ export interface ResultsPayload {
 	time_to_display: number;
 }
 
+export interface FriendsList {
+	room_id: number;
+	friends: string[];
+}
+
 export interface DrawingPayload {
 	room_id: number;
 	drawer: Number;
