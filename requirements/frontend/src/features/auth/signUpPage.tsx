@@ -66,7 +66,8 @@ export default function SignUpForm() {
       // 4) after 3s → authorize + redirect
       setTimeout(() => {
         setLoggedIn({
-          email: email.trim(),
+          email: res.email,
+          id: res.id,
         });
         navigate("/play");
       }, 3000);

@@ -1,4 +1,5 @@
 import { postJson } from "./http";
+import type { LoginResponse, SignupResponse } from "../../shared/auth.types";
 
 export type LoginRequest = {
 	email: string;
@@ -11,20 +12,11 @@ export type SignupRequest = {
 	username: string;
 };
 
-// export type LoginResponse = {
-//   user: { id: string; username: string };
-// };
 
-export type TemporalResponse = {message : string}; // temporaly
-
-
-//change to login response when it will be defined
 export function login(req: LoginRequest) {
-  return postJson<TemporalResponse>("/auth/login", req);
+  return postJson<LoginResponse>("/auth/login", req);
 }
 
-
-//change to signup response when it will be defined
 export function signup(req: SignupRequest) {
-  return postJson<TemporalResponse>("/auth/signup", req);
+  return postJson<SignupResponse>("/auth/signup", req);
 }

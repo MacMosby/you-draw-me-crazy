@@ -2,6 +2,7 @@ import React, { createContext, useContext, useMemo, useState } from "react";
 
 type AuthUser = {
   email: string;
+  id: number;
 };
 
 type AuthState = {

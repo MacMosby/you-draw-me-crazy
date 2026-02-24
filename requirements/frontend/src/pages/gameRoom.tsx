@@ -7,14 +7,12 @@ import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
 import { socket, joinRoom, onTurnInfo, onRoomFull, onStartGame } from "../api/socket";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
+import { useAuth } from "../features/auth/AuthContext";
 
 
 export default function GamePage() {
-  // const { auth } = useAuth();
-  // const [players, setPlayers] = useState<Player[]>([]);
-
-  // IMPORTANT: replace with real user id
-  const userId = 42;
+  const { auth } = useAuth();
+  const userId = auth?.user.id ?? 0;
 
   const [wsState, setWsState] = useState<"connecting" | "waiting" | "playing" | "full" | "finished" | "error">("connecting");  
   const [members, setMembers] = useState<TurnInfoPayload["players"]>([]);
