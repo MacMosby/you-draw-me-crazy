@@ -81,7 +81,7 @@ export class GameService {
 		}
 	}
 
-	getFriends(userID: number, room: Room, client: Socket): string[] {
+	getFriends(userID: number, room: Room): string[] {
 		const user = room.players.find((user: PlayerDto) => user.userId === userID);
 		if (!user) {
 			throw new Error("Player not found");

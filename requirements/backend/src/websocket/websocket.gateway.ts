@@ -10,7 +10,7 @@ import {
 import { Injectable } from "@nestjs/common";
 import { Server, Socket } from 'socket.io';
 import { ConnectionRegistry } from './websocket.service';
-import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload, StrokeAppendPayload, AddFriendPayload, FriendListPayload } from './dtos/ws.payloads';
+import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload, StrokeAppendPayload, AddFriendPayload, FriendListPayload, RemoveFriendPayload } from './dtos/ws.payloads';
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
@@ -261,7 +261,29 @@ export class WebsocketGateway {
 
 		const friendList: FriendListPayload = {
 			room_id: payload.room_id,
-			friends: this.gameService.getFriends(payload.player, room, client),
+			friends: this.gameService.getFriends(payload.player, room),
+		}
+		client.emit(WS_EVENTS.FRIEND_LIST, friendList);
+	}
+
+	@SubscribeMessage(WS_EVENTS.REMOVE_FRIEND)
+	async handleRemoveFriend(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: RemoveFriendPayload,
+	) {
+		const friendToRemove: User | null = await this.usersService.getUserByNickname(payload.removeFriend);
+		if (!friendToRemove) {
+			throw new Error("User not found");
+		}
+		this.usersService.removeFriend(payload.player, friendToRemove.id);
+		const room = this.roomService.getRoom(payload.room_id);
+		if (!room) {
+			throw new Error("Room not found");
+		}
+
+		const friendList: FriendListPayload = {
+			room_id: payload.room_id,
+			friends: this.gameService.getFriends(payload.player, room),
 		}
 		client.emit(WS_EVENTS.FRIEND_LIST, friendList);
 	}
