@@ -1,18 +1,26 @@
 // import { useParams } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 // import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
-import { socket, joinRoom, onTurnInfo, onRoomFull, onStartGame } from "../api/socket";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
-import { useAuth } from "../features/auth/AuthContext";
-
+import { socket, joinRoom, onTurnInfo, onRoomFull, onRoomState, onStartGame, type RoomStatePayload } from "../api/socket";
+import { useSessionStore } from "../state/sessionStore";
 
 export default function GamePage() {
-  const { auth } = useAuth();
-  const userId = auth?.user.id ?? 0;
+  // const { auth } = useAuth();
+  // const [players, setPlayers] = useState<Player[]>([]);
+
+  // IMPORTANT: replace with real user id
+//   const userId = 42;
+
+  const user = useSessionStore((s) => s.user);
+  const userId = user?.id; // use user id from storage
+  if (!userId) {
+    return <div>No user found</div>; // handle an error
+  }
 
   const [wsState, setWsState] = useState<"connecting" | "waiting" | "playing" | "full" | "finished" | "error">("connecting");  
   const [members, setMembers] = useState<TurnInfoPayload["players"]>([]);
@@ -139,6 +147,7 @@ export default function GamePage() {
           <div>wsState: {wsState}</div>
           <div>round: {round} turn: {turn}</div>
           <div>players: {members.length}</div>
+		  <div>whoIam: id:{userId} name:{user?.username} </div>
           <div className="border-t pt-2 space-y-1">
             <div className="font-semibold">Test Highlight:</div>
             <button

@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../features/auth/AuthContext";
 import { Button } from "../components/button";
 import { Card } from "../components/card";
+import { useSessionStore } from "../state/sessionStore";
+
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { auth } = useAuth();
-
+  //const { auth } = useAuth();
+  const user = useSessionStore((s) => s.user);
   const join_room = () => {
     // Very simple for MVP. We just navigate to the single room we have
     navigate("/room");
@@ -18,7 +19,7 @@ export default function HomePage() {
           <div className="flex flex-col items-center gap-8">
             <div className="text-center">
               <h1 className="text-2xl font-semibold mb-2 text-textPrimary">
-                Welcome{auth ? `, ${auth.user.email}` : ""}
+                Welcome{user ? `, ${user.username}` : ""}
               </h1>
               <p className="text-sm text-textMuted">You are all set</p>
             </div>

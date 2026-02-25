@@ -107,7 +107,7 @@ export class WebsocketGateway {
 			this.gameService.startTurn(room, this.server);
 		} 
 	}
-
+	
 	@SubscribeMessage(WS_EVENTS.GUESS)
 	handleGuess(
 		@ConnectedSocket() client: Socket,
@@ -122,5 +122,14 @@ export class WebsocketGateway {
 		this.server.to(socketRoom).emit(WS_EVENTS.GUESS_UPDATE, response);
 		this.gameService.checkEndOfTurn(room, this.server);
 	}
-
 }
+
+	/*@SubscribeMessage('JoinRoom')
+>>>>>>> add: joinRoom
+	handleJoinRoom(
+		@MessageBody() data: { roomId: number; name: string },
+		@ConnectedSocket() socket: Socket,
+=======
+	
+
+}*/

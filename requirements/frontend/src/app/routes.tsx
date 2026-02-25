@@ -11,22 +11,34 @@ import About from "../pages/static/about.tsx";
 import Privacy from "../pages/static/privacy.tsx"
 import Game from "../pages/gameRoom.tsx";
 
+import ProtectedRoute from "./ProtectedRoute";
+
+
 export const router = createBrowserRouter(
 	[
 		{
 			element: <AppLayout/>, //layout that wraps all child routes (will add header and footer) and render content into Outlet
 			children: [
+
+				// Protected routes (must be logged in)
 				{
-					path: "/play",
-					element: <HomePage />,
+					element: <ProtectedRoute />,
+					children: [
+					{
+						path: "/play",
+						element: <HomePage />,
+					},
+					{
+						path: "/room",
+						element: <Game />,
+					},
+					],
 				},
+
+				//public routes
 				{
 					path: "/privacy",
 					element: <Privacy />,
-				},
-				{
-					path: "/room",
-					element: <Game />,
 				},
 				{
 					path: "/about", 

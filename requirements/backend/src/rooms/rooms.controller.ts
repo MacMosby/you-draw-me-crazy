@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   rooms.controller.ts                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lieselotdetaeye <lieselotdetaeye@studen    +#+  +:+       +#+        */
+/*   By: nboer <nboer@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 17:29:47 by nboer             #+#    #+#             */
-/*   Updated: 2026/02/24 12:30:45 by lieselotdet      ###   ########.fr       */
+/*   Updated: 2026/02/01 18:10:32 by nboer            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

@@ -4,7 +4,7 @@ export interface JoinRoomPayload {
 	user_id: number;
 }
 
-export interface TurnInfo {
+export interface TurnInfoPayload {
 	roomd_id: number;
 	drawer: number;
 	word: string | null;
