@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConnectionRegistry } from './websocket.service';
-import type { GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload } from './dtos/ws.payloads';
+import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload } from './dtos/ws.payloads';
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
@@ -76,6 +76,7 @@ export class WebsocketGateway {
 		});
 	}
 
+
 	@SubscribeMessage(WS_EVENTS.JOIN_ROOM) 
 	async handleJoinRoom(
 		@ConnectedSocket() client: Socket,
@@ -90,6 +91,7 @@ export class WebsocketGateway {
 
 		const socketRoom = `room-${room.id}`;//add user to socket room for the game room
 		await client.join(socketRoom);
+		client.data.roomId = room.id;
 
 		const response: TurnInfoPayload = {
 			room_id: room.id,
@@ -102,6 +104,7 @@ export class WebsocketGateway {
 			time_to_display: 0,//no timer
 		};
 		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
+		this.emitFullDrawingState(room.id, client);
 		if (room.players.length === 3) {
 			//room.active = true;
 			this.gameService.startTurn(room, this.server);
@@ -122,14 +125,68 @@ export class WebsocketGateway {
 		this.server.to(socketRoom).emit(WS_EVENTS.GUESS_UPDATE, response);
 		this.gameService.checkEndOfTurn(room, this.server);
 	}
+
+	@SubscribeMessage(WS_EVENTS.STROKE_START)
+	handleStrokeStart(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: DrawPayload,
+	) {
+		console.log('[recv] stroke:start', payload);
+		const socketRoom = 'room-' + payload.room_id;
+		const room = this.roomService.getRoom(payload.room_id);
+		if (!room) return;
+		if (client.data.userId != room.drawer) return;
+		// emit batch payload to the rooms clients
+		console.log('[send] stroke:start');
+		client.to(socketRoom).emit(WS_EVENTS.STROKE_START, payload);
+
+		// add draw payload to the server?
+		this.roomService.appendStrokes(payload.strokes, payload.room_id);
+	}
+
+	@SubscribeMessage(WS_EVENTS.STROKE_APPEND)
+	handleStrokeAppend(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: DrawPayload,
+	) {
+		const room = this.roomService.getRoom(client.data.roomId);
+			if (!room) return;
+		if (client.data.userId !== room.drawer) return;
+		this.roomService.appendStrokes(payload.strokes, client.data.roomId);
+	}
+
+	@SubscribeMessage(WS_EVENTS.CANVAS_CLEAR)
+	handleCanvasClear(
+		@ConnectedSocket() client: Socket,
+	) {
+		const room = this.roomService.getRoom(client.data.roomId);
+			if (!room) return;
+		if (client.data.userId !== room.drawer) return;
+		this.roomService.clearStrokes(client.data.roomId);
+		this.emitFullDrawingState(client.data.roomId);
+	}	
+
+	@SubscribeMessage(WS_EVENTS.CANVAS_UNDO)
+	handleCanvasUndo(
+		@ConnectedSocket() client: Socket,
+	) {
+		const room = this.roomService.getRoom(client.data.roomId);
+			if (!room) return;
+		if (client.data.userId !== room.drawer) return;
+		this.roomService.popStroke(client.data.roomId);
+		this.emitFullDrawingState(client.data.roomId);
+	}
+
+	// SERVER -> CLIENT HELPERS
+	private emitFullDrawingState(roomId: number, client?: Socket) {
+		const strokes = this.roomService.getStrokes(roomId);
+		const payload = {
+			room_id: roomId,
+			strokes: strokes,
+		}
+		if (client)
+			client.emit(WS_EVENTS.INIT_DRAWING, payload);
+		else
+			this.server.to('room-' + roomId).emit(WS_EVENTS.INIT_DRAWING, payload);
+	}
 }
-
-	/*@SubscribeMessage('JoinRoom')
->>>>>>> add: joinRoom
-	handleJoinRoom(
-		@MessageBody() data: { roomId: number; name: string },
-		@ConnectedSocket() socket: Socket,
-=======
-	
-
-}*/
