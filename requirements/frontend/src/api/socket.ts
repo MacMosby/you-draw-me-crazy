@@ -12,14 +12,6 @@ export type RoomStatePayload = {
   turn: number;  // -1 in waiting, 1+ when game starts
 };
 
-export type RoomInfo = {
-  id: number;
-  maxPlayers: number;
-  players: PlayerDto[];
-  round: number;
-  turn: number;
-};
-
 export const socket: Socket = io(WS_URL, {
   withCredentials: true,
   transports: ["websocket"], 
@@ -91,14 +83,9 @@ export async function joinRoom(userId: number) {
 
 // Helper to subscribe/unsubscribe cleanly from BE events.
 export function onRoomState(callback: (payload: RoomStatePayload) => void) {
-  console.log("[ws] subscribing to room_state");
-  socket.on("room_state", callback);
-  return () => socket.off("room_state", callback);
-}
-
-export function onRoomUpdate(callback: (payload: RoomStatePayload) => void) {
-  socket.on("room_update", callback);
-  return () => socket.off("room_update", callback);
+  console.log("[ws] subscribing to roomState");
+  socket.on(WS_EVENTS.ROOM_STATE, callback);
+  return () => socket.off(WS_EVENTS.ROOM_STATE, callback);
 }
 
 export function onStartGame(callback: (payload: RoomStatePayload) => void) {
