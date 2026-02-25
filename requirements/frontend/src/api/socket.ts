@@ -7,6 +7,7 @@ import type { ResultsPayload, TurnInfoPayload } from "../../shared/ws.payloads";
 =======
 >>>>>>> ebaa8f8 (add: session storage)
 import { useSessionStore } from "../state/sessionStore";
+import { WS_EVENTS } from "../../shared/ws.events"; //change to shared folder
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? "http://localhost:3000";
 
@@ -57,9 +58,9 @@ export function initSocketWithIdentify(userId: number): Promise<void> {
             });
 
 			// debug delete later
-			socket.on("youAre", (payload) => {
-			console.log("[ws] youAre:", payload);
-			});
+			// socket.on("youAre", (payload) => {
+			// console.log("[ws] youAre:", payload);
+			// });
 		});
 	}
   return identifyInFlight;

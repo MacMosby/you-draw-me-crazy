@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { socket } from "../../api/socket";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { WS_EVENTS } from "../../../shared/ws.events"; //change to shared folder
 import type { DrawPayload, Stroke, Point } from "../../../shared/ws.payloads"
 import {
@@ -11,6 +12,11 @@ import {
   onStrokeStart,
 } from "../../api/drawingSocket";
 // import { useSessionStore } from "../../state/sessionStore";
+=======
+import { WS_EVENTS } from "../../../shared/ws.events"; //change to shared folder
+import type { DrawPayload, Stroke, Point } from "../../../shared/ws.payloads"
+import { useSessionStore } from "../../state/sessionStore";
+>>>>>>> 31389cf (add: sockets for drawing)
 
 
 // export type Point = { x: number; y: number };
@@ -23,12 +29,16 @@ type Props = {
   color?: `#${string}`;
   strokeWidth?: number;
 };
+<<<<<<< HEAD
 
 =======
 
 export type Point = { x: number; y: number };
 export type Stroke = { id: string; color: string; width: number; points: Point[] };
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
+=======
+
+>>>>>>> 31389cf (add: sockets for drawing)
 
 function drawStroke(
   ctx: CanvasRenderingContext2D,
@@ -81,12 +91,16 @@ function pointFromPointerEvent(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 31389cf (add: sockets for drawing)
 // type Props = {
 //   isDrawer: boolean;
 //   color?: string;
 //   strokeWidth?: number; // optional for later
 // };
 //const roomId = useSessionStore((s) => s.roomId);
+<<<<<<< HEAD
 
 export function DrawingCanvas({ isDrawer,
 	roomId,
@@ -105,15 +119,25 @@ type Props = {
   color?: string;
   strokeWidth?: number; // optional for later
 };
+=======
+>>>>>>> 31389cf (add: sockets for drawing)
 
-export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Props) {
+export function DrawingCanvas({ isDrawer,
+	roomId,
+	drawerId,
+	color = "#111", 
+	strokeWidth = 3
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const strokesRef = useRef<Stroke[]>([]);
   const activeStrokeIdRef = useRef<string | null>(null);
+<<<<<<< HEAD
 
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
+=======
+  
+>>>>>>> 31389cf (add: sockets for drawing)
   // batching points for network
   const pendingPointsRef = useRef<Point[]>([]);
   const rafFlushRef = useRef<number | null>(null);
@@ -153,6 +177,7 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
 
   // ---- socket listeners (receive drawing from server) ----
   useEffect(() => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     // server emits: { room_id, strokes }
     const offInit = onInitDrawing((payload) => {
@@ -205,39 +230,55 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
 
     const onStart = (stroke: Stroke) => {
       setStrokes((prev) => [...prev, stroke]);
+=======
+    // server emits: { room_id, strokes }
+    const onInit = (payload: { room_id: number; strokes: Stroke[] }) => {
+      if (payload.room_id !== roomId) return; // safety in case client is in multiple rooms
+      setStrokes(payload.strokes);
+>>>>>>> 31389cf (add: sockets for drawing)
     };
 
-    const onAppend = (payload: { id: string; points: Point[] }) => {
-      setStrokes((prev) =>
-        prev.map((s) =>
-          s.id === payload.id ? { ...s, points: [...s.points, ...payload.points] } : s
-        )
-      );
+    // server forwards DrawPayload to the room
+    const onStart = (payload: DrawPayload) => {
+      if (payload.room_id !== roomId) return;
+      const s = payload.strokes?.[0];
+      if (!s) return;
+      setStrokes((prev) => [...prev, s]);
     };
 
-    const onClear = () => setStrokes([]);
+    // server forwards DrawPayload; treat strokes as patch strokes
+	//server expects/emits full drawepayload, but if it will be slow we can exchange only Strokes[]
+    const onAppend = (payload: DrawPayload) => {
+      if (payload.room_id !== roomId) return;
 
-    const onUndo = (payload: { removedId?: string }) => {
-      if (payload?.removedId) {
-        setStrokes((prev) => prev.filter((s) => s.id !== payload.removedId));
-      }
+      const patches = payload.strokes ?? [];
+      if (patches.length === 0) return;
+
+      setStrokes((prev) => {
+        // apply all patches in one state update
+        return prev.map((s) => {
+          const patch = patches.find((p) => p.id === s.id);
+          if (!patch) return s;
+          return { ...s, points: [...s.points, ...patch.points] };
+        });
+      });
     };
 
-    socket.on("init_drawing", onInit);
-    socket.on("stroke:start", onStart);
-    socket.on("stroke:append", onAppend);
-    socket.on("canvas:clear", onClear);
-    socket.on("canvas:undo", onUndo);
+	socket.on(WS_EVENTS.INIT_DRAWING, onInit);
+    socket.on(WS_EVENTS.STROKE_START, onStart);
+    socket.on(WS_EVENTS.STROKE_APPEND, onAppend);
 
     return () => {
-      socket.off("init_drawing", onInit);
-      socket.off("stroke:start", onStart);
-      socket.off("stroke:append", onAppend);
-      socket.off("canvas:clear", onClear);
-      socket.off("canvas:undo", onUndo);
+      socket.off(WS_EVENTS.INIT_DRAWING, onInit);
+      socket.off(WS_EVENTS.STROKE_START, onStart);
+      socket.off(WS_EVENTS.STROKE_APPEND, onAppend);
     };
+<<<<<<< HEAD
   }, []);
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
+=======
+  }, [roomId]);
+>>>>>>> 31389cf (add: sockets for drawing)
 
 
   function flushPendingPoints() {
@@ -251,6 +292,9 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
 
     pendingPointsRef.current = [];
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 31389cf (add: sockets for drawing)
 
     const patchStroke: Stroke = {
       id,
@@ -267,10 +311,14 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
       strokes: [patchStroke],
     };
 
+<<<<<<< HEAD
     emitStrokeAppend(payload);
 =======
     socket.emit("stroke:append", { id, points: pts });
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
+=======
+    socket.emit(WS_EVENTS.STROKE_APPEND, payload);
+>>>>>>> 31389cf (add: sockets for drawing)
   }
 
   function scheduleFlush() {
@@ -278,6 +326,7 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
     rafFlushRef.current = window.requestAnimationFrame(flushPendingPoints);
   }
 
+  // ---- pointer handlers (only if drawer) ----
   // ---- pointer handlers (only if drawer) ----
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
     if (!isDrawer) return;
@@ -297,6 +346,9 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
     setStrokes((prev) => [...prev, stroke]);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 31389cf (add: sockets for drawing)
     const payload: DrawPayload = {
       room_id: roomId,
       drawer: drawerId,
@@ -305,11 +357,15 @@ export function DrawingCanvas({ isDrawer, color = "#111", strokeWidth = 4 }: Pro
       strokes: [stroke],
     };
 
+<<<<<<< HEAD
     emitStrokeStart(payload);
 =======
     // network
     socket.emit("stroke:start", stroke);
 >>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
+=======
+    socket.emit(WS_EVENTS.STROKE_START, payload);
+>>>>>>> 31389cf (add: sockets for drawing)
   }
 
   function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {

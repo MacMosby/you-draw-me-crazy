@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+//copy from Server
+
+>>>>>>> 31389cf (add: sockets for drawing)
 export const WS_EVENTS = {
 	JOIN_ROOM: "joinRoom",
 	ROOM_STATE: "roomState",
@@ -5,12 +10,20 @@ export const WS_EVENTS = {
 	GUESS_UPDATE: "guessUpdate",
 	RESULTS: "results",
 	TURN_INFO: "turnInfo",
+<<<<<<< HEAD
 	DRAWING: "drawing",
 	INIT_DRAWING: "init_drawing",
 	STROKE_START: "stroke:start",
 	STROKE_APPEND: "stroke:append",
 	CANVAS_CLEAR: "canvas:clear",
 	CANVAS_UNDO: "canvas:undo",
+=======
+	INIT_DRAWING: "init_drawing",
+	STROKE_START: "stroke:start",
+	STROKE_APPEND: "stroke:append",
+  	CANVAS_CLEAR: "canvas:clear",
+  	CANVAS_UNDO: "canvas:undo",
+>>>>>>> 31389cf (add: sockets for drawing)
 	ROOM_FULL: "roomFull"
 } as const;
 
