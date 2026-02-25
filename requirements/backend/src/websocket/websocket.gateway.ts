@@ -137,14 +137,15 @@ export class WebsocketGateway {
 		if (!room) return;
 		if (client.data.userId != room.drawer) return;
 		// emit batch payload to the rooms clients
+		console.log('[send] stroke:start');
 		client.to(socketRoom).emit(WS_EVENTS.STROKE_START, payload);
 
 		// add draw payload to the server?
 		this.roomService.appendStrokes(payload.strokes, payload.room_id);
 	}
 
-		@SubscribeMessage(WS_EVENTS.STROKE_APPEND)
-		handleStrokeAppend(
+	@SubscribeMessage(WS_EVENTS.STROKE_APPEND)
+	handleStrokeAppend(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: DrawPayload,
 	) {
@@ -154,8 +155,8 @@ export class WebsocketGateway {
 		this.roomService.appendStrokes(payload.strokes, client.data.roomId);
 	}
 
-		@SubscribeMessage(WS_EVENTS.CANVAS_CLEAR)
-		handleCanvasClear(
+	@SubscribeMessage(WS_EVENTS.CANVAS_CLEAR)
+	handleCanvasClear(
 		@ConnectedSocket() client: Socket,
 	) {
 		const room = this.roomService.getRoom(client.data.roomId);
@@ -165,8 +166,8 @@ export class WebsocketGateway {
 		this.emitFullDrawingState(client.data.roomId);
 	}	
 
-		@SubscribeMessage(WS_EVENTS.CANVAS_UNDO)
-		handleCanvasUndo(
+	@SubscribeMessage(WS_EVENTS.CANVAS_UNDO)
+	handleCanvasUndo(
 		@ConnectedSocket() client: Socket,
 	) {
 		const room = this.roomService.getRoom(client.data.roomId);
