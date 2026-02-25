@@ -1,20 +1,30 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { PlayerDto } from "./player.dto";
 =======
 import { PlayerDto } from "./player.dto";
 >>>>>>> 31389cf (add: sockets for drawing)
+=======
+import { PlayerDto } from "./player.dto";
+>>>>>>> ca60847 (add: sockets for drawing)
 
 export interface JoinRoomPayload {
 	user_id: number;
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> ca60847 (add: sockets for drawing)
 /*
 room_id = -1 -> no room. You have been send a dummy to fulfill the payload type.
 example: if you receive this after joinRoom, there was no availbale room. 
 */
+<<<<<<< HEAD
 >>>>>>> 31389cf (add: sockets for drawing)
+=======
+>>>>>>> ca60847 (add: sockets for drawing)
 export interface TurnInfoPayload {
 	room_id: number;
 	drawer: number;
@@ -24,9 +34,13 @@ export interface TurnInfoPayload {
 	turn: number;
 	players: PlayerDto[];
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	time_to_display: number;
 >>>>>>> 31389cf (add: sockets for drawing)
+=======
+	time_to_display: number;
+>>>>>>> ca60847 (add: sockets for drawing)
 }
 
 export interface GuessPayload {
@@ -50,12 +64,15 @@ export interface ResultsPayload {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export interface DrawingPayload {
 	room_id: number;
 	drawer: Number;
 	coordinate_x: number;
 	coordinate_y: number;
 =======
+=======
+>>>>>>> ca60847 (add: sockets for drawing)
 export type Point = { x: number; y: number };
 export type Stroke = { id: string; color: string; width: number; points: Point[] };
 
@@ -64,6 +81,9 @@ export interface DrawPayload {
 	drawer: Number;
 	width: number;
 	strokes: Stroke[];
+<<<<<<< HEAD
 >>>>>>> 31389cf (add: sockets for drawing)
+=======
+>>>>>>> ca60847 (add: sockets for drawing)
 	color: `#${string}`// e.g. "#ff00ff"
 }

@@ -30,6 +30,7 @@ import GuesserPanel from "./GuesserPanel";
 import { useSessionStore } from "../../state/sessionStore";
 import { emitCanvasClear, emitCanvasUndo } from "../../api/drawingSocket";
 
+<<<<<<< HEAD
 =======
 import SvgBoard from "../../features/drawing/SvgBoard";
 =======
@@ -52,6 +53,8 @@ import GuesserPanel from "./GuesserPanel";
 >>>>>>> e191f25 (add: Canvas component and Drawer tools)
 import { useSessionStore } from "../../state/sessionStore";
 >>>>>>> 8677b65 (add: set up for svg dravwing)
+=======
+>>>>>>> ca60847 (add: sockets for drawing)
 
 type Props = {
   onGuessCorrect?: (userId: number) => void;
@@ -275,16 +278,21 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
         /> */}
 		{/* drawing tools panel */}
         {/* {isDrawer ? <DrawerPanel />} */}
+<<<<<<< HEAD
 		<DrawingCanvas isDrawer={isDrawer} color={color} />
 <<<<<<< HEAD
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
 =======
 >>>>>>> e191f25 (add: Canvas component and Drawer tools)
+=======
+		<DrawingCanvas isDrawer={isDrawer} roomId={roomId} drawerId={currentUserId} color={color} />
+>>>>>>> ca60847 (add: sockets for drawing)
 
 		{isDrawer && (
 			<DrawerPanel
 			color={color}
 			onColorChange={setColor}
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 			onUndo={emitCanvasUndo}
@@ -312,6 +320,10 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 >>>>>>> e191f25 (add: Canvas component and Drawer tools)
 			onUndo={() => socket.emit("canvas:undo")}
 			onClear={() => socket.emit("canvas:clear")}
+=======
+			onUndo={emitCanvasUndo}
+  			onClear={emitCanvasClear}
+>>>>>>> ca60847 (add: sockets for drawing)
 			/>
 		)}
 <<<<<<< HEAD

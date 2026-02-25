@@ -2,13 +2,17 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 31389cf (add: sockets for drawing)
+=======
+>>>>>>> ca60847 (add: sockets for drawing)
 import { WS_EVENTS } from "../../shared/ws.events"; //change to shared folder
 import { socket } from "./socket";
 import type { DrawPayload, Stroke, Point } from "../../shared/ws.payloads"
 
 // src/api/socket/drawingSocket.ts
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 
@@ -87,15 +91,29 @@ export function emitCanvasUndo() {
 =======
 =======
 >>>>>>> 8677b65 (add: set up for svg dravwing)
+=======
+>>>>>>> ca60847 (add: sockets for drawing)
 
 
-// emitStrokeStart(roomId, payload)
-// emitStrokePoints(roomId, payload)
-// onStrokeStart(cb), onStrokePoints(cb), …
+// --------- Client -> Server emits ----------
+export function emitStrokeStart(payload: DrawPayload) {
+  socket.emit(WS_EVENTS.STROKE_START, payload);
+}
 
+//server expects full drawepayload, but if it will be slow we can exchange only Strokes[]
+export function emitStrokeAppend(payload: DrawPayload) {
+  socket.emit(WS_EVENTS.STROKE_APPEND, payload);
+}
 
+export function emitCanvasClear() {
+  socket.emit(WS_EVENTS.CANVAS_CLEAR);
+}
 
+export function emitCanvasUndo() {
+  socket.emit(WS_EVENTS.CANVAS_UNDO);
+}
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -160,6 +178,8 @@ export function onClear(socket: Socket, cb: (p: ClearPayload) => void) {
 // src/api/socket/drawingSocket.ts
 >>>>>>> af527ff (sync: WIP local storage and drawing wip)
 =======
+=======
+>>>>>>> ca60847 (add: sockets for drawing)
 // --------- Server -> Client subscriptions ----------
 export function onInitDrawing(cb: (payload: { room_id: number; strokes: Stroke[] }) => void) {
   socket.on(WS_EVENTS.INIT_DRAWING, cb);
@@ -174,6 +194,7 @@ export function onStrokeStart(cb: (payload: DrawPayload) => void) {
 export function onStrokeAppend(cb: (payload: DrawPayload) => void) {
   socket.on(WS_EVENTS.STROKE_APPEND, cb);
   return () => socket.off(WS_EVENTS.STROKE_APPEND, cb);
+<<<<<<< HEAD
 }
 >>>>>>> 31389cf (add: sockets for drawing)
 =======
@@ -186,3 +207,6 @@ export function onStrokeAppend(cb: (payload: DrawPayload) => void) {
 =======
 // src/api/socket/drawingSocket.ts
 >>>>>>> 0d34e02 (sync: WIP local storage and drawing wip)
+=======
+}
+>>>>>>> ca60847 (add: sockets for drawing)
