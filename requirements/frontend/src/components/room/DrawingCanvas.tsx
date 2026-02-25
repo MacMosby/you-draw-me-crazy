@@ -15,8 +15,19 @@ import {
 =======
 import { WS_EVENTS } from "../../../shared/ws.events"; //change to shared folder
 import type { DrawPayload, Stroke, Point } from "../../../shared/ws.payloads"
+<<<<<<< HEAD
 import { useSessionStore } from "../../state/sessionStore";
 >>>>>>> 31389cf (add: sockets for drawing)
+=======
+import {
+  emitStrokeAppend,
+  emitStrokeStart,
+  onInitDrawing,
+  onStrokeAppend,
+  onStrokeStart,
+} from "../../api/drawingSocket";
+// import { useSessionStore } from "../../state/sessionStore";
+>>>>>>> 637ee7a (refactor: remove duplicated code)
 
 
 // export type Point = { x: number; y: number };
@@ -232,46 +243,54 @@ export function DrawingCanvas({ isDrawer,
       setStrokes((prev) => [...prev, stroke]);
 =======
     // server emits: { room_id, strokes }
-    const onInit = (payload: { room_id: number; strokes: Stroke[] }) => {
-      if (payload.room_id !== roomId) return; // safety in case client is in multiple rooms
+    const offInit = onInitDrawing((payload) => {
+      if (payload.room_id !== roomId) return;
       setStrokes(payload.strokes);
+<<<<<<< HEAD
 >>>>>>> 31389cf (add: sockets for drawing)
     };
+=======
+    });
+>>>>>>> 637ee7a (refactor: remove duplicated code)
 
     // server forwards DrawPayload to the room
-    const onStart = (payload: DrawPayload) => {
+    const offStart = onStrokeStart((payload: DrawPayload) => {
       if (payload.room_id !== roomId) return;
       const s = payload.strokes?.[0];
       if (!s) return;
       setStrokes((prev) => [...prev, s]);
-    };
+    });
 
     // server forwards DrawPayload; treat strokes as patch strokes
 	//server expects/emits full drawepayload, but if it will be slow we can exchange only Strokes[]
-    const onAppend = (payload: DrawPayload) => {
+    const offAppend = onStrokeAppend((payload: DrawPayload) => {
       if (payload.room_id !== roomId) return;
 
       const patches = payload.strokes ?? [];
       if (patches.length === 0) return;
 
+      // build map for O(1) lookup
+      const patchMap = new Map(patches.map((p) => [p.id, p]));
+
       setStrokes((prev) => {
-        // apply all patches in one state update
-        return prev.map((s) => {
-          const patch = patches.find((p) => p.id === s.id);
+        const next = prev.map((s) => {
+          const patch = patchMap.get(s.id);
           if (!patch) return s;
+          patchMap.delete(s.id);
           return { ...s, points: [...s.points, ...patch.points] };
         });
-      });
-    };
 
-	socket.on(WS_EVENTS.INIT_DRAWING, onInit);
-    socket.on(WS_EVENTS.STROKE_START, onStart);
-    socket.on(WS_EVENTS.STROKE_APPEND, onAppend);
+        // any patches that didn't match existing strokes -> add them
+        for (const remaining of patchMap.values()) next.push(remaining);
+
+        return next;
+      });
+    });
 
     return () => {
-      socket.off(WS_EVENTS.INIT_DRAWING, onInit);
-      socket.off(WS_EVENTS.STROKE_START, onStart);
-      socket.off(WS_EVENTS.STROKE_APPEND, onAppend);
+      offInit();
+      offStart();
+      offAppend();
     };
 <<<<<<< HEAD
   }, []);
@@ -312,6 +331,7 @@ export function DrawingCanvas({ isDrawer,
     };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     emitStrokeAppend(payload);
 =======
     socket.emit("stroke:append", { id, points: pts });
@@ -319,6 +339,9 @@ export function DrawingCanvas({ isDrawer,
 =======
     socket.emit(WS_EVENTS.STROKE_APPEND, payload);
 >>>>>>> 31389cf (add: sockets for drawing)
+=======
+    emitStrokeAppend(payload);
+>>>>>>> 637ee7a (refactor: remove duplicated code)
   }
 
   function scheduleFlush() {
@@ -326,7 +349,6 @@ export function DrawingCanvas({ isDrawer,
     rafFlushRef.current = window.requestAnimationFrame(flushPendingPoints);
   }
 
-  // ---- pointer handlers (only if drawer) ----
   // ---- pointer handlers (only if drawer) ----
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
     if (!isDrawer) return;
@@ -358,6 +380,7 @@ export function DrawingCanvas({ isDrawer,
     };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     emitStrokeStart(payload);
 =======
     // network
@@ -366,6 +389,9 @@ export function DrawingCanvas({ isDrawer,
 =======
     socket.emit(WS_EVENTS.STROKE_START, payload);
 >>>>>>> 31389cf (add: sockets for drawing)
+=======
+    emitStrokeStart(payload);
+>>>>>>> 637ee7a (refactor: remove duplicated code)
   }
 
   function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {

@@ -45,8 +45,14 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   const [color, setColor] = useState("#111111");
   const role = useSessionStore((s:any) => s.role);
 
+<<<<<<< HEAD
   const isDrawer = role === "drawer";
 
+=======
+  const isDrawer = role === "drawer"; //get role from storage, update storage from socket
+
+  //const isDrawer = true; 
+>>>>>>> 637ee7a (refactor: remove duplicated code)
 
   const sortedMessages = useMemo(
     () => [...messages].sort((a, b) => a.timestamp - b.timestamp),
