@@ -103,8 +103,9 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 =======
   const role = useSessionStore((s:any) => s.role);
 
-//   const isDrawer = role === "drawer"; //get role from storage, update storage from socket
+  const isDrawer = role === "drawer"; //get role from storage, update storage from socket
 
+<<<<<<< HEAD
   const isDrawer = true; 
 >>>>>>> 553d042 (add: Canvas component and Drawer tools)
 =======
@@ -124,6 +125,9 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 
   const isDrawer = true; 
 >>>>>>> e191f25 (add: Canvas component and Drawer tools)
+=======
+  //const isDrawer = true; 
+>>>>>>> 6a80ef7 (refactor: remove duplicated code)
 
   const sortedMessages = useMemo(
     () => [...messages].sort((a, b) => a.timestamp - b.timestamp),
