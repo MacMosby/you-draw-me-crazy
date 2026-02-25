@@ -2,6 +2,7 @@ import { map } from "rxjs"
 import { Room } from "./room.class"
 import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
 import type { PlayerDto } from "src/websocket/dtos/player.dto";
+import type { Stroke } from "src/websocket/dtos/ws.payloads"
 import { UsersService } from "src/users/users.service";
 import { UserScalarFieldEnum } from "src/generated/internal/prismaNamespace";
 import { GameService } from "src/game/game.service";
@@ -44,7 +45,7 @@ export class RoomsService {
     }
 	// methods below
     getRoom(roomId: number): Room | undefined {
-        return this.rooms.get(roomId)
+        return this.rooms.get(roomId);
     }
 
 	// for lobby functionality
@@ -107,5 +108,33 @@ export class RoomsService {
 		console.log('player', userId, 'removed from Room', roomId);
 		//if < min players, end game early, send final results
 	}
+
+	appendStrokes(strokes: Stroke[], roomId: number) {
+        const room = this.getRoom(roomId);
+        if (!room)
+            return;
+        room.strokes.push(...strokes);
+    }
+
+    getStrokes(roomId: number) : Stroke[] {
+		const room = this.getRoom(roomId);
+        if (!room)
+            throw new Error('Room not found');
+        return room.strokes;
+	}
+
+    clearStrokes(roomId: number) {
+        const room = this.getRoom(roomId);
+        if (!room)
+            return;
+        room.strokes = [];
+    }
+
+    popStroke(roomId: number) {
+        const room = this.getRoom(roomId);
+		if (!room)
+			return;
+		room.strokes.pop();
+    }
 
 }
