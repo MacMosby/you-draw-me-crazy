@@ -14,6 +14,7 @@ export const WS_EVENTS = {
 	ROOM_FULL: "roomFull",
 	FRIEND_LIST: "friendList",
 	ADD_FRIEND: "addFriend",
+	REMOVE_FRIEND: "removeFriend",
 } as const;
 
 export type WSEvent = typeof WS_EVENTS[keyof typeof WS_EVENTS]
