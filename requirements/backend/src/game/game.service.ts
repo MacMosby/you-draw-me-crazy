@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Room } from 'src/rooms/room.class';
 //import { RoomsService } from 'src/rooms/rooms.service';
-import { FriendsList, GuessPayload, GuessUpdatePayload, ResultsPayload, TurnInfoPayload } from 'src/websocket/dtos/ws.payloads';
-import { Server } from 'socket.io'//server allows emiting from anyhwere
+import { FriendListPayload, GuessPayload, GuessUpdatePayload, ResultsPayload, TurnInfoPayload } from 'src/websocket/dtos/ws.payloads';
+import { Server, Socket } from 'socket.io'//server allows emiting from anyhwere
 import { WS_EVENTS } from 'src/websocket/dtos/ws.events';
 import { WordsService } from 'src/words/words.service';
 import { RoomsService } from 'src/rooms/rooms.service';
@@ -73,12 +73,31 @@ export class GameService {
 			const friendsInRoom: string[] =
 			friendsIds.map((friendId) => idToNickname.get(friendId)!);
 
-			const payload: FriendsList = {
+			const payload: FriendListPayload = {
 				room_id: room.id,
 				friends: friendsInRoom,
 			}
-			server.to(p.userId.toString()).emit(WS_EVENTS.FRIENDS_LIST, payload);
+			server.to(p.userId.toString()).emit(WS_EVENTS.FRIEND_LIST, payload);
 		}
+	}
+
+	getFriends(userID: number, room: Room, client: Socket): string[] {
+		const user = room.players.find((user: PlayerDto) => user.userId === userID);
+		if (!user) {
+			throw new Error("Player not found");
+		}
+
+		const players = room.players;
+		const idToNickname = new Map<number, string>();
+		for (const p of players) {
+			idToNickname.set(p.userId, p.nickname);
+		}
+
+		const friendsIds: number[] = (user.friends ?? []);
+		friendsIds.filter((friendId: number) => idToNickname.has(friendId));
+		const friendsInRoom: string[] =
+		friendsIds.map((friendId) => idToNickname.get(friendId)!);
+		return friendsInRoom;
 	}
 
 	increaseTurn(room: Room): void {
