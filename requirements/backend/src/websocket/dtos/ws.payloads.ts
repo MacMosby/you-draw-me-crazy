@@ -88,6 +88,12 @@ export interface AddFriendPayload {
 	player: number;
 }
 
+export interface RemoveFriendPayload {
+	room_id: number;
+	removeFriend: string;
+	player: number;
+}
+
 
 /*export interface DrawingPayload {
 	room_id: number;
