@@ -76,9 +76,16 @@ export interface StrokeAppendPayload {
   // optional for debugging / future ordering guarantees:
   // seq?: number;
 }
-export interface FriendsList {
+
+export interface FriendListPayload {
 	room_id: number;
 	friends: string[];
+}
+
+export interface AddFriendPayload {
+	room_id: number;
+	newFriend: string;
+	player: number;
 }
 
 
