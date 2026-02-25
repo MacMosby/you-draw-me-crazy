@@ -5,7 +5,7 @@ export const WS_EVENTS = {
 	GUESS_UPDATE: "guessUpdate",
 	RESULTS: "results",
 	TURN_INFO: "turnInfo",
-	DRAW_INIT: "init_drawing",
+	INIT_DRAWING: "init_drawing",
 	STROKE_START: "stroke:start",
 	STROKE_APPEND: "stroke:append",
 	CANVAS_CLEAR: "canvas:clear",

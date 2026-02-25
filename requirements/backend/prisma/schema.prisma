@@ -19,3 +19,8 @@ model User {
   email     String   @unique
   password  String
 }
+
+model Word {
+	id	Int @id @default(autoincrement())
+	text String @unique
+}

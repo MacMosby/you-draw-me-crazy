@@ -19,6 +19,8 @@ import { DatabaseModule } from './database/database.module';
 import { WebsocketModule } from './websocket/websocket.module';
 import { TmpModule } from './tmp/tp.module';
 import { RoomsModule } from './rooms/rooms.module';
+import { WordsController } from './words/words.controller';
+import { WordsModule } from './words/words.module';
 
 @Module
 ({
@@ -27,13 +29,14 @@ import { RoomsModule } from './rooms/rooms.module';
 	DatabaseModule,
 	WebsocketModule,
 	RoomsModule,
-	TmpModule],
+	TmpModule,
+	WordsModule],
     //ConfigModule,//would need to be installe seperately
     //DatabaseModule,
     //AuthModule,
    //  UsersModule,
     //GameModule,
-  controllers: [AuthController, UsersController]
+  controllers: [AuthController, UsersController, WordsController]
 
 })
 export class AppModule {}
