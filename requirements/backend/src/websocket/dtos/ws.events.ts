@@ -11,7 +11,8 @@ export const WS_EVENTS = {
 	CANVAS_CLEAR: "canvas:clear",
 	CANVAS_UNDO: "canvas:undo",
 	ROOM_FULL: "roomFull",
-	FRIENDS_LIST: "friendsList"
+	FRIEND_LIST: "friendList",
+	ADD_FRIEND: "addFriend"
 } as const;
 
 export type WSEvent = typeof WS_EVENTS[keyof typeof WS_EVENTS]
