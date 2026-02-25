@@ -1,4 +1,4 @@
-import type { PlayerDto } from "./player.dto.ts";
+import type { PlayerDto } from "./player.dto";
 
 export interface JoinRoomPayload {
 	user_id: number;
