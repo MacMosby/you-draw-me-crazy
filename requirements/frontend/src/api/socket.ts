@@ -2,7 +2,7 @@
 import { io, Socket } from "socket.io-client";
 import type { PlayerDto } from "../../shared/player.dto";
 import { WS_EVENTS } from "../../shared/ws.events";
-import type { TurnInfoPayload } from "../../shared/ws.payloads";
+import type { ResultsPayload, TurnInfoPayload } from "../../shared/ws.payloads";
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? "http://localhost:3000";
 
@@ -118,7 +118,7 @@ export function onGuessUpdate(callback: (payload: any) => void) {
   return () => socket.off(WS_EVENTS.GUESS_UPDATE, callback);
 }
 
-export function onResults(callback: (payload: any) => void) {
+export function onResults(callback: (payload: ResultsPayload) => void) {
   socket.on(WS_EVENTS.RESULTS, callback);
   return () => socket.off(WS_EVENTS.RESULTS, callback);
 }

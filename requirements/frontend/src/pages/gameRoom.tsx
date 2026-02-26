@@ -6,7 +6,7 @@ import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
-import { socket, joinRoom, onTurnInfo, onRoomFull, onStartGame } from "../api/socket";
+import { socket, joinRoom, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
 
 export default function GamePage() {
@@ -39,6 +39,7 @@ export default function GamePage() {
     let unsubTurnInfo = () => {};
     let unsubRoomFull = () => {};
     let unsubStartGame = () => {};
+    let unsubResults = () => {};
 
     (async () => {
       try {
@@ -76,6 +77,11 @@ export default function GamePage() {
           setWsState("full");
         });
 
+        unsubResults = onResults((payload) => {
+          console.log("[ws] results:", payload);
+          setWsState("finished");
+        });
+
         // 3. handle joinRoom
         await joinRoom(userId);
         console.log("[gameRoom] joinRoom successful");
@@ -89,6 +95,7 @@ export default function GamePage() {
       unsubTurnInfo();
       unsubRoomFull();
       unsubStartGame();
+      unsubResults();
       socket.disconnect();
     };
   }, [userId]);
