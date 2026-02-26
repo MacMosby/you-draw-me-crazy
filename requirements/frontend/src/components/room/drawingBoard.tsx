@@ -25,6 +25,7 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   function send() {
 		const trimmed = text.trim();
 		if (!trimmed) return;
+		if (trimmed.length > 100) return;
 
 		// input-only: just emit, no chat rendering yet
 		// socket.emit("chat:send", { roomId, text: trimmed });
@@ -55,19 +56,6 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
   useEffect(() => {
     const handleGuessUpdate = (data: { guesser: { Nickname: string; User_ID: number }; correct: boolean; Score: number; guess: string | null }) => {
       if (data.correct) {
-        // Add system message visible to everyone
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `guess-${Date.now()}`,
-            userId: 0,
-            username: "System",
-            text: `${data.guesser.Nickname} guessed correctly! (+${data.Score} points)`,
-            timestamp: Date.now(),
-            type: "system",
-          },
-        ]);
-
         // Notify parent component to highlight the player
         if (onGuessCorrect) {
           onGuessCorrect(data.guesser.User_ID);

@@ -1,11 +1,12 @@
 // import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 // import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
-import { socket, play, onRoomState, onStartGame, type RoomStatePayload } from "../api/socket";
+import type { TurnInfoPayload } from "../../shared/ws.payloads";
+import { socket, joinRoom, onTurnInfo, onRoomFull, onRoomState, onStartGame, type RoomStatePayload } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
 
 export default function GamePage() {
@@ -22,39 +23,39 @@ export default function GamePage() {
   }
 
   const [wsState, setWsState] = useState<"connecting" | "waiting" | "playing" | "full" | "finished" | "error">("connecting");  
-  const [members, setMembers] = useState<RoomStatePayload["members"]>([]);
-  const [round, setRound] = useState<number>(-1);
-  const [turn, setTurn] = useState<number>(-1);
+  const [members, setMembers] = useState<TurnInfoPayload["players"]>([]);
+  const [round, setRound] = useState<number>(0);
+  const [turn, setTurn] = useState<number>(0);
+  // const [room_id, setRoomId] = useState<number>(-1);
   const [recentlyCorrectGuesser, setRecentlyCorrectGuesser] = useState<number | null>(null);
-
-  // suggestion. should we maybe use separate states for WebSocket connection (wsState) and updates about the room state (just roomState all in one component)
-  // i think it would be better if the UI depends on the second one only
-  
-  // const [wsState, setWsState] = useState<"connecting" | "connected" | "error">("connecting");
-  // const [roomState, setRoomState] = useState<RoomStatePayload | null>(null);
-
+  const [showWaitingLobby, setShowWaitingLobby] = useState(false);
+  const [startCountdown, setStartCountdown] = useState<number | null>(null);
+  const prevWsStateRef = useRef<typeof wsState>("connecting");
 
   useEffect(() => {
-    let unsubRoomState = () => {};
+    let unsubTurnInfo = () => {};
+    let unsubRoomFull = () => {};
     let unsubStartGame = () => {};
 
     (async () => {
       try {
         setWsState("connecting");
 
-        // 1) identify + 2) send play(userId)
-        await play(userId);
+        // 1) identify + 2) send joinRoom(userId)
+        await joinRoom(userId);
+        console.log("[gameRoom] joinRoom successful");
 
         // 3) subscribe to BE pushes
-        unsubRoomState = onRoomState((payload) => {
-          console.log("[ws] room_state:", payload);
+        unsubTurnInfo = onTurnInfo((payload) => {
+          console.log("[ws] turnInfo:", payload);
 
-          setMembers(payload.members); // !!! change name to align with BE !!! 
-          setRound(payload.round); // !!! change name to align with BE !!! 
-          setTurn(payload.turn); // !!! change name to align with BE !!! 
+          if (payload.room_id === -1) {
+            setWsState("full");
+            return;
+          }
 
-          //round/turn -1 means waiting
-          setWsState(payload.round === -1 ? "waiting" : "playing");
+          //round/turn 0 means waiting
+          setWsState(payload.round === 0 ? "waiting" : "playing");
         });
 
         unsubStartGame = onStartGame((payload) => {
@@ -62,7 +63,14 @@ export default function GamePage() {
           setMembers(payload.members);
           setRound(payload.round);
           setTurn(payload.turn);
-          setWsState("playing");
+
+          // round > 0 means game is active
+          setWsState(payload.round > 0 ? "playing" : "waiting");
+        });
+
+        unsubRoomFull = onRoomFull(() => {
+          console.log("[ws] room full");
+          setWsState("full");
         });
       } catch (e) {
         console.error(e);
@@ -71,11 +79,64 @@ export default function GamePage() {
     })();
 
     return () => {
-      unsubRoomState();
+      unsubTurnInfo();
+      unsubRoomFull();
       unsubStartGame();
       socket.disconnect();
     };
   }, [userId]);
+
+  // timer which makes sure the waiting panel disappears after three seconds
+  useEffect(() => {
+    let waitingTimer: number | undefined;
+
+    if (wsState === "waiting") {
+      setShowWaitingLobby(true);
+      waitingTimer = window.setTimeout(() => {
+        setShowWaitingLobby(false);
+      }, 3000);
+    }
+
+    return () => {
+      if (waitingTimer) {
+        window.clearTimeout(waitingTimer);
+      }
+    };
+  }, [wsState]);
+
+  // countdown before play 
+  useEffect(() => {
+    let countdownInterval: number | undefined;
+    const prevState = prevWsStateRef.current;
+
+    if (wsState === "playing" && prevState !== "playing") {
+      setStartCountdown(3);
+      countdownInterval = window.setInterval(() => {
+        setStartCountdown((value) => {
+          if (value === null) return null;
+          if (value <= 1) {
+            if (countdownInterval) {
+              window.clearInterval(countdownInterval);
+            }
+            return null;
+          }
+          return value - 1;
+        });
+      }, 1000);
+    }
+
+    if (wsState !== "playing") {
+      setStartCountdown(null);
+    }
+
+    prevWsStateRef.current = wsState;
+
+    return () => {
+      if (countdownInterval) {
+        window.clearInterval(countdownInterval);
+      }
+    };
+  }, [wsState]);
 
   return (
     <RoomLayout highlightedPlayerId={recentlyCorrectGuesser}>
@@ -91,58 +152,64 @@ export default function GamePage() {
             <div className="font-semibold">Test Highlight:</div>
             <button
               onClick={() => setRecentlyCorrectGuesser(2)}
-              className="block w-full px-2 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded text-xs"
+              className="block w-full px-2 py-1 bg-cyan-100 hover:bg-cyan-200 border border-cyan-300 rounded text-xs"
             >
               Highlight Steph (ID: 2)
             </button>
           </div>
         </div>
 
-    {wsState === 'connecting' && (
+    {wsState === "connecting" && (
       <Lobby 
         title="Connecting..."
         message="Connecting to the game room..."
       />
     )}
 
-    {wsState === 'waiting' && (
+    {wsState === "waiting" && showWaitingLobby && (
       <Lobby 
         title="Waiting for Players"
         message="Not enough players in room. For now, practice your drawing!" // this could be a temporary pop-up?
       />
     )}
 
-    {wsState === 'full' && (
+    {wsState === "full" && (
       <Lobby 
         title="Room Full"
         message="Room 2 is under construction. Please wait for a spot in Room 1 to become available."
       />
     )}
 
-    {wsState === 'finished' && (
+    {wsState === "finished" && (
       <Lobby 
         title="Game Finished!"
         message="Thanks for playing!" // change to rematch
       />
     )}
 
-    {wsState === 'error' && (
+    {wsState === "error" && (
       <Lobby 
         title="Connection Error"
         message="Unable to connect to the game. Please refresh the page."
       />
     )}
 
-    {wsState === 'playing' && (
-      // lobby with countdown?
-      <>
-        {/* Prompt overlaid on top */}
-        <div className="absolute top-8 left-8 z-10 max-w-sm">
-          <PromptBox />
-        </div>
-        <DrawingBoard onGuessCorrect={setRecentlyCorrectGuesser} />
-      </>
-    )}
+      {wsState === "waiting" && (
+        <DrawingBoard />
+      )}
+
+      {wsState === "playing" && (
+        <>
+          <div className="absolute top-8 left-8 z-10 max-w-sm">
+            <PromptBox />
+          </div>
+          <DrawingBoard onGuessCorrect={setRecentlyCorrectGuesser} />
+        </>
+      )}
+
+      {wsState === "playing" && startCountdown !== null && (
+        <Lobby title="Get Ready" message={`Game will start in: ${startCountdown}`} />
+      )}
     </RoomLayout>
   );
 }

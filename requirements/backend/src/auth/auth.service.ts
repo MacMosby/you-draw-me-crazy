@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
+import type { LoginResponse, SignupResponse } from '../../shared/auth.types';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
   // --------------------------------------------------
   // Signup
   // --------------------------------------------------
-  async signup(email: string, password: string, username: string) {
+  async signup(email: string, password: string, username: string): Promise<SignupResponse> {
     const user = await this.usersService.getUser(email);
 
     if (user) {
@@ -40,7 +41,7 @@ export class AuthService {
   // --------------------------------------------------
   // Login
   // --------------------------------------------------
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<LoginResponse> {
     const user = await this.usersService.getUser(email);
 
     if (!user) {
