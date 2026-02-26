@@ -191,8 +191,8 @@ export default function GamePage() {
 
     {wsState === "finished" && (
       <Lobby 
-        title="Game Finished!"
-        message="Thanks for playing!" // change to rematch
+        title="Game Finished!" // add option for Round finished as well
+        message="Thanks for playing!" // change to rematch + add the solution reveal
       />
     )}
 
