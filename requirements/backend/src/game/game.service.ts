@@ -47,7 +47,8 @@ export class GameService {
 			round: room.round,
 			turn: room.turn,
 			players: room.players,
-			time_to_display: 20_000,//20s for console test
+			spectators: room.spectators,
+			time_to_display: 10_000,//10s for console test
 		}
 		server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, payload);
 		this.logger.log(`Room ${room.id} round.turn ${room.round}.${room.turn}, drawerId: ${room.drawer} draws ${room.word}`);
@@ -72,6 +73,7 @@ export class GameService {
 			console.log('send final results');
 			return;
 		}
+		// admitSpectators() implement! NB
 		room.turn = 1;
 		this.logger.log(`Room ${room.id} started round ${room.round}`);
 		//this.startTurn(room);

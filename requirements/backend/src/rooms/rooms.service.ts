@@ -38,7 +38,6 @@ export class RoomsService {
 		room.turn = 0;
 		room.maxRounds = 2;//2 for testing
 		room.maxPlayers = maxPlayers;
-		//room.active = false;
 		this.rooms.set(room.id, room);//add room to map
 		this.logger.log(`Room created: id=${room.id}`);
 		return room;
@@ -52,43 +51,23 @@ export class RoomsService {
 	getAllRooms(): Room[] {
 		return Array.from(this.rooms.values());
 	}
-	//unnecessary?
+
 	deleteRoom(roomId: number): void {
 		this.rooms.delete(roomId);
 		this.logger.log(`Room deleted: id=${roomId}`);
 	}
 
-	async addPlayerToFirstAvailableRoom(newuserId: number): Promise<Room> {
+	async findAvailableRoom(newUserId: number): Promise<Room> {
 		//keep users from joining when already in any room
-		// if (this.userToRoom.has(newuserId)) {
-		// 	const existingRoomId = this.userToRoom.get(newuserId)!;
-		// 	return this.rooms.get(existingRoomId)!;
-		// }
-
-		const user = await this.usersService.getUserById(newuserId);
-		if (!user) {
-			throw new Error("User not found");
-		}
-
-		// Double-check after async call to avoid races from duplicate join requests.
-		if (this.userToRoom.has(newuserId)) {
-			throw new Error("User denied! (Expected behavior in React dev mode)");
-		}
-
-		const player: PlayerDto = {
-			userId: newuserId,
-			nickname: user.nickname,
-			score: 0,
+		if (this.userToRoom.has(newUserId)) {
+			const existingRoomId = this.userToRoom.get(newUserId)!;
+			return this.rooms.get(existingRoomId)!;
 		}
 		for (const room of this.rooms.values()) {
 			if (room.players.length < room.maxPlayers) {
-				room.players.push(player);
-				this.userToRoom.set(newuserId, room.id);
-				console.log(`User ${player.userId} ${player.nickname} joined room ${room.id}`);
 				return room;
 			}
 		}
-		//no room available
 		console.log('NO room available');
 		const dummyRoom = new Room();
 		dummyRoom.id = -1;
@@ -99,10 +78,30 @@ export class RoomsService {
 		dummyRoom.drawer = -1;
 		dummyRoom.word_length = -1;
 		dummyRoom.players = [];
+		dummyRoom.spectators = [];
 		return dummyRoom;
 	}
 
-	removePlayer(userId: number) {
+	async addUser(newUserId: number, roomId: number, state: string) {
+		const user = await this.usersService.getUserById(newUserId);
+		if (!user) return;
+		const room = this.getRoom(roomId);
+		if (!room) return;
+		const player: PlayerDto = {
+			userId: newUserId,
+			nickname: user.nickname,
+			score: 0,
+		}
+		if (state === 'player' && room.players.length < room.maxPlayers)
+			room.players.push(player);
+		else
+			room.spectators.push(player);
+		this.userToRoom.set(newUserId, room.id);
+		console.log(`User ${player.userId} ${player.nickname} joined room ${room.id} as ${state}`);
+	}
+	
+	// NB Remove player adjusted to remove user, so that it handles both removing players and spectators
+	removeUser(userId: number) {
 		console.log('remove Player', userId);
 		const roomId = this.userToRoom.get(userId);
 		// if (!roomId) return ;
@@ -111,9 +110,21 @@ export class RoomsService {
 		console.log('from room', roomId);
 		if (!room) return;
 		room.players = room.players.filter(p => p.userId !== userId);
+		room.spectators = room.spectators.filter( p => p.userId !== userId);
 		this.userToRoom.delete(userId);
-		console.log('player', userId, 'removed from Room', roomId);
+		console.log('user', userId, 'removed from Room', roomId);
 		//if < min players, end game early, send final results
+	}
+
+	admitSpectators(roomId: number) {
+		const room = this.getRoom(roomId);
+		if (!room)
+			return;
+		while (room.spectators.length > 0 && room.players.length < room.maxPlayers)
+		{
+			const spectator = room.spectators.shift()!;
+			room.players.push(spectator);
+		}
 	}
 
 	removeAllPlayers(roomId: number) {
@@ -158,3 +169,4 @@ export class RoomsService {
     }
 
 }
+

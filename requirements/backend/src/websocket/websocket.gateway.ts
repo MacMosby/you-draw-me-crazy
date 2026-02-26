@@ -45,7 +45,7 @@ export class WebsocketGateway {
 		//automatically removes socket from socket.io rooms
 		const userId = client.data.userId;
 		if (!userId) return;
-		this.roomService.removePlayer(userId);
+		this.roomService.removeUser(userId);
 		this.registry.removeConnection(userId, client);
 		console.log(`Client ${client.id} with user id ${client.data.userId} disconnected`);
 	}
@@ -76,14 +76,20 @@ export class WebsocketGateway {
 		});
 	}
 
-
 	@SubscribeMessage(WS_EVENTS.JOIN_ROOM) 
 	async handleJoinRoom(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: JoinRoomPayload,
 	) {
 		console.log('[recv] JoinRoom', payload);
-		const room = await this.roomService.addPlayerToFirstAvailableRoom(payload.user_id);
+		// const room = await this.roomService.addPlayerToFirstAvailableRoom(payload.user_id);
+		const room = await this.roomService.findAvailableRoom(payload.user_id);
+
+		if (room.state === 'lobby')
+			await this.roomService.addUser(payload.user_id, room.id, 'player')
+		else if (room.state == 'playing')
+			await this.roomService.addUser(payload.user_id, room.id, 'spectator');
+
 		if (room.id === -1) {
 			client.emit(WS_EVENTS.ROOM_FULL);
 			return;
@@ -101,6 +107,7 @@ export class WebsocketGateway {
 			round: room.round,
 			turn: room.turn,
 			players: room.players,
+			spectators: room.spectators,
 			time_to_display: 0,//no timer
 		};
 		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
