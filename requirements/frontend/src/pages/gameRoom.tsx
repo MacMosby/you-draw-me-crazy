@@ -8,6 +8,7 @@ import Lobby from "../components/room/lobby";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
 import { socket, joinRoom, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
+import starImage from "../assets/star.png";
 
 export default function GamePage() {
   // safety function to remove duplicate players from the list
@@ -79,7 +80,9 @@ export default function GamePage() {
 
         unsubResults = onResults((payload) => {
           console.log("[ws] results:", payload);
-          setWsState("finished");
+          if (payload.final) {
+            setWsState("finished");
+          }
         });
 
         // 3. handle joinRoom
@@ -178,7 +181,7 @@ export default function GamePage() {
     {wsState === "waiting" && showWaitingLobby && (
       <Lobby 
         title="Waiting for Players"
-        message="Not enough players in room. For now, practice your drawing!" // this could be a temporary pop-up?
+        message="Not enough players in room. For now, practice your drawing!"
       />
     )}
 
@@ -191,8 +194,9 @@ export default function GamePage() {
 
     {wsState === "finished" && (
       <Lobby 
-        title="Game Finished!" // add option for Round finished as well
-        message="Thanks for playing!" // change to rematch + add the solution reveal
+        title="Game Finished!"
+        message="Thanks for playing!" // change to rematch
+        icon={starImage}
       />
     )}
 
