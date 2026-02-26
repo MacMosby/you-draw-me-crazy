@@ -95,11 +95,12 @@ export function onStartGame(callback: (payload: RoomStatePayload) => void) {
 
 export function onTurnInfo(callback: (payload: TurnInfoPayload) => void) {
   console.log("[ws] subscribing to turn_info");
-  socket.on(WS_EVENTS.TURN_INFO, (payload) => {
+  const handler = (payload: TurnInfoPayload) => {
     console.log("[ws] turn_info received:", payload);
     callback(payload);
-  });
-  return () => socket.off(WS_EVENTS.TURN_INFO, callback);
+  };
+  socket.on(WS_EVENTS.TURN_INFO, handler);
+  return () => socket.off(WS_EVENTS.TURN_INFO, handler);
 }
 
 export function onRoomFull(callback: () => void) {
