@@ -10,11 +10,13 @@ import { socket, joinRoom, onTurnInfo, onRoomFull, onStartGame } from "../api/so
 import { useSessionStore } from "../state/sessionStore";
 
 export default function GamePage() {
+  // safety function to remove duplicate players from the list
   const dedupePlayers = (players: TurnInfoPayload["players"]) =>
     players.filter((player, index, list) =>
       list.findIndex((candidate) => candidate.userId === player.userId) === index
     );
   
+  // 1. get userId from storage
   const user = useSessionStore((s) => s.user);
   const userId = user?.id; // use user id from storage
   if (!userId) {
@@ -25,6 +27,8 @@ export default function GamePage() {
   const [members, setMembers] = useState<TurnInfoPayload["players"]>([]);
   const [round, setRound] = useState<number>(0);
   const [turn, setTurn] = useState<number>(0);
+  const [drawerId, setDrawerId] = useState<number>(-1);
+  const [currentWord, setCurrentWord] = useState<string | null>(null);
   // const [room_id, setRoomId] = useState<number>(-1);
   const [recentlyCorrectGuesser, setRecentlyCorrectGuesser] = useState<number | null>(null);
   const [showWaitingLobby, setShowWaitingLobby] = useState(false);
@@ -40,7 +44,7 @@ export default function GamePage() {
       try {
         setWsState("connecting");
 
-        // subscribe to BE pushes before joinRoom so we don't miss the first turnInfo event
+        // 2. subscribe to BE pushes before joinRoom so we don't miss the first turnInfo event
         unsubTurnInfo = onTurnInfo((payload) => {
           console.log("[ws] turnInfo:", payload);
 
@@ -52,6 +56,8 @@ export default function GamePage() {
           setMembers(dedupePlayers(payload.players));
           setRound(payload.round);
           setTurn(payload.turn);
+          setDrawerId(payload.drawer);
+          setCurrentWord(payload.word);
 
           //round/turn 0 means waiting
           setWsState(payload.round === 0 ? "waiting" : "playing");
@@ -62,9 +68,7 @@ export default function GamePage() {
           setMembers(dedupePlayers(payload.members));
           setRound(payload.round);
           setTurn(payload.turn);
-
-          // round > 0 means game is active
-          setWsState(payload.round > 0 ? "playing" : "waiting");
+          setWsState("playing");
         });
 
         unsubRoomFull = onRoomFull(() => {
@@ -72,7 +76,7 @@ export default function GamePage() {
           setWsState("full");
         });
 
-        // 1) identify + 2) send joinRoom(userId)
+        // 3. handle joinRoom
         await joinRoom(userId);
         console.log("[gameRoom] joinRoom successful");
       } catch (e) {
@@ -145,6 +149,7 @@ export default function GamePage() {
     <RoomLayout
       highlightedPlayerId={recentlyCorrectGuesser}
       players={members}
+      drawerId={drawerId}
     >
 
 		{/* Debugging stuff: feel free to delete or change */}
@@ -197,9 +202,11 @@ export default function GamePage() {
 
       {wsState === "playing" && (
         <>
-          <div className="absolute top-8 left-8 z-10 max-w-sm">
-            <PromptBox />
-          </div>
+          {drawerId === userId && (
+            <div className="absolute top-8 left-8 z-10 max-w-sm">
+              <PromptBox prompt={currentWord} />
+            </div>
+          )}
           <DrawingBoard onGuessCorrect={setRecentlyCorrectGuesser} />
         </>
       )}

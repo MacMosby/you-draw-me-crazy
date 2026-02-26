@@ -5,9 +5,10 @@ import type { PlayerDto } from "../../../shared/player.dto";
 interface ParticipantsListProps {
   highlightedPlayerId?: number | null;
   players: PlayerDto[];
+  drawerId?: number;
 }
 
-export default function ParticipantsList({ highlightedPlayerId, players }: ParticipantsListProps) {
+export default function ParticipantsList({ highlightedPlayerId, players, drawerId }: ParticipantsListProps) {
 
   const [activeHighlight, setActiveHighlight] = useState<number | null>(null);
 
@@ -44,6 +45,9 @@ export default function ParticipantsList({ highlightedPlayerId, players }: Parti
                   }`}
                 >
                   {participant.nickname}
+                </div>
+                <div className="text-xs text-textMuted">
+                  {drawerId === participant.userId ? "Drawer" : "Guesser"}
                 </div>
               </div>
               <div className="text-right">
