@@ -15,6 +15,8 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
 	const [text, setText] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
+  const canvasContainerRef = useRef<HTMLDivElement | null>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const currentUserId = 42;
 
   const sortedMessages = useMemo(
@@ -69,15 +71,36 @@ export default function DrawingBoard({ onGuessCorrect }: Props) {
     };
   }, [onGuessCorrect]);
 
+  useEffect(() => {
+    const container = canvasContainerRef.current;
+    if (!container) return;
+
+    const updateSize = () => {
+      const { clientWidth, clientHeight } = container;
+      setCanvasSize({
+        width: Math.max(1, clientWidth),
+        height: Math.max(1, clientHeight),
+      });
+    };
+
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(container);
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
       {/* Canvas area */}
-      <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 min-h-[280px] lg:min-h-0">
-        <canvas
-          className="w-full h-full rounded cursor-crosshair"
-          width={1600}
-          height={1200}
-        />
+      <div className="w-full lg:flex-1">
+        <div ref={canvasContainerRef} className="relative bg-surface border border-gray-400 rounded-lg w-full aspect-[4/3] min-h-[280px]">
+          <canvas
+            className="w-full h-full rounded cursor-crosshair"
+            width={canvasSize.width}
+            height={canvasSize.height}
+          />
+        </div>
       </div>
 
       {/* Chat/Guesses section */}
