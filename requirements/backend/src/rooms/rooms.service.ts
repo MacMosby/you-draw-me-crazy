@@ -99,7 +99,8 @@ export class RoomsService {
 	removePlayer(userId: number) {
 		console.log('remove Player', userId);
 		const roomId = this.userToRoom.get(userId);
-		if (!roomId) return;
+		// if (!roomId) return ;
+		if (roomId === undefined) return;
 		const room = this.rooms.get(roomId);
 		console.log('from room', roomId);
 		if (!room) return;

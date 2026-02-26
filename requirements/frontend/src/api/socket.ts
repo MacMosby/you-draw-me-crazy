@@ -2,7 +2,7 @@
 import { io, Socket } from "socket.io-client";
 import type { PlayerDto } from "../../shared/player.dto";
 import { WS_EVENTS } from "../../shared/ws.events";
-import type { TurnInfoPayload } from "../../shared/ws.payloads";
+import type { ResultsPayload, TurnInfoPayload } from "../../shared/ws.payloads";
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? "http://localhost:3000";
 
@@ -64,6 +64,10 @@ export function initSocketWithIdentify(userId: number): Promise<void> {
 // ack - acknowledgment callbacks
 // Socket.IO (Application Layer): Supports acknowledgment callbacks in emit functions, where the final argument is a function executed upon receipt.
 
+export function onStartGame(callback: (payload: RoomStatePayload) => void) {
+  socket.on("start_game", callback);
+  return () => socket.off("start_game", callback);
+}
 
 export async function joinRoom(userId: number) {
   console.log("[ws] joinRoom() called with userId:", userId);
@@ -82,24 +86,21 @@ export async function joinRoom(userId: number) {
 // }
 
 // Helper to subscribe/unsubscribe cleanly from BE events.
-export function onRoomState(callback: (payload: RoomStatePayload) => void) {
-  console.log("[ws] subscribing to roomState");
-  socket.on(WS_EVENTS.ROOM_STATE, callback);
-  return () => socket.off(WS_EVENTS.ROOM_STATE, callback);
-}
-
-export function onStartGame(callback: (payload: RoomStatePayload) => void) {
-  socket.on("start_game", callback);
-  return () => socket.off("start_game", callback);
-}
+// export function onRoomState(callback: (payload: RoomStatePayload) => void) {
+//   console.log("[ws] subscribing to roomState");
+//   socket.on(WS_EVENTS.ROOM_STATE, callback);
+//   return () => socket.off(WS_EVENTS.ROOM_STATE, callback);
+// }
 
 export function onTurnInfo(callback: (payload: TurnInfoPayload) => void) {
   console.log("[ws] subscribing to turn_info");
-  socket.on(WS_EVENTS.TURN_INFO, (payload) => {
+  // use a stored handler here so we can unsubscribe using the exact same input 
+  const handler = (payload: TurnInfoPayload) => {
     console.log("[ws] turn_info received:", payload);
     callback(payload);
-  });
-  return () => socket.off(WS_EVENTS.TURN_INFO, callback);
+  };
+  socket.on(WS_EVENTS.TURN_INFO, handler);
+  return () => socket.off(WS_EVENTS.TURN_INFO, handler);
 }
 
 export function onRoomFull(callback: () => void) {
@@ -117,7 +118,7 @@ export function onGuessUpdate(callback: (payload: any) => void) {
   return () => socket.off(WS_EVENTS.GUESS_UPDATE, callback);
 }
 
-export function onResults(callback: (payload: any) => void) {
+export function onResults(callback: (payload: ResultsPayload) => void) {
   socket.on(WS_EVENTS.RESULTS, callback);
   return () => socket.off(WS_EVENTS.RESULTS, callback);
 }

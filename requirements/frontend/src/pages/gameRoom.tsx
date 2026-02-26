@@ -6,16 +6,18 @@ import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
-import { socket, joinRoom, onTurnInfo, onRoomFull, onRoomState, onStartGame, type RoomStatePayload } from "../api/socket";
+import { socket, joinRoom, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
+import starImage from "../assets/star.png";
 
 export default function GamePage() {
-  // const { auth } = useAuth();
-  // const [players, setPlayers] = useState<Player[]>([]);
-
-  // IMPORTANT: replace with real user id
-//   const userId = 42;
-
+  // safety function to remove duplicate players from the list
+  const dedupePlayers = (players: TurnInfoPayload["players"]) =>
+    players.filter((player, index, list) =>
+      list.findIndex((candidate) => candidate.userId === player.userId) === index
+    );
+  
+  // 1. get userId from storage
   const user = useSessionStore((s) => s.user);
   const userId = user?.id; // use user id from storage
   if (!userId) {
@@ -26,6 +28,8 @@ export default function GamePage() {
   const [members, setMembers] = useState<TurnInfoPayload["players"]>([]);
   const [round, setRound] = useState<number>(0);
   const [turn, setTurn] = useState<number>(0);
+  const [drawerId, setDrawerId] = useState<number>(-1);
+  const [currentWord, setCurrentWord] = useState<string | null>(null);
   // const [room_id, setRoomId] = useState<number>(-1);
   const [recentlyCorrectGuesser, setRecentlyCorrectGuesser] = useState<number | null>(null);
   const [showWaitingLobby, setShowWaitingLobby] = useState(false);
@@ -36,16 +40,13 @@ export default function GamePage() {
     let unsubTurnInfo = () => {};
     let unsubRoomFull = () => {};
     let unsubStartGame = () => {};
+    let unsubResults = () => {};
 
     (async () => {
       try {
         setWsState("connecting");
 
-        // 1) identify + 2) send joinRoom(userId)
-        await joinRoom(userId);
-        console.log("[gameRoom] joinRoom successful");
-
-        // 3) subscribe to BE pushes
+        // 2. subscribe to BE pushes before joinRoom so we don't miss the first turnInfo event
         unsubTurnInfo = onTurnInfo((payload) => {
           console.log("[ws] turnInfo:", payload);
 
@@ -54,24 +55,39 @@ export default function GamePage() {
             return;
           }
 
+          setMembers(dedupePlayers(payload.players));
+          setRound(payload.round);
+          setTurn(payload.turn);
+          setDrawerId(payload.drawer);
+          setCurrentWord(payload.word);
+
           //round/turn 0 means waiting
           setWsState(payload.round === 0 ? "waiting" : "playing");
         });
 
         unsubStartGame = onStartGame((payload) => {
           console.log("[ws] start_game:", payload);
-          setMembers(payload.members);
+          setMembers(dedupePlayers(payload.members));
           setRound(payload.round);
           setTurn(payload.turn);
-
-          // round > 0 means game is active
-          setWsState(payload.round > 0 ? "playing" : "waiting");
+          setWsState("playing");
         });
 
         unsubRoomFull = onRoomFull(() => {
           console.log("[ws] room full");
           setWsState("full");
         });
+
+        unsubResults = onResults((payload) => {
+          console.log("[ws] results:", payload);
+          if (payload.final) {
+            setWsState("finished");
+          }
+        });
+
+        // 3. handle joinRoom
+        await joinRoom(userId);
+        console.log("[gameRoom] joinRoom successful");
       } catch (e) {
         console.error(e);
         setWsState("error");
@@ -82,6 +98,7 @@ export default function GamePage() {
       unsubTurnInfo();
       unsubRoomFull();
       unsubStartGame();
+      unsubResults();
       socket.disconnect();
     };
   }, [userId]);
@@ -139,7 +156,11 @@ export default function GamePage() {
   }, [wsState]);
 
   return (
-    <RoomLayout highlightedPlayerId={recentlyCorrectGuesser}>
+    <RoomLayout
+      highlightedPlayerId={recentlyCorrectGuesser}
+      players={members}
+      drawerId={drawerId}
+    >
 
 		{/* Debugging stuff: feel free to delete or change */}
 		<div className="absolute top-50 left-50 z-10 max-w-sm bg-white/90 rounded p-3 text-xs space-y-2">
@@ -148,16 +169,7 @@ export default function GamePage() {
           <div>round: {round} turn: {turn}</div>
           <div>players: {members.length}</div>
 		  <div>whoIam: id:{userId} name:{user?.username} </div>
-          <div className="border-t pt-2 space-y-1">
-            <div className="font-semibold">Test Highlight:</div>
-            <button
-              onClick={() => setRecentlyCorrectGuesser(2)}
-              className="block w-full px-2 py-1 bg-cyan-100 hover:bg-cyan-200 border border-cyan-300 rounded text-xs"
-            >
-              Highlight Steph (ID: 2)
-            </button>
           </div>
-        </div>
 
     {wsState === "connecting" && (
       <Lobby 
@@ -169,7 +181,7 @@ export default function GamePage() {
     {wsState === "waiting" && showWaitingLobby && (
       <Lobby 
         title="Waiting for Players"
-        message="Not enough players in room. For now, practice your drawing!" // this could be a temporary pop-up?
+        message="Not enough players in room. For now, practice your drawing!"
       />
     )}
 
@@ -184,6 +196,7 @@ export default function GamePage() {
       <Lobby 
         title="Game Finished!"
         message="Thanks for playing!" // change to rematch
+        icon={starImage}
       />
     )}
 
@@ -200,9 +213,11 @@ export default function GamePage() {
 
       {wsState === "playing" && (
         <>
-          <div className="absolute top-8 left-8 z-10 max-w-sm">
-            <PromptBox />
-          </div>
+          {drawerId === userId && (
+            <div className="absolute top-8 left-8 z-10 max-w-sm">
+              <PromptBox prompt={currentWord} />
+            </div>
+          )}
           <DrawingBoard onGuessCorrect={setRecentlyCorrectGuesser} />
         </>
       )}
