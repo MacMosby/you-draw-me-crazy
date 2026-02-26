@@ -1,18 +1,13 @@
 import { useEffect, useState } from "react";
 import Clock from "./clock";
+import type { PlayerDto } from "../../../shared/player.dto";
 
 interface ParticipantsListProps {
   highlightedPlayerId?: number | null;
+  players: PlayerDto[];
 }
 
-export default function ParticipantsList({ highlightedPlayerId }: ParticipantsListProps) {
-  // Mock participants data
-  const participants = [
-    { id: "1", name: "Natalya", score: 250, role: "drawer", status: "disconnected" },
-    { id: "2", name: "Steph", score: 180, role: "guesser", status: "connected" },
-    { id: "3", name: "Marc", score: 150, role: "guesser", status: "connected" },
-    { id: "4", name: "Nick", score: 200, role: "guesser", status: "connected" },
-  ];
+export default function ParticipantsList({ highlightedPlayerId, players }: ParticipantsListProps) {
 
   const [activeHighlight, setActiveHighlight] = useState<number | null>(null);
 
@@ -27,16 +22,14 @@ export default function ParticipantsList({ highlightedPlayerId }: ParticipantsLi
   return (
     <div className="bg-surface rounded-lg p-3 border border-gray-200 h-full flex flex-col">
       <h2 className="text-lg font-semibold mb-3 text-textPrimary">
-        Players ({participants.length})
+        Players ({players.length})
       </h2>
       <div className="space-y-2 flex-1 overflow-y-auto">
-        {participants.map((participant) => (
+        {players.map((participant) => (
           <div
-            key={participant.id}
+            key={participant.userId}
             className={`px-2 py-1.5 rounded-md transition-colors duration-300 ${
-              participant.status === "disconnected" ? "opacity-50" : ""
-            } ${
-              activeHighlight === parseInt(participant.id)
+              activeHighlight === participant.userId
                 ? "bg-cyan-100/60"
                 : "bg-transparent"
             }`}
@@ -45,15 +38,12 @@ export default function ParticipantsList({ highlightedPlayerId }: ParticipantsLi
               <div>
                 <div
                   className={`text-xl font-semibold transition-colors ${
-                    activeHighlight === parseInt(participant.id)
+                    activeHighlight === participant.userId
                       ? "text-cyan-600"
                       : "text-textPrimary"
                   }`}
                 >
-                  {participant.name}
-                </div>
-                <div className="text-xs text-textMuted">
-                  {participant.role === "drawer" ? "Drawing" : "Guessing"}
+                  {participant.nickname}
                 </div>
               </div>
               <div className="text-right">

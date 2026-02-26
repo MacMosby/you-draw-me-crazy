@@ -6,16 +6,15 @@ import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
-import { socket, joinRoom, onTurnInfo, onRoomFull, onRoomState, onStartGame, type RoomStatePayload } from "../api/socket";
+import { socket, joinRoom, onTurnInfo, onRoomFull, onStartGame } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
 
 export default function GamePage() {
-  // const { auth } = useAuth();
-  // const [players, setPlayers] = useState<Player[]>([]);
-
-  // IMPORTANT: replace with real user id
-//   const userId = 42;
-
+  const dedupePlayers = (players: TurnInfoPayload["players"]) =>
+    players.filter((player, index, list) =>
+      list.findIndex((candidate) => candidate.userId === player.userId) === index
+    );
+  
   const user = useSessionStore((s) => s.user);
   const userId = user?.id; // use user id from storage
   if (!userId) {
@@ -41,11 +40,7 @@ export default function GamePage() {
       try {
         setWsState("connecting");
 
-        // 1) identify + 2) send joinRoom(userId)
-        await joinRoom(userId);
-        console.log("[gameRoom] joinRoom successful");
-
-        // 3) subscribe to BE pushes
+        // subscribe to BE pushes before joinRoom so we don't miss the first turnInfo event
         unsubTurnInfo = onTurnInfo((payload) => {
           console.log("[ws] turnInfo:", payload);
 
@@ -54,13 +49,17 @@ export default function GamePage() {
             return;
           }
 
+          setMembers(dedupePlayers(payload.players));
+          setRound(payload.round);
+          setTurn(payload.turn);
+
           //round/turn 0 means waiting
           setWsState(payload.round === 0 ? "waiting" : "playing");
         });
 
         unsubStartGame = onStartGame((payload) => {
           console.log("[ws] start_game:", payload);
-          setMembers(payload.members);
+          setMembers(dedupePlayers(payload.members));
           setRound(payload.round);
           setTurn(payload.turn);
 
@@ -72,6 +71,10 @@ export default function GamePage() {
           console.log("[ws] room full");
           setWsState("full");
         });
+
+        // 1) identify + 2) send joinRoom(userId)
+        await joinRoom(userId);
+        console.log("[gameRoom] joinRoom successful");
       } catch (e) {
         console.error(e);
         setWsState("error");
@@ -139,7 +142,10 @@ export default function GamePage() {
   }, [wsState]);
 
   return (
-    <RoomLayout highlightedPlayerId={recentlyCorrectGuesser}>
+    <RoomLayout
+      highlightedPlayerId={recentlyCorrectGuesser}
+      players={members}
+    >
 
 		{/* Debugging stuff: feel free to delete or change */}
 		<div className="absolute top-50 left-50 z-10 max-w-sm bg-white/90 rounded p-3 text-xs space-y-2">
@@ -148,16 +154,7 @@ export default function GamePage() {
           <div>round: {round} turn: {turn}</div>
           <div>players: {members.length}</div>
 		  <div>whoIam: id:{userId} name:{user?.username} </div>
-          <div className="border-t pt-2 space-y-1">
-            <div className="font-semibold">Test Highlight:</div>
-            <button
-              onClick={() => setRecentlyCorrectGuesser(2)}
-              className="block w-full px-2 py-1 bg-cyan-100 hover:bg-cyan-200 border border-cyan-300 rounded text-xs"
-            >
-              Highlight Steph (ID: 2)
-            </button>
           </div>
-        </div>
 
     {wsState === "connecting" && (
       <Lobby 
