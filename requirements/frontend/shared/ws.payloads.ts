@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { PlayerDto } from "./player.dto";
 =======
 import { PlayerDto } from "./player.dto";
@@ -7,11 +8,15 @@ import { PlayerDto } from "./player.dto";
 =======
 import { PlayerDto } from "./player.dto";
 >>>>>>> ca60847 (add: sockets for drawing)
+=======
+import type { PlayerDto } from "./player.dto";
+>>>>>>> 0950475 (fix: errors after merge)
 
 export interface JoinRoomPayload {
 	user_id: number;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -25,6 +30,8 @@ example: if you receive this after joinRoom, there was no availbale room.
 >>>>>>> 31389cf (add: sockets for drawing)
 =======
 >>>>>>> ca60847 (add: sockets for drawing)
+=======
+>>>>>>> 0950475 (fix: errors after merge)
 export interface TurnInfoPayload {
 	room_id: number;
 	drawer: number;
@@ -35,12 +42,15 @@ export interface TurnInfoPayload {
 	players: PlayerDto[];
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	time_to_display: number;
 >>>>>>> 31389cf (add: sockets for drawing)
 =======
 	time_to_display: number;
 >>>>>>> ca60847 (add: sockets for drawing)
+=======
+>>>>>>> 0950475 (fix: errors after merge)
 }
 
 export interface GuessPayload {
@@ -65,11 +75,15 @@ export interface ResultsPayload {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0950475 (fix: errors after merge)
 export interface DrawingPayload {
 	room_id: number;
 	drawer: Number;
 	coordinate_x: number;
 	coordinate_y: number;
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> ca60847 (add: sockets for drawing)
@@ -85,5 +99,7 @@ export interface DrawPayload {
 >>>>>>> 31389cf (add: sockets for drawing)
 =======
 >>>>>>> ca60847 (add: sockets for drawing)
+=======
+>>>>>>> 0950475 (fix: errors after merge)
 	color: `#${string}`// e.g. "#ff00ff"
 }
