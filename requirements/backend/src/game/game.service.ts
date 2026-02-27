@@ -4,16 +4,26 @@ import { Room } from 'src/rooms/room.class';
 import { GuessPayload, GuessUpdatePayload, ResultsPayload, TurnInfoPayload } from 'src/websocket/dtos/ws.payloads';
 import { Server } from 'socket.io'//server allows emiting from anyhwere
 import { WS_EVENTS } from 'src/websocket/dtos/ws.events';
+import { WordsService } from 'src/words/words.service';
+import { RoomsService } from 'src/rooms/rooms.service';
 
 @Injectable()
 export class GameService {
 	private readonly logger = new Logger(GameService.name);//for writing backend logs that are this green formated thingy
+	constructor(
+	private readonly wordsService: WordsService,
+	private readonly roomsService: RoomsService,
+	) {}
 	
-	startTurn(room: Room, server: Server): void {
+	async startTurn(room: Room, server: Server) {
 		if (room.round === 0) this.increaseRound(room);
 		else this.increaseTurn(room);
-		room.word = "example_word";
+		console.log("USING WORD SERVICE NOW");
+		const wordEntity = await this.wordsService.getRandomWord(room.usedWordIds);
+		room.word = wordEntity.text;
 		room.word_length = room.word!.length;
+		room.usedWordIds.push(wordEntity.id);
+		console.log("usedWordIds:", room.usedWordIds);
 		room.drawer = room.players[room.turn-1].userId;
 		const socketRoom = `room-${room.id}`;
 		const payload: TurnInfoPayload = {
@@ -100,6 +110,12 @@ export class GameService {
 				this.startTurn(room, server);
 			}
 		}, response.time_to_display);
+		if (isFinal) {
+			this.roomsService.removeAllPlayers(room.id);
+			room.usedWordIds.length = 0;
+			room.round = 0;
+			room.turn = 0;
+		}
 	}
 
 	checkEndOfTurn(room: Room, server: Server) {

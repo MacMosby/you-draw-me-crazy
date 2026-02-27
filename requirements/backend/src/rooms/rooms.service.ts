@@ -110,6 +110,19 @@ export class RoomsService {
 		//if < min players, end game early, send final results
 	}
 
+	removeAllPlayers(roomId: number) {
+		console.log('remove all players from room', roomId);
+		const room = this.rooms.get(roomId);
+		if (!room) return;
+		// remove user → room mappings
+		for (const player of room.players) {
+			this.userToRoom.delete(player.userId);
+		}
+		// clear players array (keep reference)
+		room.players.length = 0;
+		console.log('all players removed from room', roomId);
+	}
+
 	appendStrokes(strokes: Stroke[], roomId: number) {
         const room = this.getRoom(roomId);
         if (!room)

@@ -17,5 +17,6 @@ export class Room {
 	public strokes: Stroke[] = [];
 	correctGuesses: Set<number> = new Set();//user ids that guessed correctly
 	timeout?: NodeJS.Timeout;
+	public usedWordIds: number[] = [];
 	//public active: boolean;
 }
