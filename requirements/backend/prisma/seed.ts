@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -21,17 +22,23 @@ async function main() {
   console.log("Seeded words");
   // Seed dummy users
   const users = [
-    { nickname: 'Alice', email: 'alice@example.com', password: 'password1' },
-    { nickname: 'Bob', email: 'bob@example.com', password: 'password2' },
-    { nickname: 'Charlie', email: 'charlie@example.com', password: 'password3' },
-    { nickname: 'test4', email: 'test4@example.com', password: 'password4' },
-    { nickname: 'test5', email: 'test5@example.com', password: 'password5' },
+    { nickname: 'dummy1', email: 'dummy1@example.com', password: 'password1' },
+    { nickname: 'dummy2', email: 'dummy2@example.com', password: 'password2' },
+    { nickname: 'dummy3', email: 'dummy3@example.com', password: 'password3' },
+    { nickname: 'dummy4', email: 'dummy4@example.com', password: 'password4' },
+    { nickname: 'dummy5', email: 'dummy5@example.com', password: 'password5' },
   ];
 
-  await prisma.user.createMany({
-    data: users,
-    skipDuplicates: true, // prevents error if seed is run multiple times
-  });
+  // Hash passwords before inserting
+  const saltRounds = 12;
+  for (const user of users) {
+    const hashed = await bcrypt.hash(user.password, saltRounds);
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: { ...user, password: hashed },
+    });
+  }
 
   console.log('Seeded users');
 
