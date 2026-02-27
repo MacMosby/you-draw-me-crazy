@@ -19,6 +19,22 @@ async function main() {
 	skipDuplicates: true,
   });
   console.log("Seeded words");
+  // Seed dummy users
+  const users = [
+    { nickname: 'Alice', email: 'alice@example.com', password: 'password1' },
+    { nickname: 'Bob', email: 'bob@example.com', password: 'password2' },
+    { nickname: 'Charlie', email: 'charlie@example.com', password: 'password3' },
+    { nickname: 'test4', email: 'test4@example.com', password: 'password4' },
+    { nickname: 'test5', email: 'test5@example.com', password: 'password5' },
+  ];
+
+  await prisma.user.createMany({
+    data: users,
+    skipDuplicates: true, // prevents error if seed is run multiple times
+  });
+
+  console.log('Seeded users');
+
 }
 
 main()
