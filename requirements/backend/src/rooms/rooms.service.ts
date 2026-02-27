@@ -5,7 +5,7 @@ import type { PlayerDto } from "src/websocket/dtos/player.dto";
 import type { Stroke } from "src/websocket/dtos/ws.payloads"
 import { UsersService } from "src/users/users.service";
 import { UserScalarFieldEnum } from "src/generated/internal/prismaNamespace";
-import { GameService } from "src/game/game.service";
+//import { GameService } from "src/game/game.service";
 import { RoomsModule } from "./rooms.module";
 
 
@@ -14,7 +14,7 @@ export class RoomsService {
 	private readonly logger = new Logger(RoomsService.name);
 	constructor (
 		private readonly usersService: UsersService,
-		private readonly gameService: GameService,
+		//private readonly gameService: GameService,
 	) {}
 	
     private rooms = new Map<number, Room>();
