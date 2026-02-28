@@ -11,6 +11,8 @@ while [ "$attempt" -le "$max_attempts" ]; do
 	attempt=$((attempt + 1))
 	sleep 2
 done
+
+npx prisma db seed
 set -e
 
 npx prisma generate

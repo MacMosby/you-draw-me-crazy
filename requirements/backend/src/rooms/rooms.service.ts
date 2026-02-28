@@ -5,7 +5,7 @@ import type { PlayerDto } from "src/websocket/dtos/player.dto";
 import type { Stroke } from "src/websocket/dtos/ws.payloads"
 import { UsersService } from "src/users/users.service";
 import { UserScalarFieldEnum } from "src/generated/internal/prismaNamespace";
-import { GameService } from "src/game/game.service";
+//import { GameService } from "src/game/game.service";
 import { RoomsModule } from "./rooms.module";
 
 
@@ -14,7 +14,7 @@ export class RoomsService {
 	private readonly logger = new Logger(RoomsService.name);
 	constructor (
 		private readonly usersService: UsersService,
-		private readonly gameService: GameService,
+		//private readonly gameService: GameService,
 	) {}
 	
     private rooms = new Map<number, Room>();
@@ -108,6 +108,19 @@ export class RoomsService {
 		this.userToRoom.delete(userId);
 		console.log('player', userId, 'removed from Room', roomId);
 		//if < min players, end game early, send final results
+	}
+
+	removeAllPlayers(roomId: number) {
+		console.log('remove all players from room', roomId);
+		const room = this.rooms.get(roomId);
+		if (!room) return;
+		// remove user → room mappings
+		for (const player of room.players) {
+			this.userToRoom.delete(player.userId);
+		}
+		// clear players array (keep reference)
+		room.players.length = 0;
+		console.log('all players removed from room', roomId);
 	}
 
 	appendStrokes(strokes: Stroke[], roomId: number) {

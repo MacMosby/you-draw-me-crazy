@@ -6,6 +6,6 @@ import { GameModule } from "src/game/game.module";
 @Module({
   providers: [RoomsService],
   exports: [RoomsService], // allows other modules to use it
-  imports: [UsersModule, GameModule],
+  imports: [UsersModule],
 })
 export class RoomsModule {}
