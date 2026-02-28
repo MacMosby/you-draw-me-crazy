@@ -3,25 +3,25 @@ import { Input } from "../input";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { socket } from "../../api/socket";
 import { ChatMessageRow, type ChatMessage } from "./chatMessageRow";
-import { mockMessages } from "./chat.mock";
 
 
 type Props = {
   onGuessCorrect?: (userId: number) => void;
+  systemMessages?: ChatMessage[];
 };
 
 
-export default function DrawingBoard({ onGuessCorrect }: Props) {
+export default function DrawingBoard({ onGuessCorrect, systemMessages = [] }: Props) {
 	const [text, setText] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const currentUserId = 42;
 
   const sortedMessages = useMemo(
-    () => [...messages].sort((a, b) => a.timestamp - b.timestamp),
-    [messages]
+    () => [...systemMessages, ...messages].sort((a, b) => a.timestamp - b.timestamp),
+    [messages, systemMessages]
   );
 
   function send() {
