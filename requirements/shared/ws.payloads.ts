@@ -40,4 +40,4 @@ export interface DrawingPayload {
 	coordinate_x: number;
 	coordinate_y: number;
 	color: `#${string}`// e.g. "#ff00ff"
-}
+}	

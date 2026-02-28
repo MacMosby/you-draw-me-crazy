@@ -13,6 +13,7 @@ import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, Tu
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
+import { Room } from 'src/rooms/room.class';
 
 @WebSocketGateway()
 export class WebsocketGateway {
@@ -51,7 +52,7 @@ export class WebsocketGateway {
 	}
 
 	//events from here on downwards
-	@SubscribeMessage('identify') //play
+	@SubscribeMessage('identify')
 	async handleIdentify(
 		@MessageBody() data: { userId: number },
 		@ConnectedSocket() socket: Socket,
@@ -60,7 +61,7 @@ export class WebsocketGateway {
 		clearTimeout(socket.data.identifyTimer);
 		this.registry.addConnection(data.userId, socket);
 		console.log(`Socket ${socket.id} identified as user ${data.userId}`);
-		socket.emit('identified'); // roomstate
+		socket.emit('identified');
 		this.registry.printRegistry();
 		await socket.join(`user-${data.userId}`);
 	}
@@ -82,10 +83,10 @@ export class WebsocketGateway {
 		@MessageBody() payload: JoinRoomPayload,
 	) {
 		console.log('[recv] JoinRoom', payload);
-		// const room = await this.roomService.addPlayerToFirstAvailableRoom(payload.user_id);
-		const room = await this.roomService.findAvailableRoom(payload.user_id);
 
-		if (room.state === 'lobby')
+		// add user to available room in the backend
+		const room = await this.roomService.findAvailableRoom(payload.user_id);
+		if (room.state === 'lobby' && room.players.length < room.maxPlayers)
 			await this.roomService.addUser(payload.user_id, room.id, 'player')
 		else if (room.state == 'playing')
 			await this.roomService.addUser(payload.user_id, room.id, 'spectator');
@@ -94,23 +95,18 @@ export class WebsocketGateway {
 			client.emit(WS_EVENTS.ROOM_FULL);
 			return;
 		}
-
-		const socketRoom = `room-${room.id}`;//add user to socket room for the game room
+		// add user to the socket.io room
+		const socketRoom = `room-${room.id}`;
 		await client.join(socketRoom);
 		client.data.roomId = room.id;
 
-		const response: TurnInfoPayload = {
-			room_id: room.id,
-			drawer: room.drawer,
-			word: room.word,
-			word_length: room.word_length,
-			round: room.round,
-			turn: room.turn,
-			players: room.players,
-			spectators: room.spectators,
-			time_to_display: 0,//no timer
-		};
-		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
+		// build and emit payload for every player & spectator individually.
+		for (const p of [...room.players, ...room.spectators]) {
+			const response = this.buildTurnInfoPayload(room, p.userId);
+			this.server.to(`user-${p.userId}`).emit(WS_EVENTS.TURN_INFO, response);
+		}
+		
+		// emit drawing state to everybody
 		this.emitFullDrawingState(room.id, client);
 		if (room.players.length === 3) {
 			//room.active = true;
@@ -249,5 +245,20 @@ export class WebsocketGateway {
 			client.emit(WS_EVENTS.INIT_DRAWING, payload);
 		else
 			this.server.to('room-' + roomId).emit(WS_EVENTS.INIT_DRAWING, payload);
+	}
+
+	private buildTurnInfoPayload(room: Room, userId: number): TurnInfoPayload {
+		const IsDrawer = userId === room.drawer;
+		return {
+			room_id: room.id,
+			drawer: room.drawer,
+			word: IsDrawer ? room.word : null,
+			word_length: room.word_length,
+			round: room.round,
+			turn: room.turn,
+			players: room.players,
+			spectators: room.spectators,
+			time_to_display: 10_000,
+		};
 	}
 }
