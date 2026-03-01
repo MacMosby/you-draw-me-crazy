@@ -13,7 +13,7 @@ import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, Tu
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
-import { Room } from 'src/rooms/room.class';
+import { TurnEmitService } from './turnemit.service';
 
 @WebSocketGateway()
 export class WebsocketGateway {
@@ -24,7 +24,8 @@ export class WebsocketGateway {
 	constructor( 
 		private readonly registry: ConnectionRegistry,
 		private readonly roomService: RoomsService,
-		private readonly gameService: GameService
+		private readonly gameService: GameService,
+		private readonly turnEmitService: TurnEmitService
 	) {}
 	afterInit() { console.log('WebSocket Gateway initialized') }
 
@@ -101,10 +102,7 @@ export class WebsocketGateway {
 		client.data.roomId = room.id;
 
 		// build and emit payload for every player & spectator individually.
-		for (const p of [...room.players, ...room.spectators]) {
-			const response = this.buildTurnInfoPayload(room, p.userId);
-			this.server.to(`user-${p.userId}`).emit(WS_EVENTS.TURN_INFO, response);
-		}
+		this.turnEmitService.emitTurnInfo(room, this.server);
 		
 		// emit drawing state to everybody
 		this.emitFullDrawingState(room.id, client);
@@ -245,20 +243,5 @@ export class WebsocketGateway {
 			client.emit(WS_EVENTS.INIT_DRAWING, payload);
 		else
 			this.server.to('room-' + roomId).emit(WS_EVENTS.INIT_DRAWING, payload);
-	}
-
-	private buildTurnInfoPayload(room: Room, userId: number): TurnInfoPayload {
-		const IsDrawer = userId === room.drawer;
-		return {
-			room_id: room.id,
-			drawer: room.drawer,
-			word: IsDrawer ? room.word : null,
-			word_length: room.word_length,
-			round: room.round,
-			turn: room.turn,
-			players: room.players,
-			spectators: room.spectators,
-			time_to_display: 10_000,
-		};
 	}
 }

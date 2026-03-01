@@ -6,6 +6,7 @@ import { Server } from 'socket.io'//server allows emiting from anyhwere
 import { WS_EVENTS } from 'src/websocket/dtos/ws.events';
 import { WordsService } from 'src/words/words.service';
 import { RoomsService } from 'src/rooms/rooms.service';
+import { TurnEmitService } from 'src/websocket/turnemit.service';
 import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 
 @Injectable()
@@ -14,7 +15,7 @@ export class GameService {
 	constructor(
 	private readonly wordsService: WordsService,
 	private readonly roomsService: RoomsService,
-	//private readonly gateway: WebsocketGateway,
+	private readonly turnEmitService: TurnEmitService
 	) {}
 	
 
@@ -30,33 +31,15 @@ export class GameService {
 		console.log("usedWordIds:", room.usedWordIds);
 		room.drawer = room.players[room.turn-1].userId;
 		const socketRoom = `room-${room.id}`;
-		this.roomsService.clearStrokes(room.id);
-    	// server.to(socketRoom).emit(WS_EVENTS.CANVAS_CLEAR);
-		// this.gateway.emitFullDrawingState(room.id);
-		const strokes = this.roomsService.getStrokes(room.id);
-		server.to(socketRoom).emit(WS_EVENTS.INIT_DRAWING, {
-		room_id: room.id,
-		strokes,
-		});
 
-		const payload: TurnInfoPayload = {
-			room_id: room.id,
-			drawer: room.drawer,
-			word: room.word,
-			word_length: room.word_length,
-			round: room.round,
-			turn: room.turn,
-			players: room.players,
-			spectators: room.spectators,
-			time_to_display: 10_000,//10s for console test
-		}
-		server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, payload);
+		this.turnEmitService.emitTurnInfo(room, server);
+
 		this.logger.log(`Room ${room.id} round.turn ${room.round}.${room.turn}, drawerId: ${room.drawer} draws ${room.word}`);
 		room.timeout = setTimeout(() => {
 			room.timeout = undefined;
 			this.endOfTurn(room, server);
-		}, payload.time_to_display);
-	}
+		}, 10_000);
+	}	
 
 	increaseTurn(room: Room): void {
 		if (room.turn === room.players.length) {
