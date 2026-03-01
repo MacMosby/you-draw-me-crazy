@@ -6,7 +6,7 @@ services:
     build:
       context: ./requirements/backend
       dockerfile: Dockerfile
-    container_name: transcendence-backend
+    container_name: backend
     command: /app/start.sh
     ports:
       - "3000:3000"

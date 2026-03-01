@@ -12,15 +12,12 @@ import { RoomsModule } from "./rooms.module";
 @Injectable()
 export class RoomsService {
 	private readonly logger = new Logger(RoomsService.name);
-	constructor (
-		private readonly usersService: UsersService,
-		//private readonly gameService: GameService,
-	) {}
-
-    private rooms = new Map<number, Room>();
+	private rooms = new Map<number, Room>();
 	private userToRoom = new Map<number, number>();//userid -> roomid
 	private nextId = 0;
 
+	constructor(private readonly usersService: UsersService) {}
+ 
 	onModuleInit() {
 		this.logger.log("Initializing RoomsService ...");
 		//const noRoom = this.createRoom(0);
@@ -68,18 +65,10 @@ export class RoomsService {
 				return room;
 			}
 		}
-		console.log('NO room available');
-		const dummyRoom = new Room();
-		dummyRoom.id = -1;
-		dummyRoom.round = 0;
-		dummyRoom.turn = 0;
-		dummyRoom.maxPlayers = 0;
-		dummyRoom.word = null;
-		dummyRoom.drawer = -1;
-		dummyRoom.word_length = -1;
-		dummyRoom.players = [];
-		dummyRoom.spectators = [];
-		return dummyRoom;
+	    // no room exists → create one automatically
+		const newRoom = this.createRoom(5);
+		this.logger.log('Created new room because none available');
+		return newRoom;
 	}
 
 	async addUser(newUserId: number, roomId: number, state: string) {

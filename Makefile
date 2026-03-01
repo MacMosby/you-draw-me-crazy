@@ -20,7 +20,7 @@ sync-shared:
 build: sync-shared
 	@echo "$(GREEN)Building Images with $(RESET)"
 	@echo "$(DOCKER_COMPOSE_YML)"
-	docker compose -f $(DOCKER_COMPOSE_YML) build
+	docker compose -f $(DOCKER_COMPOSE_YML) build --no-cache
 
 up:
 	@echo "$(GREEN)Starting containers in detached mode...$(RESET)"

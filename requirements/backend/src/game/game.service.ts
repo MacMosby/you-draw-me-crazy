@@ -58,6 +58,7 @@ export class GameService {
 		}
 		// admitSpectators() implement! NB
 		room.turn = 1;
+		room.state = "playing";
 		this.logger.log(`Room ${room.id} started round ${room.round}`);
 		//this.startTurn(room);
 		return;
@@ -117,6 +118,7 @@ export class GameService {
 			room.usedWordIds.length = 0;
 			room.round = 0;
 			room.turn = 0;
+			room.state = "lobby";
 		}
 	}
 

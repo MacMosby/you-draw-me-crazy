@@ -87,15 +87,15 @@ export class WebsocketGateway {
 
 		// add user to available room in the backend
 		const room = await this.roomService.findAvailableRoom(payload.user_id);
+		
+		//FOR DEBUG
+		console.log('All rooms:', this.roomService.getAllRooms());
+
 		if (room.state === 'lobby' && room.players.length < room.maxPlayers)
 			await this.roomService.addUser(payload.user_id, room.id, 'player')
 		else if (room.state == 'playing')
 			await this.roomService.addUser(payload.user_id, room.id, 'spectator');
 
-		if (room.id === -1) {
-			client.emit(WS_EVENTS.ROOM_FULL);
-			return;
-		}
 		// add user to the socket.io room
 		const socketRoom = `room-${room.id}`;
 		await client.join(socketRoom);
