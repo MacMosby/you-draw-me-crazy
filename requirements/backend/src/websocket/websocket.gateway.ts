@@ -195,8 +195,13 @@ export class WebsocketGateway {
 			client.emit('error', 'Room not found');
 			return;
 		}
-
+		//this.gameService.startTurn(room, this.server); // reset turn state, timers, etc. like normal turn start would
 		// Update room state
+		this.roomService.clearStrokes(room.id);
+		console.log('[test] Cleared strokes for room', room.id);
+		// server.to(socketRoom).emit(WS_EVENTS.CANVAS_CLEAR);
+		this.emitFullDrawingState(room.id);
+		console.log('[test] Emitted full drawing state for room', room.id);
 		room.drawer = payload.drawer_id;
 		room.turn = 1;
 		room.round = 1;
@@ -221,7 +226,7 @@ export class WebsocketGateway {
 	}
 
 	// SERVER -> CLIENT HELPERS
-	private emitFullDrawingState(roomId: number, client?: Socket) {
+	public emitFullDrawingState(roomId: number, client?: Socket) {
 		const strokes = this.roomService.getStrokes(roomId);
 		const payload = {
 			room_id: roomId,
