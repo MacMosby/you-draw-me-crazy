@@ -16,7 +16,7 @@ export class RoomsService {
 		private readonly usersService: UsersService,
 		//private readonly gameService: GameService,
 	) {}
-	
+
     private rooms = new Map<number, Room>();
 	private userToRoom = new Map<number, number>();//userid -> roomid
 	private nextId = 0;
@@ -72,8 +72,7 @@ export class RoomsService {
 
 		// Double-check after async call to avoid races from duplicate join requests.
 		if (this.userToRoom.has(newuserId)) {
-			const existingRoomId = this.userToRoom.get(newuserId)!;
-			return this.rooms.get(existingRoomId)!;
+			throw new Error("User denied! (Expected behavior in React dev mode)");
 		}
 
 		const player: PlayerDto = {
