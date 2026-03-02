@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConnectionRegistry } from './websocket.service';
-import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload } from './dtos/ws.payloads';
+import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload, StrokeAppendPayload } from './dtos/ws.payloads';
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
@@ -147,12 +147,17 @@ export class WebsocketGateway {
 	@SubscribeMessage(WS_EVENTS.STROKE_APPEND)
 	handleStrokeAppend(
 		@ConnectedSocket() client: Socket,
-		@MessageBody() payload: DrawPayload,
+		@MessageBody() payload: StrokeAppendPayload,
 	) {
 		const room = this.roomService.getRoom(client.data.roomId);
-			if (!room) return;
+		if (!room) return;
+		const roomId = payload.room_id;
 		if (client.data.userId !== room.drawer) return;
-		this.roomService.appendStrokes(payload.strokes, client.data.roomId);
+		//this.roomService.appendStrokes(payload.strokes, client.data.roomId);
+		const strokes = this.roomService.getStrokes(roomId);
+		const s = strokes.find((x: any) => x.id === payload.id);
+		if (s) s.points.push(...payload.points);
+
 		client.to(`room-${payload.room_id}`).emit(WS_EVENTS.STROKE_APPEND, payload);
 	}
 

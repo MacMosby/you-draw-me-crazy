@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { socket } from "../../api/socket";
 import { WS_EVENTS } from "../../../shared/ws.events";
-import type { DrawPayload, Stroke, Point } from "../../../shared/ws.payloads";
+import type { DrawPayload, Stroke, StrokeAppendPayload, Point } from "../../../shared/ws.payloads";
 import {
   emitStrokeAppend,
   emitStrokeStart,
@@ -80,6 +80,12 @@ export function DrawingCanvas({
   const pendingPointsRef = useRef<Point[]>([]);
   const rafFlushRef = useRef<number | null>(null);
 
+  // Low-load tuning knobs, very extra
+  const MAX_POINTS_PER_PACKET = 20; // cap packet size
+  const MIN_DIST_PX = 1.5; // ignore tiny pointer jitter (CSS pixels)
+  const lastSentPointRef = useRef<Point | null>(null);
+
+
   useEffect(() => {
     strokesRef.current = strokes;
     const canvas = canvasRef.current;
@@ -111,7 +117,6 @@ export function DrawingCanvas({
 
   useEffect(() => {
     const offInit = onInitDrawing((payload) => {
-		
       if (payload.room_id !== roomId) return;
 	  console.log("[ws] init drawing received:", payload);
       setStrokes(payload.strokes);
@@ -125,26 +130,17 @@ export function DrawingCanvas({
       setStrokes((prev) => [...prev, s]);
     });
 
-    const offAppend = onStrokeAppend((payload: DrawPayload) => {
+    const offAppend = onStrokeAppend((payload: StrokeAppendPayload) => {
       if (payload.room_id !== roomId) return;
-		console.log("[ws] stroke append received:", payload);
-      const patches = payload.strokes ?? [];
-      if (patches.length === 0) return;
+      console.log("[ws] stroke append received:", payload);
 
-      const patchMap = new Map(patches.map((p) => [p.id, p]));
+      if (!payload.id || payload.points.length === 0) return;
 
-      setStrokes((prev) => {
-        const next = prev.map((s) => {
-          const patch = patchMap.get(s.id);
-          if (!patch) return s;
-          patchMap.delete(s.id);
-          return { ...s, points: [...s.points, ...patch.points] };
-        });
-
-        for (const remaining of patchMap.values()) next.push(remaining);
-
-        return next;
-      });
+      setStrokes((prev) =>
+        prev.map((s) =>
+          s.id === payload.id ? { ...s, points: [...s.points, ...payload.points] } : s
+        )
+      );
     });
 
     return () => {
@@ -165,19 +161,10 @@ export function DrawingCanvas({
 
     pendingPointsRef.current = [];
 
-    const patchStroke: Stroke = {
-      id,
-      color,
-      width: strokeWidth,
-      points: pts,
-    };
-
-    const payload: DrawPayload = {
+    const payload: StrokeAppendPayload = {
       room_id: roomId,
-      drawer: drawerId,
-      width: strokeWidth,
-      color,
-      strokes: [patchStroke],
+      id,
+      points: pts,
     };
 
     emitStrokeAppend(payload);
@@ -198,6 +185,7 @@ export function DrawingCanvas({
 
     const id = crypto.randomUUID();
     activeStrokeIdRef.current = id;
+    lastSentPointRef.current = null;
 
     const p = pointFromPointerEvent(canvas, e);
     const stroke: Stroke = { id, color, width: strokeWidth, points: [p] };
@@ -207,12 +195,17 @@ export function DrawingCanvas({
     const payload: DrawPayload = {
       room_id: roomId,
       drawer: drawerId,
-      width: strokeWidth,
-      color,
       strokes: [stroke],
     };
 
     emitStrokeStart(payload);
+  }
+
+  function distPx(a: Point, b: Point, canvas: HTMLCanvasElement) {
+    const rect = canvas.getBoundingClientRect();
+    const dx = (a.x - b.x) * rect.width;
+    const dy = (a.y - b.y) * rect.height;
+    return Math.hypot(dx, dy);
   }
 
   function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
@@ -226,11 +219,24 @@ export function DrawingCanvas({
 
     const p = pointFromPointerEvent(canvas, e);
 
+    const last = lastSentPointRef.current;
+    if (last && distPx(last, p, canvas) < MIN_DIST_PX) return;
+    lastSentPointRef.current = p;
+
+    // local update (smooth)
     setStrokes((prev) =>
       prev.map((s) => (s.id === id ? { ...s, points: [...s.points, p] } : s))
     );
 
+    // batched network update
     pendingPointsRef.current.push(p);
+
+    // Flush if packet is getting large, otherwise once per frame.
+    if (pendingPointsRef.current.length >= MAX_POINTS_PER_PACKET) {
+      flushPendingPoints();
+      return;
+    }
+
     scheduleFlush();
   }
 
@@ -246,8 +252,10 @@ export function DrawingCanvas({
       // ignore
     }
 
+    // IMPORTANT: flush last points
     flushPendingPoints();
     activeStrokeIdRef.current = null;
+    lastSentPointRef.current = null;
   }
 
   return (
