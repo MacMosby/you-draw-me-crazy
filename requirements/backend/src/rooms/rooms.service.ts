@@ -60,15 +60,22 @@ export class RoomsService {
 
 	async addPlayerToFirstAvailableRoom(newuserId: number): Promise<Room> {
 		//keep users from joining when already in any room
-		if (this.userToRoom.has(newuserId)) {
-			const existingRoomId = this.userToRoom.get(newuserId)!;
-			return this.rooms.get(existingRoomId)!;
-		}
+		// if (this.userToRoom.has(newuserId)) {
+		// 	const existingRoomId = this.userToRoom.get(newuserId)!;
+		// 	return this.rooms.get(existingRoomId)!;
+		// }
 
 		const user = await this.usersService.getUserById(newuserId);
 		if (!user) {
 			throw new Error("User not found");
 		}
+
+		// Double-check after async call to avoid races from duplicate join requests.
+		if (this.userToRoom.has(newuserId)) {
+			const existingRoomId = this.userToRoom.get(newuserId)!;
+			return this.rooms.get(existingRoomId)!;
+		}
+
 		const player: PlayerDto = {
 			userId: newuserId,
 			nickname: user.nickname,

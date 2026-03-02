@@ -9,6 +9,48 @@ import type { TurnInfoPayload } from "../../shared/ws.payloads";
 import { socket, joinRoom, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
 import starImage from "../assets/star.png";
+import type { ChatMessage } from "../components/room/chatMessageRow";
+
+type RoomPlayer = TurnInfoPayload["players"][number];
+
+function getJoinedAndLeftPlayers(previousMembers: RoomPlayer[], currentMembers: RoomPlayer[]) {
+  const previousIds = new Set(previousMembers.map((member) => member.userId));
+  const currentIds = new Set(currentMembers.map((member) => member.userId));
+
+  const joined = currentMembers.filter((member) => !previousIds.has(member.userId));
+  const left = previousMembers.filter((member) => !currentIds.has(member.userId));
+
+  return { joined, left };
+}
+
+function createPresenceMessages(joined: RoomPlayer[], left: RoomPlayer[]): ChatMessage[] {
+  if (joined.length === 0 && left.length === 0) {
+    return [];
+  }
+
+  const timestamp = Date.now();
+  const joinMessages: ChatMessage[] = joined.map((member, index) => ({
+    id: `presence-join-${member.userId}-${timestamp}-${index}`,
+    userId: member.userId,
+    username: member.nickname,
+    text: `${member.nickname} joined the room`,
+    timestamp: timestamp + index,
+    type: "presence",
+    presenceAction: "join",
+  }));
+
+  const leaveMessages: ChatMessage[] = left.map((member, index) => ({
+    id: `presence-leave-${member.userId}-${timestamp}-${index}`,
+    userId: member.userId,
+    username: member.nickname,
+    text: `${member.nickname} left the room`,
+    timestamp: timestamp + joinMessages.length + index,
+    type: "presence",
+    presenceAction: "leave",
+  }));
+
+  return [...joinMessages, ...leaveMessages];
+}
 
 export default function GamePage() {
   // safety function to remove duplicate players from the list
@@ -19,6 +61,7 @@ export default function GamePage() {
   
   // 1. get userId from storage
   const user = useSessionStore((s) => s.user);
+  const logout = useSessionStore((s) => s.logout);
   const userId = user?.id; // use user id from storage
   if (!userId) {
     return <div>No user found</div>; // handle an error
@@ -34,21 +77,58 @@ export default function GamePage() {
   const [recentlyCorrectGuesser, setRecentlyCorrectGuesser] = useState<number | null>(null);
   const [showWaitingLobby, setShowWaitingLobby] = useState(false);
   const [startCountdown, setStartCountdown] = useState<number | null>(null);
+  const [systemMessages, setSystemMessages] = useState<ChatMessage[]>([]);
   const prevWsStateRef = useRef<typeof wsState>("connecting");
+  const prevMembersRef = useRef<TurnInfoPayload["players"]>([]);
+  const membersInitializedRef = useRef(false);
+
+  useEffect(() => {
+    if (!membersInitializedRef.current) {
+      prevMembersRef.current = members;
+      membersInitializedRef.current = true;
+      return;
+    }
+
+    const previousMembers = prevMembersRef.current;
+    const { joined, left } = getJoinedAndLeftPlayers(previousMembers, members);
+    const nextMessages = createPresenceMessages(joined, left);
+
+    if (nextMessages.length > 0) {
+      setSystemMessages((prev) => [...prev, ...nextMessages]);
+    }
+
+    prevMembersRef.current = members;
+  }, [members]);
 
   useEffect(() => {
     let unsubTurnInfo = () => {};
     let unsubRoomFull = () => {};
     let unsubStartGame = () => {};
     let unsubResults = () => {};
+    let connectTimeout: number | undefined;
+
+    const clearConnectTimeout = () => {
+      if (connectTimeout) {
+        window.clearTimeout(connectTimeout);
+        connectTimeout = undefined;
+      }
+    };
 
     (async () => {
       try {
         setWsState("connecting");
 
+        connectTimeout = window.setTimeout(() => {
+          console.log("[ws] connect timeout -> clearing stale session");
+          setWsState("error");
+          socket.disconnect();
+          logout();
+        }, 8000);
+
         // 2. subscribe to BE pushes before joinRoom so we don't miss the first turnInfo event
         unsubTurnInfo = onTurnInfo((payload) => {
           console.log("[ws] turnInfo:", payload);
+          clearConnectTimeout();
 
           if (payload.room_id === -1) {
             setWsState("full");
@@ -67,6 +147,7 @@ export default function GamePage() {
 
         unsubStartGame = onStartGame((payload) => {
           console.log("[ws] start_game:", payload);
+          clearConnectTimeout();
           setMembers(dedupePlayers(payload.members));
           setRound(payload.round);
           setTurn(payload.turn);
@@ -75,11 +156,13 @@ export default function GamePage() {
 
         unsubRoomFull = onRoomFull(() => {
           console.log("[ws] room full");
+          clearConnectTimeout();
           setWsState("full");
         });
 
         unsubResults = onResults((payload) => {
           console.log("[ws] results:", payload);
+          clearConnectTimeout();
           if (payload.final) {
             setWsState("finished");
           }
@@ -90,18 +173,20 @@ export default function GamePage() {
         console.log("[gameRoom] joinRoom successful");
       } catch (e) {
         console.error(e);
+        clearConnectTimeout();
         setWsState("error");
       }
     })();
 
     return () => {
+      clearConnectTimeout();
       unsubTurnInfo();
       unsubRoomFull();
       unsubStartGame();
       unsubResults();
       socket.disconnect();
     };
-  }, [userId]);
+  }, [userId, logout]);
 
   // timer which makes sure the waiting panel disappears after three seconds
   useEffect(() => {
@@ -208,7 +293,7 @@ export default function GamePage() {
     )}
 
       {wsState === "waiting" && (
-        <DrawingBoard />
+        <DrawingBoard systemMessages={systemMessages} />
       )}
 
       {wsState === "playing" && (
@@ -218,7 +303,10 @@ export default function GamePage() {
               <PromptBox prompt={currentWord} />
             </div>
           )}
-          <DrawingBoard onGuessCorrect={setRecentlyCorrectGuesser} />
+          <DrawingBoard
+            onGuessCorrect={setRecentlyCorrectGuesser}
+            systemMessages={systemMessages}
+          />
         </>
       )}
 

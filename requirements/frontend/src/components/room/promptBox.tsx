@@ -1,8 +1,10 @@
+import React from "react";
+
 interface PromptBoxProps {
   prompt: string | null;
 }
 
-export default function PromptBox({ prompt }: PromptBoxProps) {
+const PromptBox: React.FC<PromptBoxProps> = ({ prompt }) => {
   return (
     <div className="bg-surface rounded-lg p-4 border border-surface">
       <div>
@@ -11,4 +13,6 @@ export default function PromptBox({ prompt }: PromptBoxProps) {
       </div>
     </div>
   );
-}
+};
+
+export default PromptBox;
