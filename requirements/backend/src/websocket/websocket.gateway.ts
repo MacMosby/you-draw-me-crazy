@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConnectionRegistry } from './websocket.service';
-import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload } from './dtos/ws.payloads';
+import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload, StrokeAppendPayload } from './dtos/ws.payloads';
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
@@ -147,12 +147,18 @@ export class WebsocketGateway {
 	@SubscribeMessage(WS_EVENTS.STROKE_APPEND)
 	handleStrokeAppend(
 		@ConnectedSocket() client: Socket,
-		@MessageBody() payload: DrawPayload,
+		@MessageBody() payload: StrokeAppendPayload,
 	) {
 		const room = this.roomService.getRoom(client.data.roomId);
-			if (!room) return;
+		if (!room) return;
+		const roomId = payload.room_id;
 		if (client.data.userId !== room.drawer) return;
-		this.roomService.appendStrokes(payload.strokes, client.data.roomId);
+		//this.roomService.appendStrokes(payload.strokes, client.data.roomId);
+		const strokes = this.roomService.getStrokes(roomId);
+		const s = strokes.find((x: any) => x.id === payload.id);
+		if (s) s.points.push(...payload.points);
+
+		client.to(`room-${payload.room_id}`).emit(WS_EVENTS.STROKE_APPEND, payload);
 	}
 
 	@SubscribeMessage(WS_EVENTS.CANVAS_CLEAR)
@@ -175,6 +181,43 @@ export class WebsocketGateway {
 		if (client.data.userId !== room.drawer) return;
 		this.roomService.popStroke(client.data.roomId);
 		this.emitFullDrawingState(client.data.roomId);
+	}
+
+	@SubscribeMessage('test:setDrawer')
+	handleTestSetDrawer(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: { room_id: number; drawer_id: number },
+	) {
+		console.log('[test] Setting drawer to', payload.drawer_id, 'in room', payload.room_id);
+		
+		const room = this.roomService.getRoom(payload.room_id);
+		if (!room) {
+			client.emit('error', 'Room not found');
+			return;
+		}
+
+		// Update room state
+		room.drawer = payload.drawer_id;
+		room.turn = 1;
+		room.round = 1;
+		room.word = 'testword';
+		room.word_length = 8;
+
+		// Send to all players in room
+		const socketRoom = `room-${payload.room_id}`;
+		const response: TurnInfoPayload = {
+			room_id: room.id,
+			drawer: payload.drawer_id,
+			word: room.word,
+			word_length: room.word_length,
+			round: room.round,
+			turn: room.turn,
+			players: room.players,
+			time_to_display: 60_000,
+		};
+
+		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
+		console.log('[test] Sent TURN_INFO with drawer:', payload.drawer_id);
 	}
 
 	// SERVER -> CLIENT HELPERS
