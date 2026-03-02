@@ -6,6 +6,7 @@ import { Server } from 'socket.io'//server allows emiting from anyhwere
 import { WS_EVENTS } from 'src/websocket/dtos/ws.events';
 import { WordsService } from 'src/words/words.service';
 import { RoomsService } from 'src/rooms/rooms.service';
+import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 
 @Injectable()
 export class GameService {
@@ -13,19 +14,31 @@ export class GameService {
 	constructor(
 	private readonly wordsService: WordsService,
 	private readonly roomsService: RoomsService,
+	//private readonly gateway: WebsocketGateway,
 	) {}
 	
+
 	async startTurn(room: Room, server: Server) {
 		if (room.round === 0) this.increaseRound(room);
 		else this.increaseTurn(room);
 		console.log("USING WORD SERVICE NOW");
 		const wordEntity = await this.wordsService.getRandomWord(room.usedWordIds);
+		
 		room.word = wordEntity.text;
 		room.word_length = room.word!.length;
 		room.usedWordIds.push(wordEntity.id);
 		console.log("usedWordIds:", room.usedWordIds);
 		room.drawer = room.players[room.turn-1].userId;
 		const socketRoom = `room-${room.id}`;
+		this.roomsService.clearStrokes(room.id);
+    	// server.to(socketRoom).emit(WS_EVENTS.CANVAS_CLEAR);
+		// this.gateway.emitFullDrawingState(room.id);
+		const strokes = this.roomsService.getStrokes(room.id);
+		server.to(socketRoom).emit(WS_EVENTS.INIT_DRAWING, {
+		room_id: room.id,
+		strokes,
+		});
+
 		const payload: TurnInfoPayload = {
 			room_id: room.id,
 			drawer: room.drawer,
