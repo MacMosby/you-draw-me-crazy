@@ -1,18 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
-=======
->>>>>>> 553d042 (add: Canvas component and Drawer tools)
-=======
->>>>>>> e191f25 (add: Canvas component and Drawer tools)
+import { ChangeEvent } from 'react';
+
 type Props = {
   color: string;
   onColorChange: (next: string) => void;
@@ -21,6 +8,10 @@ type Props = {
 };
 
 export function DrawerPanel({ color, onColorChange, onUndo, onClear }: Props) {
+  const handleColorChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onColorChange(e.target.value);
+  };
+
   return (
     <div className="absolute top-2 right-2 z-10 bg-white/90 backdrop-blur border border-gray-200 rounded-lg shadow-sm p-2 flex items-center gap-2">
       <label className="flex items-center gap-2 text-sm">
@@ -28,7 +19,7 @@ export function DrawerPanel({ color, onColorChange, onUndo, onClear }: Props) {
         <input
           type="color"
           value={color}
-          onChange={(e) => onColorChange(e.target.value)}
+          onChange={handleColorChange}
           className="h-8 w-10 cursor-pointer bg-transparent"
           aria-label="Pick drawing color"
         />
@@ -52,30 +43,5 @@ export function DrawerPanel({ color, onColorChange, onUndo, onClear }: Props) {
     </div>
   );
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-export default function DrawerPanel(){ return;}
->>>>>>> 26ed7ed (add: set up for svg dravwing)
-=======
-export default function DrawerPanel(){ return(<div></div>);}
->>>>>>> aedfc79 (sync: WIP local storage and drawing wip)
-=======
->>>>>>> b1fcdd0 (add: Canvas component and Drawer tools)
-=======
-export default function DrawerPanel(){ return;}
->>>>>>> aca3e26 (add: set up for svg dravwing)
-=======
-export default function DrawerPanel(){ return(<div></div>);}
->>>>>>> c20143a (sync: WIP local storage and drawing wip)
-=======
->>>>>>> 553d042 (add: Canvas component and Drawer tools)
-=======
-export default function DrawerPanel(){ return;}
->>>>>>> 8677b65 (add: set up for svg dravwing)
-=======
-export default function DrawerPanel(){ return(<div></div>);}
->>>>>>> 0d34e02 (sync: WIP local storage and drawing wip)
-=======
->>>>>>> e191f25 (add: Canvas component and Drawer tools)
+
+export default DrawerPanel;

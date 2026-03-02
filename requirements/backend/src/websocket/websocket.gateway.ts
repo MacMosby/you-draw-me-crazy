@@ -178,6 +178,43 @@ export class WebsocketGateway {
 		this.emitFullDrawingState(client.data.roomId);
 	}
 
+	@SubscribeMessage('test:setDrawer')
+	handleTestSetDrawer(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: { room_id: number; drawer_id: number },
+	) {
+		console.log('[test] Setting drawer to', payload.drawer_id, 'in room', payload.room_id);
+		
+		const room = this.roomService.getRoom(payload.room_id);
+		if (!room) {
+			client.emit('error', 'Room not found');
+			return;
+		}
+
+		// Update room state
+		room.drawer = payload.drawer_id;
+		room.turn = 1;
+		room.round = 1;
+		room.word = 'testword';
+		room.word_length = 8;
+
+		// Send to all players in room
+		const socketRoom = `room-${payload.room_id}`;
+		const response: TurnInfoPayload = {
+			room_id: room.id,
+			drawer: payload.drawer_id,
+			word: room.word,
+			word_length: room.word_length,
+			round: room.round,
+			turn: room.turn,
+			players: room.players,
+			time_to_display: 60_000,
+		};
+
+		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
+		console.log('[test] Sent TURN_INFO with drawer:', payload.drawer_id);
+	}
+
 	// SERVER -> CLIENT HELPERS
 	private emitFullDrawingState(roomId: number, client?: Socket) {
 		const strokes = this.roomService.getStrokes(roomId);

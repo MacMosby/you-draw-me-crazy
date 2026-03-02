@@ -1,24 +1,9 @@
 //import { resolve } from "path";
 import { io, Socket } from "socket.io-client";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 import type { PlayerDto } from "../../shared/player.dto";
 import { WS_EVENTS } from "../../shared/ws.events";
 import type { ResultsPayload, TurnInfoPayload } from "../../shared/ws.payloads";
-=======
->>>>>>> ebaa8f8 (add: session storage)
 import { useSessionStore } from "../state/sessionStore";
-import { WS_EVENTS } from "../../shared/ws.events"; //change to shared folder
-<<<<<<< HEAD
-=======
-import { useSessionStore } from "../state/sessionStore";
->>>>>>> b0c2ad0 (add: session storage)
-=======
-import { useSessionStore } from "../state/sessionStore";
->>>>>>> 106c835 (add: session storage)
-=======
->>>>>>> ca60847 (add: sockets for drawing)
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? "http://localhost:3000";
 
@@ -110,9 +95,26 @@ export async function joinRoom(userId: number) {
 
 export function onTurnInfo(callback: (payload: TurnInfoPayload) => void) {
   console.log("[ws] subscribing to turn_info");
-  // use a stored handler here so we can unsubscribe using the exact same input 
   const handler = (payload: TurnInfoPayload) => {
     console.log("[ws] turn_info received:", payload);
+    
+    // Read userId from store at MESSAGE ARRIVAL TIME
+    const currentUserId = useSessionStore.getState().user?.id;
+    useSessionStore.getState().setRoom(payload.room_id); // update roomId in store on every turn_info, so it's always correct for other handlers that might need it
+    if (currentUserId === undefined) {
+      console.warn("[ws] userId not set in store yet");
+      callback(payload);
+      return;
+    }
+    
+    if (payload.drawer === currentUserId) {
+      console.log("[ws] I am the drawer this turn!");
+      useSessionStore.getState().setRole("drawer");
+    } else {
+      console.log("[ws] I am a guesser this turn. i am user " + currentUserId + " drawer is " + payload.drawer);
+      useSessionStore.getState().setRole("guesser");
+    }
+    
     callback(payload);
   };
   socket.on(WS_EVENTS.TURN_INFO, handler);
@@ -142,4 +144,14 @@ export function onResults(callback: (payload: ResultsPayload) => void) {
 export function onDrawing(callback: (payload: any) => void) {
   socket.on(WS_EVENTS.DRAWING, callback);
   return () => socket.off(WS_EVENTS.DRAWING, callback);
+}
+
+export function testSetDrawer(roomId: number, drawerId: number) {
+  console.log("[ws] test:setDrawer - room:", roomId, "drawer:", drawerId);
+  socket.emit('test:setDrawer', { room_id: roomId, drawer_id: drawerId });
+}
+//window.testSetDrawer(0, 1); // in console! to set user 1 as drawer in room 0 for testing
+// Expose for console testing
+if (import.meta.env.DEV) {
+  (window as any).testSetDrawer = testSetDrawer;
 }
