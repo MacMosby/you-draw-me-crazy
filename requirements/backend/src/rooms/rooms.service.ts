@@ -5,8 +5,6 @@ import type { PlayerDto } from "src/websocket/dtos/player.dto";
 import type { Stroke } from "src/websocket/dtos/ws.payloads"
 import { UsersService } from "src/users/users.service";
 import { UserScalarFieldEnum } from "src/generated/internal/prismaNamespace";
-//import { GameService } from "src/game/game.service";
-import { RoomsModule } from "./rooms.module";
 
 
 @Injectable()
@@ -30,6 +28,7 @@ export class RoomsService {
 	//private userToRoom = new Map<number, number>()
 	createRoom(maxPlayers: number): Room {
         const room = new Room();
+		room.state = "lobby";
 		room.id = this.nextId++;
 		room.round = 0;
 		room.turn = 0;
