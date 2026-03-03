@@ -47,7 +47,7 @@ export class GameService {
 			round: room.round,
 			turn: room.turn,
 			players: room.players,
-			time_to_display: 10_000,//10s for console test
+			time_to_display: 20_000,//20s for console test
 		}
 		server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, payload);
 		this.logger.log(`Room ${room.id} round.turn ${room.round}.${room.turn}, drawerId: ${room.drawer} draws ${room.word}`);
@@ -84,7 +84,11 @@ export class GameService {
 		if (!player) return null;//guesser not in room
 		if (room.correctGuesses.has(player.userId)) return null;//already guessed correctly
 		if (player.userId == room.drawer) return null;//drawers do not guess
-		const iscorrect = (payload.guess === room.word);
+
+		const typedGuess = payload.guess.trim();
+		const normalizedGuess = typedGuess.toLowerCase();
+		const normalizedWord = (room.word ?? "").toLowerCase();
+		const iscorrect = normalizedGuess === normalizedWord;
 
 		if (iscorrect === true) {
 			player.score += 1;//dummy for point gaining logic
@@ -93,7 +97,7 @@ export class GameService {
 		
 		const response: GuessUpdatePayload = {
 			guesser_id: payload.guesser_id,
-			guess: iscorrect ? null : payload.guess,//only send wrong guesses
+			guess: iscorrect ? null : typedGuess,//only send wrong guesses, keep original user casing
 			room_id: room.id,
 			score: player.score,
 			correct: iscorrect,

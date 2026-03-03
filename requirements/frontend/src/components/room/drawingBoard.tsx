@@ -1,22 +1,23 @@
 import { Button } from "../button";
 import { Input } from "../input";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { onGuessUpdate, socket } from "../../api/socket";
+import { onGuess, onGuessUpdate, socket } from "../../api/socket";
 import { ChatMessageRow, type ChatMessage } from "./chatMessageRow";
 import { DrawingCanvas } from "./DrawingCanvas";
 import { DrawerPanel } from "./DrawerPanel";
 import { useSessionStore } from "../../state/sessionStore";
 import { emitCanvasClear, emitCanvasUndo } from "../../api/drawingSocket";
 import { WS_EVENTS } from "../../../shared/ws.events";
-import type { GuessUpdatePayload } from "../../../shared/ws.payloads";
+import type { GuessPayload, GuessUpdatePayload, TurnInfoPayload } from "../../../shared/ws.payloads";
 
 type Props = {
   onGuessCorrect?: (userId: number) => void;
   systemMessages?: ChatMessage[];
+  players?: TurnInfoPayload["players"];
 };
 
 
-export default function DrawingBoard({ onGuessCorrect, systemMessages = [] }: Props) {
+export default function DrawingBoard({ onGuessCorrect, systemMessages = [], players = [] }: Props) {
 	const [text, setText] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const pendingOwnGuessesRef = useRef<string[]>([]);
@@ -37,11 +38,19 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [] }: Pr
     [messages, systemMessages]
   );
 
+  const nicknameByUserId = useMemo(
+    () => new Map(players.map((player) => [player.userId, player.nickname])),
+    [players]
+  );
+
 function send() {
 const trimmed = text.trim();
-if (!trimmed || isDrawer || roomId === null || currentUserId === -1) return;
+if (!trimmed || roomId === null || currentUserId === -1) return;
 
-  pendingOwnGuessesRef.current.push(trimmed);
+  if (!isDrawer) {
+    pendingOwnGuessesRef.current.push(trimmed);
+  }
+
   socket.emit(WS_EVENTS.GUESS, {
     guesser_id: currentUserId,
     guess: trimmed,
@@ -54,6 +63,34 @@ if (!trimmed || isDrawer || roomId === null || currentUserId === -1) return;
   useEffect(() => {
     scrollAnchorRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sortedMessages.length]);
+
+  // this makes it possible for the drawer to send their own messages to the chat
+  useEffect(() => {
+    const handleDrawerChat = (data: GuessPayload) => {
+      const messageText = data.guess?.trim();
+      if (!messageText) return;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `chat-${data.guesser_id}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+          userId: data.guesser_id,
+          username:
+            data.guesser_id === currentUserId
+              ? currentUsername
+              : (nicknameByUserId.get(data.guesser_id) ?? `Player ${data.guesser_id}`),
+          text: messageText,
+          timestamp: Date.now(),
+          type: "chat",
+        },
+      ]);
+    };
+
+    const unsubscribe = onGuess(handleDrawerChat);
+    return () => {
+      unsubscribe();
+    };
+  }, [currentUserId, currentUsername, nicknameByUserId]);
 
   useEffect(() => {
     const handleGuessUpdate = (data: GuessUpdatePayload) => {
@@ -76,7 +113,10 @@ if (!trimmed || isDrawer || roomId === null || currentUserId === -1) return;
           {
             id: `guess-${data.guesser_id}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
             userId: data.guesser_id,
-            username: data.guesser_id === currentUserId ? currentUsername : `Player ${data.guesser_id}`,
+            username:
+              data.guesser_id === currentUserId
+                ? currentUsername
+                : (nicknameByUserId.get(data.guesser_id) ?? `Player ${data.guesser_id}`),
             text: messageText,
             timestamp: Date.now(),
             type: "guess",
@@ -96,7 +136,7 @@ if (!trimmed || isDrawer || roomId === null || currentUserId === -1) return;
     return () => {
       unsubscribe();
     };
-  }, [currentUserId, currentUsername, onGuessCorrect]);
+  }, [currentUserId, currentUsername, nicknameByUserId, onGuessCorrect]);
 
 // const session = useSessionStore();
 
@@ -134,7 +174,6 @@ return (
             placeholder="Type your guess..."
             className="flex-1"
             value={text}
-            disabled={isDrawer}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") send();

@@ -293,7 +293,7 @@ export default function GamePage() {
     )}
 
       {wsState === "waiting" && (
-        <DrawingBoard systemMessages={systemMessages} />
+        <DrawingBoard systemMessages={systemMessages} players={members} />
       )}
 
       {wsState === "playing" && (
@@ -306,6 +306,7 @@ export default function GamePage() {
           <DrawingBoard
             onGuessCorrect={setRecentlyCorrectGuesser}
             systemMessages={systemMessages}
+            players={members}
           />
         </>
       )}
