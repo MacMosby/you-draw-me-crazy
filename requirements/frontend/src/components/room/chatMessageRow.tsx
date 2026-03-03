@@ -65,7 +65,7 @@ export function ChatMessageRow({ message, isOwn }: ChatMessageProps) {
               : "bg-gray-100 text-gray-900"
           }`}
         >
-          <span className={isCorrect && !isOwn ? "blur-sm" : ""}>
+          <span className={isCorrect ? "blur-sm" : ""}>
             {message.text}
           </span>
           {isCorrect && (
