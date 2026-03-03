@@ -31,7 +31,7 @@ export default function ParticipantsList({ highlightedPlayerId, players, drawerI
             key={participant.userId}
             className={`px-2 py-1.5 rounded-md transition-colors duration-300 ${
               activeHighlight === participant.userId
-                ? "bg-cyan-100/60"
+                ? "bg-amber-200/60"
                 : "bg-transparent"
             }`}
           >
@@ -40,7 +40,7 @@ export default function ParticipantsList({ highlightedPlayerId, players, drawerI
                 <div
                   className={`text-xl font-semibold transition-colors ${
                     activeHighlight === participant.userId
-                      ? "text-cyan-600"
+                      ? "text-amber-900"
                       : "text-textPrimary"
                   }`}
                 >

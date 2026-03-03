@@ -120,6 +120,12 @@ export class WebsocketGateway {
 		const socketRoom = `room-${payload.room_id}`;
 		const room = this.roomService.getRoom(payload.room_id);
 		if (room === undefined) return;
+
+		if (client.data.userId === room.drawer) {
+			this.server.to(socketRoom).emit(WS_EVENTS.GUESS, payload);
+			return;
+		}
+
 		const response: any = this.gameService.guessValidation(payload, room);
 		if (!response) return;
 		this.server.to(socketRoom).emit(WS_EVENTS.GUESS_UPDATE, response);

@@ -1,85 +1,155 @@
 import { Button } from "../button";
 import { Input } from "../input";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { socket } from "../../api/socket";
+import { onGuess, onGuessUpdate, socket } from "../../api/socket";
 import { ChatMessageRow, type ChatMessage } from "./chatMessageRow";
 import { DrawingCanvas } from "./DrawingCanvas";
 import { DrawerPanel } from "./DrawerPanel";
 import { useSessionStore } from "../../state/sessionStore";
 import { emitCanvasClear, emitCanvasUndo } from "../../api/drawingSocket";
+import { WS_EVENTS } from "../../../shared/ws.events";
+import type { GuessPayload, GuessUpdatePayload, TurnInfoPayload } from "../../../shared/ws.payloads";
 
 type Props = {
   onGuessCorrect?: (userId: number) => void;
   systemMessages?: ChatMessage[];
+  players?: TurnInfoPayload["players"];
 };
 
-
-export default function DrawingBoard({ onGuessCorrect, systemMessages = [] }: Props) {
+// changed some small things here, because it improved performance
+export default function DrawingBoard({ onGuessCorrect, systemMessages = [], players = [] }: Props) {
 	const [text, setText] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const pendingOwnGuessesRef = useRef<string[]>([]);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
-  const currentUserId = useSessionStore((s: any) => s.userId);
-  const roomId = useSessionStore((s: any) => s.roomId);
-  const [color, setColor] = useState("#111111");
-  const role = useSessionStore((s: any) => s.role);
+  const currentUserId = useSessionStore((s) => s.user?.id ?? -1);
+  const roomId = useSessionStore((s) => s.roomId);
+  const currentUsername = useSessionStore((s) => s.user?.username ?? "You");
+  const [color, setColor] = useState<`#${string}`>("#111111"); // this to avoid that VSCode complains about unitiliazed types
+  const role = useSessionStore((s) => s.role);
   const isDrawer = role === "drawer";
+
+  const handleColorChange = (next: string) => {
+    setColor(next as `#${string}`);
+  };
 
   const sortedMessages = useMemo(
     () => [...systemMessages, ...messages].sort((a, b) => a.timestamp - b.timestamp),
     [messages, systemMessages]
   );
 
+  const nicknameByUserId = useMemo(
+    () => new Map(players.map((player) => [player.userId, player.nickname])),
+    [players]
+  );
+
 function send() {
 const trimmed = text.trim();
-if (!trimmed) return;
-  socket.emit("whoAmI", { text: trimmed });
+if (!trimmed || roomId === null || currentUserId === -1) return;
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `msg-${Date.now()}`,
-        userId: currentUserId,
-        username: "You",
-        text: trimmed,
-        timestamp: Date.now(),
-        type: "chat",
-      },
-    ]);
-		setText("");
+  if (!isDrawer) {
+    pendingOwnGuessesRef.current.push(trimmed);
+  }
+
+  socket.emit(WS_EVENTS.GUESS, {
+    guesser_id: currentUserId,
+    guess: trimmed,
+    room_id: roomId,
+  });
+
+	setText("");
 	}
 
   useEffect(() => {
     scrollAnchorRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sortedMessages.length]);
 
+  // this makes it possible for the drawer to send their own messages to the chat
   useEffect(() => {
-    const handleGuessUpdate = (data: { guesser: { Nickname: string; User_ID: number }; correct: boolean; Score: number; guess: string | null }) => {
+    const handleDrawerChat = (data: GuessPayload) => {
+      const messageText = data.guess?.trim();
+      if (!messageText) return;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `chat-${data.guesser_id}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+          userId: data.guesser_id,
+          username:
+            data.guesser_id === currentUserId
+              ? currentUsername
+              : (nicknameByUserId.get(data.guesser_id) ?? `Player ${data.guesser_id}`),
+          text: messageText,
+          timestamp: Date.now(),
+          type: "chat",
+        },
+      ]);
+    };
+
+    const unsubscribe = onGuess(handleDrawerChat);
+    return () => {
+      unsubscribe();
+    };
+  }, [currentUserId, currentUsername, nicknameByUserId]);
+
+  useEffect(() => {
+    const handleGuessUpdate = (data: GuessUpdatePayload) => {
+      let resolvedText = data.guess ?? "";
+
+      if (data.guesser_id === currentUserId) {
+        const firstPending = pendingOwnGuessesRef.current.shift();
+        if (data.correct && firstPending) {
+          resolvedText = firstPending;
+        }
+      }
+
+      const messageText = data.correct
+        ? (resolvedText || "correct guess")
+        : (resolvedText || "");
+
+      if (messageText) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `guess-${data.guesser_id}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+            userId: data.guesser_id,
+            username:
+              data.guesser_id === currentUserId
+                ? currentUsername
+                : (nicknameByUserId.get(data.guesser_id) ?? `Player ${data.guesser_id}`),
+            text: messageText,
+            timestamp: Date.now(),
+            type: "guess",
+            isCorrectGuess: data.correct,
+          },
+        ]);
+      }
+
       if (data.correct) {
-        // Notify parent component to highlight the player
         if (onGuessCorrect) {
-          onGuessCorrect(data.guesser.User_ID);
+          onGuessCorrect(data.guesser_id);
         }
       }
     };
 
-    socket.on("guess_update", handleGuessUpdate);
+    const unsubscribe = onGuessUpdate(handleGuessUpdate);
     return () => {
-      socket.off("guess_update", handleGuessUpdate);
+      unsubscribe();
     };
-  }, [onGuessCorrect]);
+  }, [currentUserId, currentUsername, nicknameByUserId, onGuessCorrect]);
 
-const session = useSessionStore();
+// const session = useSessionStore();
 
 return (
     <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
       {/* Canvas area */}
   <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 min-h-[280px] lg:min-h-0">
-<DrawingCanvas isDrawer={isDrawer} roomId={roomId} drawerId={currentUserId} color={color} />
+  <DrawingCanvas isDrawer={isDrawer} roomId={roomId ?? -1} drawerId={currentUserId} color={color} />
 
 {isDrawer && (
   <DrawerPanel
   color={color}
-  onColorChange={setColor}
+  onColorChange={handleColorChange}
   onUndo={emitCanvasUndo}
     onClear={emitCanvasClear}
   />
