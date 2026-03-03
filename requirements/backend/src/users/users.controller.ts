@@ -33,4 +33,8 @@ export class UsersController {
 		return this.usersService.getUserByNickname(nickname);
 	}
 
+	@Get('me')
+	getUserProfile(@Body() userId: number) {
+		return this.usersService.getUserById(userId);
+	}
 }
