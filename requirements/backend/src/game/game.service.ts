@@ -97,7 +97,7 @@ export class GameService {
 		
 		const response: GuessUpdatePayload = {
 			guesser_id: payload.guesser_id,
-			guess: iscorrect ? null : typedGuess,//only send wrong guesses, keep original user casing
+			guess: iscorrect ? null : payload.guess,//only send wrong guesses
 			room_id: room.id,
 			score: player.score,
 			correct: iscorrect,

@@ -16,7 +16,7 @@ type Props = {
   players?: TurnInfoPayload["players"];
 };
 
-
+// changed some small things here, because it improved performance
 export default function DrawingBoard({ onGuessCorrect, systemMessages = [], players = [] }: Props) {
 	const [text, setText] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -25,7 +25,7 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
   const currentUserId = useSessionStore((s) => s.user?.id ?? -1);
   const roomId = useSessionStore((s) => s.roomId);
   const currentUsername = useSessionStore((s) => s.user?.username ?? "You");
-  const [color, setColor] = useState<`#${string}`>("#111111");
+  const [color, setColor] = useState<`#${string}`>("#111111"); // this to avoid that VSCode complains about unitiliazed types
   const role = useSessionStore((s) => s.role);
   const isDrawer = role === "drawer";
 
