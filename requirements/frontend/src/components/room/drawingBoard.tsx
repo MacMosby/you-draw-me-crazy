@@ -143,7 +143,7 @@ if (!trimmed || roomId === null || currentUserId === -1) return;
 return (
     <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
       {/* Canvas area */}
-  <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 aspect-[3/2] min-h-[280px]">
+  <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 aspect-[3/2] min-h-[280px] overflow-hidden">
   <DrawingCanvas isDrawer={isDrawer} roomId={roomId ?? -1} drawerId={currentUserId} color={color} />
 
 {isDrawer && (
@@ -158,7 +158,7 @@ return (
 
 
       {/* Chat/Guesses section */}
-      <div className="w-full lg:w-64 xl:w-72 flex flex-col min-h-0 bg-surface border border-gray-200 rounded-lg p-3">
+      <div className="w-full lg:w-64 xl:w-72 lg:shrink-0 flex flex-col min-h-0 bg-surface border border-gray-200 rounded-lg p-3">
         <div className="mb-3 flex-1 min-h-0 overflow-y-auto space-y-2">
           {sortedMessages.map((message) => (
             <ChatMessageRow

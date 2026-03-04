@@ -12,6 +12,7 @@ import { useSessionStore } from "../state/sessionStore";
 import starImage from "../assets/star.png";
 import rocketImage from "../assets/rocket.png";
 import beeImage from "../assets/bee.png";
+import cloudImage from "../assets/cloud.png";
 import type { ChatMessage } from "../components/room/chatMessageRow";
 
 type RoomPlayer = TurnInfoPayload["players"][number];
@@ -371,6 +372,7 @@ export default function GamePage() {
       <Lobby 
         title="Connecting..."
         message="Connecting to the game room..."
+        icon = {cloudImage}
       />
     )}
 

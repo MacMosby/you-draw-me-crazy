@@ -111,8 +111,15 @@ export function DrawingCanvas({
     };
 
     resize();
+    const observer = new ResizeObserver(() => {
+      resize();
+    });
+    observer.observe(canvas);
     window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
   useEffect(() => {
