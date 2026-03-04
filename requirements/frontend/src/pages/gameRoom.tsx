@@ -78,6 +78,8 @@ export default function GamePage() {
   const [showWaitingLobby, setShowWaitingLobby] = useState(false);
   const [startCountdown, setStartCountdown] = useState<number | null>(null);
   const [systemMessages, setSystemMessages] = useState<ChatMessage[]>([]);
+  const [clockRemainingMs, setClockRemainingMs] = useState<number>(0);
+  const [clockRunning, setClockRunning] = useState<boolean>(false);
   const prevWsStateRef = useRef<typeof wsState>("connecting");
   const prevMembersRef = useRef<TurnInfoPayload["players"]>([]);
   const membersInitializedRef = useRef(false);
@@ -141,6 +143,15 @@ export default function GamePage() {
           setDrawerId(payload.drawer);
           setCurrentWord(payload.word);
 
+          const turnDurationMs = (payload as TurnInfoPayload & { time_to_display?: number }).time_to_display ?? 0;
+          if (payload.round > 0 && turnDurationMs > 0) {
+            setClockRemainingMs(turnDurationMs);
+            setClockRunning(true);
+          } else {
+            setClockRemainingMs(0);
+            setClockRunning(false);
+          }
+
           //round/turn 0 means waiting
           setWsState(payload.round === 0 ? "waiting" : "playing");
         });
@@ -163,6 +174,8 @@ export default function GamePage() {
         unsubResults = onResults((payload) => {
           console.log("[ws] results:", payload);
           clearConnectTimeout();
+          setClockRunning(false);
+          setClockRemainingMs(0);
           if (payload.final) {
             setWsState("finished");
           }
@@ -240,21 +253,41 @@ export default function GamePage() {
     };
   }, [wsState]);
 
+  useEffect(() => {
+    if (!clockRunning) return;
+
+    const interval = window.setInterval(() => {
+      setClockRemainingMs((prev) => {
+        const next = Math.max(0, prev - 250);
+        if (next === 0) {
+          setClockRunning(false);
+        }
+        return next;
+      });
+    }, 250);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [clockRunning]);
+
   return (
     <RoomLayout
       highlightedPlayerId={recentlyCorrectGuesser}
       players={members}
       drawerId={drawerId}
+      clockRemainingMs={clockRemainingMs}
+      clockRunning={clockRunning}
     >
 
 		{/* Debugging stuff: feel free to delete or change */}
-		<div className="absolute top-50 left-50 z-10 max-w-sm bg-white/90 rounded p-3 text-xs space-y-2">
+		{/* <div className="absolute top-50 left-50 z-10 max-w-sm bg-white/90 rounded p-3 text-xs space-y-2">
           <div className="font-semibold">Debugging information:</div>
           <div>wsState: {wsState}</div>
           <div>round: {round} turn: {turn}</div>
           <div>players: {members.length}</div>
 		  <div>whoIam: id:{userId} name:{user?.username} </div>
-          </div>
+          </div> */}
 
     {wsState === "connecting" && (
       <Lobby 
