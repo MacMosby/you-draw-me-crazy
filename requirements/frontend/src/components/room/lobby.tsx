@@ -2,7 +2,7 @@ import clockImage from "../../assets/clock.png";
 
 interface LobbyProps {
   title: string;
-  message: string;
+  message: React.ReactNode;
   // players?: Player[];
   icon?: string;
   actions?: React.ReactNode;
@@ -30,9 +30,9 @@ export default function Lobby({
           {title}
         </h2>
         
-        <p className="text-lg text-textMuted mb-8">
+        <div className="text-lg text-textMuted mb-8 whitespace-pre-line">
           {message}
-        </p>
+        </div>
         
         {actions && (
           <div className="mt-8 flex gap-4 justify-center">
