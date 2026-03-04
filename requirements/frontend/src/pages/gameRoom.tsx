@@ -76,7 +76,6 @@ export default function GamePage() {
   const [currentWordLength, setCurrentWordLength] = useState<number>(0);
   // const [room_id, setRoomId] = useState<number>(-1);
   const [recentlyCorrectGuesser, setRecentlyCorrectGuesser] = useState<number | null>(null);
-  const [showWaitingLobby, setShowWaitingLobby] = useState(false);
   const [startCountdown, setStartCountdown] = useState<number | null>(null);
   const [systemMessages, setSystemMessages] = useState<ChatMessage[]>([]);
   const [clockRemainingMs, setClockRemainingMs] = useState<number>(0);
@@ -204,24 +203,6 @@ export default function GamePage() {
     };
   }, [userId, logout]);
 
-  // timer which makes sure the waiting panel disappears after three seconds
-  useEffect(() => {
-    let waitingTimer: number | undefined;
-
-    if (wsState === "waiting") {
-      setShowWaitingLobby(true);
-      waitingTimer = window.setTimeout(() => {
-        setShowWaitingLobby(false);
-      }, 3000);
-    }
-
-    return () => {
-      if (waitingTimer) {
-        window.clearTimeout(waitingTimer);
-      }
-    };
-  }, [wsState]);
-
   // countdown before play 
   useEffect(() => {
     let countdownInterval: number | undefined;
@@ -299,7 +280,7 @@ export default function GamePage() {
       />
     )}
 
-    {wsState === "waiting" && showWaitingLobby && (
+    {wsState === "waiting" && (
       <Lobby 
         title="Waiting for Players"
         message="Not enough players in room"
