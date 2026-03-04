@@ -9,6 +9,7 @@ import type { TurnInfoPayload } from "../../shared/ws.payloads";
 import { socket, joinRoom, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
 import starImage from "../assets/star.png";
+import rocketImage from "../assets/rocket.png";
 import type { ChatMessage } from "../components/room/chatMessageRow";
 
 type RoomPlayer = TurnInfoPayload["players"][number];
@@ -338,7 +339,10 @@ export default function GamePage() {
       )}
 
       {wsState === "playing" && startCountdown !== null && (
-        <Lobby title="Get Ready" message={`Game will start in: ${startCountdown}`} />
+        <Lobby 
+          title="Get Ready" 
+          message={`Game will start in: ${startCountdown}`} 
+          icon={rocketImage}/>
       )}
     </RoomLayout>
   );

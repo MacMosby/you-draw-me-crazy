@@ -143,7 +143,7 @@ if (!trimmed || roomId === null || currentUserId === -1) return;
 return (
     <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
       {/* Canvas area */}
-  <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 min-h-[280px] lg:min-h-0">
+  <div className="relative bg-surface border border-gray-400 rounded-lg flex-1 aspect-[3/2] min-h-[280px]">
   <DrawingCanvas isDrawer={isDrawer} roomId={roomId ?? -1} drawerId={currentUserId} color={color} />
 
 {isDrawer && (
