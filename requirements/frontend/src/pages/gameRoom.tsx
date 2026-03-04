@@ -73,6 +73,7 @@ export default function GamePage() {
   const [turn, setTurn] = useState<number>(0);
   const [drawerId, setDrawerId] = useState<number>(-1);
   const [currentWord, setCurrentWord] = useState<string | null>(null);
+  const [currentWordLength, setCurrentWordLength] = useState<number>(0);
   // const [room_id, setRoomId] = useState<number>(-1);
   const [recentlyCorrectGuesser, setRecentlyCorrectGuesser] = useState<number | null>(null);
   const [showWaitingLobby, setShowWaitingLobby] = useState(false);
@@ -142,6 +143,7 @@ export default function GamePage() {
           setTurn(payload.turn);
           setDrawerId(payload.drawer);
           setCurrentWord(payload.word);
+          setCurrentWordLength(payload.word_length ?? 0);
 
           const turnDurationMs = (payload as TurnInfoPayload & { time_to_display?: number }).time_to_display ?? 0;
           if (payload.round > 0 && turnDurationMs > 0) {
@@ -162,6 +164,7 @@ export default function GamePage() {
           setMembers(dedupePlayers(payload.members));
           setRound(payload.round);
           setTurn(payload.turn);
+          setCurrentWordLength(0);
           setWsState("playing");
         });
 
@@ -299,7 +302,7 @@ export default function GamePage() {
     {wsState === "waiting" && showWaitingLobby && (
       <Lobby 
         title="Waiting for Players"
-        message="Not enough players in room. For now, practice your drawing!"
+        message="Not enough players in room"
       />
     )}
 
@@ -331,9 +334,18 @@ export default function GamePage() {
 
       {wsState === "playing" && (
         <>
-          {drawerId === userId && (
+          {(drawerId === userId || drawerId !== -1) && (
             <div className="absolute top-8 left-8 z-10 max-w-sm">
-              <PromptBox prompt={currentWord} />
+              <PromptBox
+                title={drawerId === userId ? "Your prompt" : "Guess the word"}
+                prompt={
+                  drawerId === userId
+                    ? currentWord
+                    : currentWordLength > 0
+                      ? "_ ".repeat(currentWordLength).trim()
+                      : "..."
+                }
+              />
             </div>
           )}
           <DrawingBoard
