@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { socket } from "../../api/socket";
-import { WS_EVENTS } from "../../../shared/ws.events";
 import type { DrawPayload, Stroke, StrokeAppendPayload, Point } from "../../../shared/ws.payloads";
 import {
   emitStrokeAppend,

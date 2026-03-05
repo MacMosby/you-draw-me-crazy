@@ -1,15 +1,14 @@
 // import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 // import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
-import { Button } from "../components/button";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
 import { socket, joinRoom, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
-import starImage from "../assets/star.png";
 import rocketImage from "../assets/rocket.png";
 import beeImage from "../assets/bee.png";
 import cloudImage from "../assets/cloud.png";
@@ -23,11 +22,6 @@ type TurnSummary = {
   isRoundEnd: boolean;
   roundWinnerText: string;
   countdown: number;
-};
-
-type FinalSummary = {
-  solution: string;
-  winnerText: string;
 };
 
 function getJoinedAndLeftPlayers(previousMembers: RoomPlayer[], currentMembers: RoomPlayer[]) {
@@ -77,6 +71,7 @@ function formatNames(names: string[]): string {
 }
 
 export default function GamePage() {
+  const navigate = useNavigate();
   // safety function to remove duplicate players from the list
   const dedupePlayers = (players: TurnInfoPayload["players"]) =>
     players.filter((player, index, list) =>
@@ -86,6 +81,7 @@ export default function GamePage() {
   // 1. get userId from storage
   const user = useSessionStore((s) => s.user);
   const logout = useSessionStore((s) => s.logout);
+  const clearRoom = useSessionStore((s) => s.clearRoom);
   const userId = user?.id; // use user id from storage
   if (!userId) {
     return <div>No user found</div>; // handle an error
@@ -103,7 +99,6 @@ export default function GamePage() {
   const [clockRemainingMs, setClockRemainingMs] = useState<number>(0);
   const [clockRunning, setClockRunning] = useState<boolean>(false);
   const [turnSummary, setTurnSummary] = useState<TurnSummary | null>(null);
-  const [finalSummary, setFinalSummary] = useState<FinalSummary | null>(null);
   const prevWsStateRef = useRef<typeof wsState>("connecting");
   const prevMembersRef = useRef<TurnInfoPayload["players"]>([]);
   const membersInitializedRef = useRef(false);
@@ -115,11 +110,6 @@ export default function GamePage() {
   const handleGuessCorrect = (guesserId: number) => {
     correctGuesserIdsRef.current.add(guesserId);
     setRecentlyCorrectGuesser(guesserId);
-  };
-
-  // temporary solution -- still figuring out how to best handle one person pushing Play Again
-  const handlePlayAgain = () => {
-    window.location.reload();
   };
 
   useEffect(() => {
@@ -184,7 +174,6 @@ export default function GamePage() {
           setCurrentWord(payload.word);
           setCurrentWordLength(payload.word_length ?? 0);
           setTurnSummary(null);
-          setFinalSummary(null);
           setRecentlyCorrectGuesser(null);
           correctGuesserIdsRef.current = new Set();
 
@@ -237,7 +226,10 @@ export default function GamePage() {
 
           const resultPlayers = (payload as typeof payload & { players?: TurnInfoPayload["players"] }).players;
           const scoringPlayers = resultPlayers ?? membersRef.current;
-          const topScore = Math.max(...scoringPlayers.map((player) => player.score), Number.NEGATIVE_INFINITY);
+          const topScore =
+            scoringPlayers.length > 0
+              ? Math.max(...scoringPlayers.map((player) => player.score))
+              : 0;
           const roundWinners = scoringPlayers
             .filter((player) => player.score === topScore)
             .map((player) => player.nickname);
@@ -251,11 +243,19 @@ export default function GamePage() {
           });
 
           if (payload.final) {
-            setFinalSummary({
-              solution: payload.solution,
-              winnerText: formatNames(roundWinners),
+            clearRoom();
+            socket.disconnect();
+            navigate("/post-game", {
+              replace: true,
+              state: {
+                summary: {
+                  solution: payload.solution,
+                  winnerText: formatNames(roundWinners),
+                  winnerScore: topScore,
+                },
+              },
             });
-            setWsState("finished");
+            return;
           }
         });
 
@@ -277,7 +277,7 @@ export default function GamePage() {
       unsubResults();
       socket.disconnect();
     };
-  }, [userId, logout]);
+  }, [userId, logout, navigate, clearRoom]);
 
   // countdown before play 
   useEffect(() => {
@@ -387,32 +387,6 @@ export default function GamePage() {
       <Lobby 
         title="Room Full"
         message="Room 2 is under construction. Please wait for a spot in Room 1 to become available."
-      />
-    )}
-
-    {wsState === "finished" && (
-      <Lobby 
-        title="Game Finished!"
-        message={
-          finalSummary ? (
-            <>
-              <p>
-                The correct answer was: <strong>{finalSummary.solution}</strong>
-              </p>
-              <p>
-                <strong>{finalSummary.winnerText}</strong> won the game!
-              </p>
-            </>
-          ) : (
-            "Thanks for playing!"
-          )
-        }
-        icon={starImage}
-        actions={
-          <Button onClick={handlePlayAgain}>
-            Play again
-          </Button>
-        }
       />
     )}
 

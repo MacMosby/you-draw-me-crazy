@@ -115,7 +115,7 @@ export class GameService {
 		const response: ResultsPayload = {
 			final: isFinal,
 			solution: room.word!,
-			time_to_display: 5_000,
+			time_to_display: 3_000,
 			players: room.players,
 		};
 		const socketRoom = `room-${room.id}`;
