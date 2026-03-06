@@ -94,6 +94,12 @@ export interface RemoveFriendPayload {
 	player: number;
 }
 
+export interface ProfilePagePayload {
+	id: number;
+	nickname: string;
+	email: string;
+	friends: string[];
+}
 
 /*export interface DrawingPayload {
 	room_id: number;
