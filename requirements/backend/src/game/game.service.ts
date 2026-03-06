@@ -8,6 +8,7 @@ import { WordsService } from 'src/words/words.service';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { WebsocketGateway } from 'src/websocket/websocket.gateway';
 import { PlayerDto } from 'src/websocket/dtos/player.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class GameService {
@@ -15,6 +16,7 @@ export class GameService {
 	constructor(
 	private readonly wordsService: WordsService,
 	private readonly roomsService: RoomsService,
+	private readonly usersService: UsersService,
 	//private readonly gateway: WebsocketGateway,
 	) {}
 
@@ -81,8 +83,8 @@ export class GameService {
 		}
 	}
 
-	getFriends(userID: number, room: Room): string[] {
-		const user = room.players.find((user: PlayerDto) => user.userId === userID);
+	async getFriends(userID: number, room: Room): Promise<string[]> {
+		const user = await this.usersService.getUserById(userID);
 		if (!user) {
 			throw new Error("Player not found");
 		}

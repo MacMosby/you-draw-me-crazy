@@ -253,7 +253,7 @@ export class WebsocketGateway {
 		if (!newFriend) {
 			throw new Error("User not found");
 		}
-		this.usersService.addFriend(payload.player, newFriend.id);
+		await this.usersService.addFriend(payload.player, newFriend.id);
 		const room = this.roomService.getRoom(payload.room_id);
 		if (!room) {
 			throw new Error("Room not found");
@@ -261,7 +261,7 @@ export class WebsocketGateway {
 
 		const friendList: FriendListPayload = {
 			room_id: payload.room_id,
-			friends: this.gameService.getFriends(payload.player, room),
+			friends: await this.gameService.getFriends(payload.player, room),
 		}
 		client.emit(WS_EVENTS.FRIEND_LIST, friendList);
 	}
@@ -283,7 +283,7 @@ export class WebsocketGateway {
 
 		const friendList: FriendListPayload = {
 			room_id: payload.room_id,
-			friends: this.gameService.getFriends(payload.player, room),
+			friends: await this.gameService.getFriends(payload.player, room),
 		}
 		client.emit(WS_EVENTS.FRIEND_LIST, friendList);
 	}
