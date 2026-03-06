@@ -39,7 +39,7 @@ export class UsersController {
 	async getUserProfile(@Body("userId", ParseIntPipe) userId: number) {
 		console.log(`Received request for user profile with userId: ${userId}`);
 		console.log(`User profile data:`, this.usersService.getUserById(userId));
-		const user: User = this.usersService.getUserById(userId);
+		const user: User = await this.usersService.getUserById(userId);
 		const friendsNicknames: string[] = await this.usersService.getFriendsNicknames(user.friends);
 		const profile: ProfilePagePayload = {
 			id: user.id,

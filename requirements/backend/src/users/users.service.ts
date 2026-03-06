@@ -77,7 +77,7 @@ export class UsersService {
 	async getFriendsNicknames(friendsIDs: number[]): Promise<string[]> {
 		let nicknames: string[] = [];
 		for(const id of friendsIDs) {
-			const user: User = this.getUserById(id);
+			const user: User = await this.getUserById(id);
 			nicknames.push(user.nickname);
 		}
 		return nicknames;
