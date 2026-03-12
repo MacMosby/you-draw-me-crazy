@@ -10,6 +10,7 @@ import WelcomePage from "../pages/welcomePage.tsx";
 import About from "../pages/static/about.tsx";
 import Privacy from "../pages/static/privacy.tsx"
 import Game from "../pages/gameRoom.tsx";
+import PostGamePage from "../pages/postGamePage.tsx";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -31,6 +32,10 @@ export const router = createBrowserRouter(
 					{
 						path: "/room",
 						element: <Game />,
+					},
+					{
+						path: "/post-game",
+						element: <PostGamePage />,
 					},
 					],
 				},

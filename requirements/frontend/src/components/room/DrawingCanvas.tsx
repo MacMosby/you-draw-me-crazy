@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { socket } from "../../api/socket";
-import { WS_EVENTS } from "../../../shared/ws.events";
 import type { DrawPayload, Stroke, StrokeAppendPayload, Point } from "../../../shared/ws.payloads";
 import {
   emitStrokeAppend,
@@ -111,8 +109,15 @@ export function DrawingCanvas({
     };
 
     resize();
+    const observer = new ResizeObserver(() => {
+      resize();
+    });
+    observer.observe(canvas);
     window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
   useEffect(() => {

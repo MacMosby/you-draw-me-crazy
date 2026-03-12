@@ -6,9 +6,11 @@ interface ParticipantsListProps {
   highlightedPlayerId?: number | null;
   players: PlayerDto[];
   drawerId?: number;
+  clockRemainingMs?: number;
+  clockRunning?: boolean;
 }
 
-export default function ParticipantsList({ highlightedPlayerId, players, drawerId }: ParticipantsListProps) {
+export default function ParticipantsList({ highlightedPlayerId, players, drawerId, clockRemainingMs = 0, clockRunning = false }: ParticipantsListProps) {
 
   const [activeHighlight, setActiveHighlight] = useState<number | null>(null);
 
@@ -63,7 +65,7 @@ export default function ParticipantsList({ highlightedPlayerId, players, drawerI
       
       {/* Clock below participants */}
       <div className="mt-auto pt-3 flex justify-center">
-        <Clock />
+        <Clock remainingMs={clockRemainingMs} isRunning={clockRunning} />
       </div>
     </div>
   );

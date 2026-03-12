@@ -13,6 +13,10 @@ export default function HomePage() {
     navigate("/room");
   };
 
+  const goToProfile = () => {
+    navigate("/profile");
+  }
+
   return (
       <div className="flex items-center justify-center px-6 py-16">
         <Card>
@@ -31,6 +35,9 @@ export default function HomePage() {
               >
                 Play!
               </Button>
+               <Button className="w-full" variant="secondary" onClick={goToProfile}>
+              Go to profile
+            </Button>
             </div>
           </div>
         </Card>
