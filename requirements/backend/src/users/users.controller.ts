@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Body, Param, ParseIntPipe } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { DatabaseService } from "../database/database.service";
+import { User } from "@prisma/client"
+import { ProfilePagePayload } from "src/websocket/dtos/ws.payloads";
 
 @Controller('users')
 export class UsersController {
@@ -34,9 +36,17 @@ export class UsersController {
 	}
 
 	@Post('me')
-	getUserProfile(@Body("userId", ParseIntPipe) userId: number) {
+	async getUserProfile(@Body("userId", ParseIntPipe) userId: number) {
 		console.log(`Received request for user profile with userId: ${userId}`);
 		console.log(`User profile data:`, this.usersService.getUserById(userId));
-		return this.usersService.getUserById(userId);
+		const user: User = await this.usersService.getUserById(userId);
+		const friendsNicknames: string[] = await this.usersService.getFriendsNicknames(user.friends);
+		const profile: ProfilePagePayload = {
+			id: user.id,
+			nickname: user.nickname,
+			email: user.email,
+			friends: friendsNicknames,
+		}
+		return profile;
 	}
 }
