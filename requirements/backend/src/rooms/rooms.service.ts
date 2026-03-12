@@ -55,10 +55,10 @@ export class RoomsService {
 
 	async findAvailableRoom(newUserId: number): Promise<Room> {
 		//keep users from joining when already in any room
-		if (this.userToRoom.has(newUserId)) {
-			const existingRoomId = this.userToRoom.get(newUserId)!;
-			return this.rooms.get(existingRoomId)!;
-		}
+		// if (this.userToRoom.has(newUserId)) {
+		// 	const existingRoomId = this.userToRoom.get(newUserId)!;
+		// 	return this.rooms.get(existingRoomId)!;
+		// }
 		for (const room of this.rooms.values()) {
 			if (room.players.length < room.maxPlayers) {
 				return room;
