@@ -154,7 +154,7 @@ export class RoomsService {
         const room = this.getRoom(roomId);
         if (!room)
             return;
-        room.strokes = [];
+        room.strokes.length = 0;
     }
 
     popStroke(roomId: number) {

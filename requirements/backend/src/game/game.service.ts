@@ -22,17 +22,24 @@ export class GameService {
 	async startTurn(room: Room, server: Server) {
 		//clear drawing board for new turn
 		this.roomsService.clearStrokes(room.id);
+		server.to(`room-${room.id}`).emit(WS_EVENTS.INIT_DRAWING, {
+			room_id: room.id,
+			strokes: [],
+    	});
 
 		// admit spectators if there are any
 		this.roomsService.admitSpectators(room.id);
 
+		// check if there are enough players to continue
 		if (room.players.length === 0) {
     		this.logger.log(`Room ${room.id} has no players, aborting startTurn`);
 			room.state = 'lobby';
         	return;
 		}
+
 		if (room.round === 0) this.increaseRound(room);
 		else this.increaseTurn(room);
+
 		console.log("USING WORD SERVICE NOW");
 		const wordEntity = await this.wordsService.getRandomWord(room.usedWordIds);
 		
