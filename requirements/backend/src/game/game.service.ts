@@ -7,7 +7,7 @@ import { WS_EVENTS } from 'src/websocket/dtos/ws.events';
 import { WordsService } from 'src/words/words.service';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { TurnEmitService } from 'src/websocket/turnemit.service';
-import { WebsocketGateway } from 'src/websocket/websocket.gateway';
+import { TURN_DURATION, RESULTS_DURATION } from './game.constants';
 
 @Injectable()
 export class GameService {
@@ -49,13 +49,13 @@ export class GameService {
 		console.log("usedWordIds:", room.usedWordIds);
 		room.drawer = room.players[room.turn-1].userId;
 
-		this.turnEmitService.emitTurnInfo(room, server);
+		const payload = this.turnEmitService.emitTurnInfo(room, server);
 
 		this.logger.log(`Room ${room.id} round.turn ${room.round}.${room.turn}, drawerId: ${room.drawer} draws ${room.word}`);
 		room.timeout = setTimeout(() => {
 			room.timeout = undefined;
 			this.endOfTurn(room, server);
-		}, 20_000);
+		}, TURN_DURATION);
 	}	
 
 	increaseTurn(room: Room): void {
@@ -115,7 +115,7 @@ export class GameService {
 		const response: ResultsPayload = {
 			final: isFinal,
 			solution: room.word!,
-			time_to_display: 3_000,
+			time_to_display: RESULTS_DURATION,
 			players: room.players,
 		};
 		const socketRoom = `room-${room.id}`;

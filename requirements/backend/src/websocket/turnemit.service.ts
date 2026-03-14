@@ -3,6 +3,7 @@ import { Server } from 'socket.io';
 import { Room } from 'src/rooms/room.class';
 import { TurnInfoPayload } from './dtos/ws.payloads';
 import { WS_EVENTS } from './dtos/ws.events';
+import { TURN_DURATION } from './../game/game.constants';
 
 @Injectable()
 export class TurnEmitService {
@@ -19,7 +20,7 @@ export class TurnEmitService {
         turn: room.turn,
         players: room.players,
         spectators: room.spectators,
-        time_to_display: 20_000,
+        time_to_display: TURN_DURATION,
       };
 
       server.to(`user-${p.userId}`).emit(WS_EVENTS.TURN_INFO, payload);
