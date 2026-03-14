@@ -20,6 +20,17 @@ export class GameService {
 	
 
 	async startTurn(room: Room, server: Server) {
+		//clear drawing board for new turn
+		this.roomsService.clearStrokes(room.id);
+
+		// admit spectators if there are any
+		this.roomsService.admitSpectators(room.id);
+
+		if (room.players.length === 0) {
+    		this.logger.log(`Room ${room.id} has no players, aborting startTurn`);
+			room.state = 'lobby';
+        	return;
+		}
 		if (room.round === 0) this.increaseRound(room);
 		else this.increaseTurn(room);
 		console.log("USING WORD SERVICE NOW");
@@ -30,7 +41,6 @@ export class GameService {
 		room.usedWordIds.push(wordEntity.id);
 		console.log("usedWordIds:", room.usedWordIds);
 		room.drawer = room.players[room.turn-1].userId;
-		const socketRoom = `room-${room.id}`;
 
 		this.turnEmitService.emitTurnInfo(room, server);
 
@@ -44,10 +54,10 @@ export class GameService {
 	increaseTurn(room: Room): void {
 		if (room.turn === room.players.length) {
 			this.increaseRound(room);
+			room.turn = 1;
 			return;
 		}
 		room.turn += 1;
-		//this.startTurn(room);
 	}
 
 	increaseRound(room: Room): void {
@@ -56,11 +66,9 @@ export class GameService {
 			console.log('send final results');
 			return;
 		}
-		// admitSpectators() implement! NB
 		room.turn = 1;
 		room.state = "playing";
 		this.logger.log(`Room ${room.id} started round ${room.round}`);
-		//this.startTurn(room);
 		return;
 	}
 
@@ -114,6 +122,10 @@ export class GameService {
 			}
 		}, response.time_to_display);
 		if (isFinal) {
+			if (room.timeout) {
+					clearTimeout(room.timeout);
+					room.timeout = undefined;
+				}
 			this.roomsService.removeAllPlayers(room.id);
 			room.usedWordIds.length = 0;
 			room.round = 0;

@@ -9,11 +9,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConnectionRegistry } from './websocket.service';
-import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload, StrokeAppendPayload } from './dtos/ws.payloads';
+import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload } from './dtos/ws.payloads';
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
-import { TurnEmitService } from './turnemit.service';
+import { Room } from 'src/rooms/room.class';
 
 @WebSocketGateway()
 export class WebsocketGateway {
@@ -24,8 +24,7 @@ export class WebsocketGateway {
 	constructor( 
 		private readonly registry: ConnectionRegistry,
 		private readonly roomService: RoomsService,
-		private readonly gameService: GameService,
-		private readonly turnEmitService: TurnEmitService
+		private readonly gameService: GameService
 	) {}
 	afterInit() { console.log('WebSocket Gateway initialized') }
 
@@ -87,27 +86,29 @@ export class WebsocketGateway {
 
 		// add user to available room in the backend
 		const room = await this.roomService.findAvailableRoom(payload.user_id);
-		
-		//FOR DEBUG
-		console.log('All rooms:', this.roomService.getAllRooms());
-
 		if (room.state === 'lobby' && room.players.length < room.maxPlayers)
 			await this.roomService.addUser(payload.user_id, room.id, 'player')
 		else if (room.state == 'playing')
 			await this.roomService.addUser(payload.user_id, room.id, 'spectator');
 
+		if (room.id === -1) {
+			client.emit(WS_EVENTS.ROOM_FULL);
+			return;
+		}
 		// add user to the socket.io room
 		const socketRoom = `room-${room.id}`;
 		await client.join(socketRoom);
 		client.data.roomId = room.id;
 
 		// build and emit payload for every player & spectator individually.
-		this.turnEmitService.emitTurnInfo(room, this.server);
+		for (const p of [...room.players, ...room.spectators]) {
+			const response = this.buildTurnInfoPayload(room, p.userId);
+			this.server.to(`user-${p.userId}`).emit(WS_EVENTS.TURN_INFO, response);
+		}
 		
 		// emit drawing state to everybody
 		this.emitFullDrawingState(room.id, client);
 		if (room.players.length === 3) {
-			//room.active = true;
 			this.gameService.startTurn(room, this.server);
 		} 
 	}
@@ -121,12 +122,6 @@ export class WebsocketGateway {
 		const socketRoom = `room-${payload.room_id}`;
 		const room = this.roomService.getRoom(payload.room_id);
 		if (room === undefined) return;
-
-		if (client.data.userId === room.drawer) {
-			this.server.to(socketRoom).emit(WS_EVENTS.GUESS, payload);
-			return;
-		}
-
 		const response: any = this.gameService.guessValidation(payload, room);
 		if (!response) return;
 		this.server.to(socketRoom).emit(WS_EVENTS.GUESS_UPDATE, response);
@@ -154,17 +149,12 @@ export class WebsocketGateway {
 	@SubscribeMessage(WS_EVENTS.STROKE_APPEND)
 	handleStrokeAppend(
 		@ConnectedSocket() client: Socket,
-		@MessageBody() payload: StrokeAppendPayload,
+		@MessageBody() payload: DrawPayload,
 	) {
 		const room = this.roomService.getRoom(client.data.roomId);
-		if (!room) return;
-		const roomId = payload.room_id;
+			if (!room) return;
 		if (client.data.userId !== room.drawer) return;
-		//this.roomService.appendStrokes(payload.strokes, client.data.roomId);
-		const strokes = this.roomService.getStrokes(roomId);
-		const s = strokes.find((x: any) => x.id === payload.id);
-		if (s) s.points.push(...payload.points);
-
+		this.roomService.appendStrokes(payload.strokes, client.data.roomId);
 		client.to(`room-${payload.room_id}`).emit(WS_EVENTS.STROKE_APPEND, payload);
 	}
 
@@ -190,51 +180,8 @@ export class WebsocketGateway {
 		this.emitFullDrawingState(client.data.roomId);
 	}
 
-	@SubscribeMessage('test:setDrawer')
-	handleTestSetDrawer(
-		@ConnectedSocket() client: Socket,
-		@MessageBody() payload: { room_id: number; drawer_id: number },
-	) {
-		console.log('[test] Setting drawer to', payload.drawer_id, 'in room', payload.room_id);
-		
-		const room = this.roomService.getRoom(payload.room_id);
-		if (!room) {
-			client.emit('error', 'Room not found');
-			return;
-		}
-		//this.gameService.startTurn(room, this.server); // reset turn state, timers, etc. like normal turn start would
-		// Update room state
-		this.roomService.clearStrokes(room.id);
-		console.log('[test] Cleared strokes for room', room.id);
-		// server.to(socketRoom).emit(WS_EVENTS.CANVAS_CLEAR);
-		this.emitFullDrawingState(room.id);
-		console.log('[test] Emitted full drawing state for room', room.id);
-		room.drawer = payload.drawer_id;
-		room.turn = 1;
-		room.round = 1;
-		room.word = 'testword';
-		room.word_length = 8;
-
-		// Send to all players in room
-		const socketRoom = `room-${payload.room_id}`;
-		const response: TurnInfoPayload = {
-			room_id: room.id,
-			drawer: payload.drawer_id,
-			word: room.word,
-			word_length: room.word_length,
-			round: room.round,
-			turn: room.turn,
-			players: room.players,
-			spectators: room.spectators,
-			time_to_display: 60_000,
-		};
-
-		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
-		console.log('[test] Sent TURN_INFO with drawer:', payload.drawer_id);
-	}
-
 	// SERVER -> CLIENT HELPERS
-	public emitFullDrawingState(roomId: number, client?: Socket) {
+	private emitFullDrawingState(roomId: number, client?: Socket) {
 		const strokes = this.roomService.getStrokes(roomId);
 		const payload = {
 			room_id: roomId,
@@ -244,5 +191,20 @@ export class WebsocketGateway {
 			client.emit(WS_EVENTS.INIT_DRAWING, payload);
 		else
 			this.server.to('room-' + roomId).emit(WS_EVENTS.INIT_DRAWING, payload);
+	}
+
+	private buildTurnInfoPayload(room: Room, userId: number): TurnInfoPayload {
+		const IsDrawer = userId === room.drawer;
+		return {
+			room_id: room.id,
+			drawer: room.drawer,
+			word: IsDrawer ? room.word : null,
+			word_length: room.word_length,
+			round: room.round,
+			turn: room.turn,
+			players: room.players,
+			spectators: room.spectators,
+			time_to_display: 10_000,
+		};
 	}
 }

@@ -18,14 +18,12 @@ export class RoomsService {
  
 	onModuleInit() {
 		this.logger.log("Initializing RoomsService ...");
-		//const noRoom = this.createRoom(0);
 		const room = this.createRoom(5);
 		console.log("Default room created");
 		this.logger.log(`Room created on startup: id=${room.id}, maxPlayers=${room.maxPlayers}`);
         this.logger.log(`Total rooms after startup: ${this.rooms.size}`);
 	}
 
-	//private userToRoom = new Map<number, number>()
 	createRoom(maxPlayers: number): Room {
         const room = new Room();
 		room.state = "lobby";
@@ -55,10 +53,11 @@ export class RoomsService {
 
 	async findAvailableRoom(newUserId: number): Promise<Room> {
 		//keep users from joining when already in any room
-		// if (this.userToRoom.has(newUserId)) {
-		// 	const existingRoomId = this.userToRoom.get(newUserId)!;
-		// 	return this.rooms.get(existingRoomId)!;
-		// }
+		if (this.userToRoom.has(newUserId)) {
+			const existingRoomId = this.userToRoom.get(newUserId)!;
+			return this.rooms.get(existingRoomId)!;
+		}
+
 		for (const room of this.rooms.values()) {
 			if (room.players.length < room.maxPlayers) {
 				return room;
@@ -72,7 +71,15 @@ export class RoomsService {
 
 	async addUser(newUserId: number, roomId: number, state: string) {
 		const user = await this.usersService.getUserById(newUserId);
-		if (!user) return;
+		if (!user) {
+			throw new Error("User not found");
+		}
+
+		// Double-check after async call to avoid races from duplicate join requests.
+		if (this.userToRoom.has(newUserId)) {
+			throw new Error("User denied! (Expected behavior in React dev mode)");
+		}
+
 		const room = this.getRoom(roomId);
 		if (!room) return;
 		const player: PlayerDto = {
@@ -90,17 +97,14 @@ export class RoomsService {
 	
 	// NB Remove player adjusted to remove user, so that it handles both removing players and spectators
 	removeUser(userId: number) {
-		console.log('remove Player', userId);
 		const roomId = this.userToRoom.get(userId);
-		// if (!roomId) return ;
 		if (roomId === undefined) return;
 		const room = this.rooms.get(roomId);
-		console.log('from room', roomId);
 		if (!room) return;
 		room.players = room.players.filter(p => p.userId !== userId);
 		room.spectators = room.spectators.filter( p => p.userId !== userId);
 		this.userToRoom.delete(userId);
-		console.log('user', userId, 'removed from Room', roomId);
+		console.log('User', userId, 'removed from Room', roomId);
 		//if < min players, end game early, send final results
 	}
 
@@ -113,10 +117,14 @@ export class RoomsService {
 			const spectator = room.spectators.shift()!;
 			room.players.push(spectator);
 		}
+		if (room.spectators.length > 0) //debug
+			console.log('Players filled, number of spectators: ', room.spectators.length); //debug
+		else //debug
+			console.log('All spectators have joined'); //debug
 	}
 
 	removeAllPlayers(roomId: number) {
-		console.log('remove all players from room', roomId);
+		console.log('remove all players from room ', roomId);
 		const room = this.rooms.get(roomId);
 		if (!room) return;
 		// remove user → room mappings
@@ -155,6 +163,10 @@ export class RoomsService {
 			return;
 		room.strokes.pop();
     }
+
+	isUserInRoom(userId: number, roomId: number): boolean {
+    return this.userToRoom.get(userId) === roomId;
+}
 
 }
 
