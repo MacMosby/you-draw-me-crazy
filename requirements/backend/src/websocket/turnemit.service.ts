@@ -19,7 +19,7 @@ export class TurnEmitService {
         turn: room.turn,
         players: room.players,
         spectators: room.spectators,
-        time_to_display: 10_000,
+        time_to_display: 20_000,
       };
 
       server.to(`user-${p.userId}`).emit(WS_EVENTS.TURN_INFO, payload);
