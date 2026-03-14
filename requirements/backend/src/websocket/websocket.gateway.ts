@@ -13,6 +13,7 @@ import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
 import { Room } from 'src/rooms/room.class';
 import { TurnEmitService } from './turnemit.service';
+import { StrokeAppendPayload } from 'shared/ws.payloads';
 
 @WebSocketGateway()
 export class WebsocketGateway {
@@ -24,7 +25,8 @@ export class WebsocketGateway {
 		private readonly registry: ConnectionRegistry,
 		private readonly roomService: RoomsService,
 		private readonly gameService: GameService,
-		private readonly turnemitservice: TurnEmitService
+		private readonly turnemitservice: TurnEmitService,
+		private readonly strokeappendpayload: StrokeAppendPayload
 	) {}
 	afterInit() { console.log('WebSocket Gateway initialized') }
 
@@ -86,10 +88,15 @@ export class WebsocketGateway {
 
 		// add user to available room in the backend
 		const room = await this.roomService.findAvailableRoom(payload.user_id);
-		if (room.state === 'lobby' && room.players.length < room.maxPlayers)
-			await this.roomService.addUser(payload.user_id, room.id, 'player')
-		else if (room.state == 'playing')
-			await this.roomService.addUser(payload.user_id, room.id, 'spectator');
+
+		try {
+			if (room.state === 'lobby' && room.players.length < room.maxPlayers)
+				await this.roomService.addUser(payload.user_id, room.id, 'player')
+			else if (room.state == 'playing')
+				await this.roomService.addUser(payload.user_id, room.id, 'spectator');
+		} catch (e) {
+			console.log(`[JoinRoom] ${e.message}`); 
+		}
 
 		if (room.id === -1) {
 			client.emit(WS_EVENTS.ROOM_FULL);
@@ -105,7 +112,7 @@ export class WebsocketGateway {
 
 		// emit drawing state to everybody
 		this.emitFullDrawingState(room.id, client);
-		if (room.players.length === 3) {
+		if (room.players.length === 3 && room.state === 'lobby') {
 			this.gameService.startTurn(room, this.server);
 		} 
 	}
@@ -146,7 +153,7 @@ export class WebsocketGateway {
 	@SubscribeMessage(WS_EVENTS.STROKE_APPEND)
 	handleStrokeAppend(
 		@ConnectedSocket() client: Socket,
-		@MessageBody() payload: DrawPayload,
+		@MessageBody() payload: StrokeAppendPayload,
 	) {
 		const room = this.roomService.getRoom(client.data.roomId);
 			if (!room) return;

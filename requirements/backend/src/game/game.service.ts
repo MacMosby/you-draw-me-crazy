@@ -61,7 +61,6 @@ export class GameService {
 	increaseTurn(room: Room): void {
 		if (room.turn === room.players.length) {
 			this.increaseRound(room);
-			room.turn = 1;
 			return;
 		}
 		room.turn += 1;
@@ -121,23 +120,18 @@ export class GameService {
 		};
 		const socketRoom = `room-${room.id}`;
 		server.to(socketRoom).emit(WS_EVENTS.RESULTS, response);
-		room.timeout = setTimeout(() => {
-			if (!isFinal) {
-				//start next turn after timeout
+		if (!isFinal) {
+			room.timeout = setTimeout(() => {
 				room.timeout = undefined;
 				this.startTurn(room, server);
-			}
-		}, response.time_to_display);
-		if (isFinal) {
-			if (room.timeout) {
-					clearTimeout(room.timeout);
-					room.timeout = undefined;
-				}
+			}, response.time_to_display);
+		} 
+		else {
 			this.roomsService.removeAllPlayers(room.id);
 			room.usedWordIds.length = 0;
 			room.round = 0;
 			room.turn = 0;
-			room.state = "lobby";
+			room.state = 'lobby';
 		}
 	}
 
