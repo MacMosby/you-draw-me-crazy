@@ -55,7 +55,7 @@ export class GameService {
 		room.timeout = setTimeout(() => {
 			room.timeout = undefined;
 			this.endOfTurn(room, server);
-		}, 10_000);
+		}, 20_000);
 	}	
 
 	increaseTurn(room: Room): void {

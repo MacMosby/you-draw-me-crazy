@@ -147,7 +147,7 @@ export class WebsocketGateway {
 		// add draw payload to the server?
 		this.roomService.appendStrokes(payload.strokes, payload.room_id);
 	}
-
+	
 	@SubscribeMessage(WS_EVENTS.STROKE_APPEND)
 	handleStrokeAppend(
 		@ConnectedSocket() client: Socket,
