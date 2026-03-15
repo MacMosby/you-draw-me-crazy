@@ -29,6 +29,11 @@ export type FriendDto = {
   nickname: string;
 };
 
+export type RemoveFriendRequest = {
+  userId: number;
+  friendNickname: string;
+};
+
 export function login(req: LoginRequest) {
   return postJson<LoginResponse>("/auth/login", req);
 }
@@ -42,3 +47,6 @@ export function getUserProfile(userId: number) {
   return postJson<UserProfileDto>("/users/me", { userId });
 }
 
+export function removeFriend(req: RemoveFriendRequest) {
+  return postJson<{ success: boolean }>("/users/me/friends/remove", req);
+}

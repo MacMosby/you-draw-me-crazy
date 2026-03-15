@@ -79,6 +79,7 @@ export class GameService {
 				room_id: room.id,
 				friends: friendsInRoom,
 			}
+			console.log(`[sendFriendsToAll] [GameService] Sending friend list to user ${p.userId} in room ${room.id}:`, friendsInRoom);
 			server.to(p.userId.toString()).emit(WS_EVENTS.FRIEND_LIST, payload);
 		}
 	}

@@ -39,8 +39,12 @@ export class UsersController {
 	async getUserProfile(@Body("userId", ParseIntPipe) userId: number) {
 		console.log(`Received request for user profile with userId: ${userId}`);
 		console.log(`User profile data:`, this.usersService.getUserById(userId));
-		const user: User = await this.usersService.getUserById(userId);
+		const user: User | null = await this.usersService.getUserById(userId);
+		if (!user) {
+			throw new Error("User not found");
+		}
 		const friendsNicknames: string[] = await this.usersService.getFriendsNicknames(user.friends);
+		console.log(`[getUserProfile] User with ID ${userId} has friends with nicknames: ${friendsNicknames}`);
 		const profile: ProfilePagePayload = {
 			id: user.id,
 			nickname: user.nickname,
@@ -49,4 +53,23 @@ export class UsersController {
 		}
 		return profile;
 	}
+
+	@Post("me/friends/remove")
+	async removeFriendFromProfile(
+		@Body("userId", ParseIntPipe) userId: number,
+		@Body("friendNickname") friendNickname: string,
+		) {
+		console.log(
+			`[removeFriendFromProfile] userId=${userId}, friendNickname=${friendNickname}`,
+		);
+		const friendId: number = await this.usersService.getUserByNickname(friendNickname).then(friend => friend?.id ?? -1);
+		if (friendId === -1) {
+			console.log(`[removeFriendFromProfile] Friend with nickname ${friendNickname} not found`);
+			return { success: false, message: "Friend not found" };
+		}
+
+		await this.usersService.removeFriend(userId, friendId);
+
+		return { success: true };
+}
 }

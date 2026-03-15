@@ -255,6 +255,7 @@ export class WebsocketGateway {
 		@MessageBody() payload: AddFriendPayload,
 
 	) {
+		console.log(`[handleAddFriend][recv] AddFriend`, payload);
 		const newFriend: User | null = await this.usersService.getUserByNickname(payload.newFriend);
 		if (!newFriend) {
 			throw new Error("User not found");

@@ -36,11 +36,12 @@ export class UsersService {
 		});
 	}
 	async addFriend(userID: number, friendID: number) {
+		console.log(`[addFriend] called. Attempting to add friend with ID ${friendID} to user with ID ${userID}`);
 		const user = await this.prisma.user.findUnique({
 			where: { id: userID },
 			select: { friends: true },
 		});
-
+		//console.log(`[addFriend] Adding friend with ID ${friendID} to user with ID ${userID}`);
 		if (!user) {
 			throw new Error("User not found");
 		}
@@ -53,6 +54,7 @@ export class UsersService {
 				data: { friends: [...friends, friendID] },
 			});
 		}
+		console.log(`[addFriend] User with ID ${userID} now has friends: ${friends}`);
 	}
 	async removeFriend(userID: number, friendID: number) {
 		const user = await this.prisma.user.findUnique({
@@ -60,6 +62,7 @@ export class UsersService {
 			select: { friends: true },
 		});
 
+		console.log(`[removeFriend] Removing friend with ID ${friendID} from user with ID ${userID}`);
 		if (!user) {
 			throw new Error("User not found");
 		}
@@ -72,14 +75,19 @@ export class UsersService {
 				data: { friends: friends.filter((id: number) => id !== friendID) },
 			});
 		}
+		console.log(`[removeFriend] User with ID ${userID} now has friends: ${friends}`);
 	}
 
 	async getFriendsNicknames(friendsIDs: number[]): Promise<string[]> {
 		let nicknames: string[] = [];
 		for(const id of friendsIDs) {
-			const user: User = await this.getUserById(id);
+			const user: User | null = await this.getUserById(id);
+			if (!user) {
+				throw new Error("User not found");
+			}
 			nicknames.push(user.nickname);
 		}
+		console.log(`[getFriendsNicknames] Retrieved nicknames for friends: ${nicknames}`);
 		return nicknames;
 	}
 }
