@@ -30,6 +30,8 @@ school: schoolclean build
 	docker compose -f $(DOCKER_COMPOSE_YML) up
 
 clean:
+	@echo "$(GREEN)Resetting database...$(RESET)"
+	@docker compose -f $(DOCKER_COMPOSE_YML) exec backend npx prisma migrate reset --force 2>/dev/null || true
 	@echo "$(GREEN)Stopping all running containers...$(RESET)"
 	@docker compose -f $(DOCKER_COMPOSE_YML) down -v
 	@echo "$(GREEN)Containers and volumes stopped.$(RESET)"

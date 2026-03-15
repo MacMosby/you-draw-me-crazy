@@ -20,7 +20,10 @@ RUN npx prisma generate
 # added ls to check if the dist/prisma/seed.js is succesfully created.. in the past it silently failed and used old build.
 RUN npm run build && ls dist/src/main.js dist/prisma/seed.js 
 
-# 7. Expose the port Nest listens on (default 3000)
+# 7. install curl for health check
+RUN apk add --no-cache curl
+
+# 8. Expose the port Nest listens on (default 3000)
 EXPOSE 3000
 
 CMD ["/app/start.sh"]

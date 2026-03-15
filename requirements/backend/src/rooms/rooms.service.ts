@@ -105,7 +105,6 @@ export class RoomsService {
 		room.spectators = room.spectators.filter( p => p.userId !== userId);
 		this.userToRoom.delete(userId);
 		console.log('User', userId, 'removed from Room', roomId);
-		//if < min players, end game early, send final results
 	}
 
 	admitSpectators(roomId: number) {
@@ -123,13 +122,16 @@ export class RoomsService {
 			console.log('All spectators have joined'); //debug
 	}
 
-	removeAllPlayers(roomId: number) {
+	removeAllUsers(roomId: number) {
 		console.log('remove all players from room ', roomId);
 		const room = this.rooms.get(roomId);
 		if (!room) return;
 		// remove user → room mappings
 		for (const player of room.players) {
 			this.userToRoom.delete(player.userId);
+		}
+		for (const spectator of room.spectators) {
+			this.userToRoom.delete(spectator.userId);
 		}
 		// clear players array (keep reference)
 		room.players.length = 0;

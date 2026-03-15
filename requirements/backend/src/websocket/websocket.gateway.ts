@@ -11,7 +11,6 @@ import type { DrawPayload, GuessPayload, JoinRoomPayload, StrokeAppendPayload, T
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
-import { Room } from 'src/rooms/room.class';
 import { TurnEmitService } from './turnemit.service';
 
 @WebSocketGateway()
@@ -46,6 +45,19 @@ export class WebsocketGateway {
 		//automatically removes socket from socket.io rooms
 		const userId = client.data.userId;
 		if (!userId) return;
+
+		const roomId = client.data.roomId;
+    	const room = this.roomService.getRoom(roomId);
+
+		// if the disconnect === drawer: end turn)
+		if (room && room.drawer === userId && room.state === 'playing') {
+			if (room.timeout) {
+				clearTimeout(room.timeout);
+				room.timeout = undefined;
+			}
+			console.log('Drawing player disconnected: turn ended');
+		    this.gameService.endOfTurn(room, this.server);
+		}
 		this.roomService.removeUser(userId);
 		this.registry.removeConnection(userId, client);
 		console.log(`Client ${client.id} with user id ${client.data.userId} disconnected`);
@@ -135,7 +147,7 @@ export class WebsocketGateway {
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: DrawPayload,
 	) {
-		console.log('[recv] stroke:start', payload);
+		console.log('[recv] stroke:start'); 
 		const socketRoom = 'room-' + payload.room_id;
 		const room = this.roomService.getRoom(payload.room_id);
 		if (!room) return;

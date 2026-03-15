@@ -1,6 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ConsoleLogger, Injectable, Logger } from '@nestjs/common';
 import { Room } from 'src/rooms/room.class';
-//import { RoomsService } from 'src/rooms/rooms.service';
 import { GuessPayload, GuessUpdatePayload, ResultsPayload, TurnInfoPayload } from 'src/websocket/dtos/ws.payloads';
 import { Server } from 'socket.io'//server allows emiting from anyhwere
 import { WS_EVENTS } from 'src/websocket/dtos/ws.events';
@@ -20,22 +19,14 @@ export class GameService {
 	
 
 	async startTurn(room: Room, server: Server) {
+		console.log(`Room ${room.id} at start of turn ${room.turn}: players ${room.players.map(p => p.userId)}, spectators ${room.spectators.map(s => s.userId)}`);
+
 		//clear drawing board for new turn
 		this.roomsService.clearStrokes(room.id);
 		server.to(`room-${room.id}`).emit(WS_EVENTS.INIT_DRAWING, {
 			room_id: room.id,
 			strokes: [],
     	});
-
-		// admit spectators if there are any
-		this.roomsService.admitSpectators(room.id);
-
-		// check if there are enough players to continue
-		if (room.players.length === 0) {
-    		this.logger.log(`Room ${room.id} has no players, aborting startTurn`);
-			room.state = 'lobby';
-        	return;
-		}
 
 		if (room.round === 0) this.increaseRound(room);
 		else this.increaseTurn(room);
@@ -47,7 +38,7 @@ export class GameService {
 		room.word_length = room.word!.length;
 		room.usedWordIds.push(wordEntity.id);
 		console.log("usedWordIds:", room.usedWordIds);
-		room.drawer = room.players[room.turn-1].userId;
+		room.drawer = room.players[(room.turn-1) % room.players.length].userId; //modulo to always pick an existing player index even when others disconnect.
 
 		const payload = this.turnEmitService.emitTurnInfo(room, server);
 
@@ -110,28 +101,22 @@ export class GameService {
 		const drawer = room.players.find(p => p.userId === room.drawer);
 		if (drawer) drawer.score += room.correctGuesses.size;//dummy for points logic for drawer
 		room.correctGuesses.clear();//prep for next turn
-		let isFinal = false;
-		if (room.round === room.maxRounds && room.turn === room.players.length) isFinal = true;
-		const response: ResultsPayload = {
-			final: isFinal,
-			solution: room.word!,
-			time_to_display: RESULTS_DURATION,
-			players: room.players,
-		};
-		const socketRoom = `room-${room.id}`;
-		server.to(socketRoom).emit(WS_EVENTS.RESULTS, response);
-		if (!isFinal) {
-			room.timeout = setTimeout(() => {
-				room.timeout = undefined;
-				this.startTurn(room, server);
-			}, response.time_to_display);
-		} 
+
+		// admit spectators if there are any
+		this.roomsService.admitSpectators(room.id);
+
+		// check if there are enough players to continue
+		if (room.players.length < 3) {
+    		console.log(`Room ${room.id} has to little players, aborting startTurn`);
+			this.gameOver(room, server, true);
+		}
+		else if (room.round === room.maxRounds && room.turn === room.players.length) {
+			console.log(`Room ${room.id} finished the game`);
+			this.gameOver(room, server, true);
+		}
 		else {
-			this.roomsService.removeAllPlayers(room.id);
-			room.usedWordIds.length = 0;
-			room.round = 0;
-			room.turn = 0;
-			room.state = 'lobby';
+			console.log(`Room ${room.id} finished a turn`);
+			this.gameOver(room, server, false);
 		}
 	}
 
@@ -143,5 +128,30 @@ export class GameService {
 			room.timeout = undefined;
 		}
 		this.endOfTurn(room, server);
+	}
+
+	gameOver(room: Room, server: Server, endgame: boolean) {
+		const response: ResultsPayload = {
+			final: endgame,
+			solution: room.word!,
+			time_to_display: RESULTS_DURATION,
+			players: room.players,
+		};
+		const socketRoom = `room-${room.id}`;
+		server.to(socketRoom).emit(WS_EVENTS.RESULTS, response);
+
+		if (endgame) {
+			this.roomsService.removeAllUsers(room.id);
+				room.usedWordIds.length = 0;
+				room.round = 0;
+				room.turn = 0;
+				room.state = 'lobby';
+		}
+		else {
+			room.timeout = setTimeout(() => {
+				room.timeout = undefined;
+				this.startTurn(room, server);
+			}, response.time_to_display);
+		}
 	}
 }
