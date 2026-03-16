@@ -5,10 +5,11 @@ import { RoomsService } from 'src/rooms/rooms.service';
 import { RoomsModule } from 'src/rooms/rooms.module';
 import { GameModule } from 'src/game/game.module';
 import { UsersModule } from 'src/users/users.module';
+import { TurnEmitService } from './turnemit.service';
 
 @Module({
-	providers: [WebsocketGateway, ConnectionRegistry],
-	exports: [ConnectionRegistry],
+	providers: [WebsocketGateway, ConnectionRegistry, TurnEmitService],
+	exports: [ConnectionRegistry, TurnEmitService],
 	imports: [RoomsModule, GameModule, UsersModule]
 })
 export class WebsocketModule {}
