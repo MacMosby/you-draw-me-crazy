@@ -34,10 +34,65 @@ export interface ResultsPayload {
 	time_to_display: number;
 }
 
+export interface FriendListPayload {
+	room_id: number;
+	friends: string[];
+}
+
+export interface AddFriendPayload {
+	room_id: number;
+	newFriend: string;
+	player: number;
+}
+
+export interface RemoveFriendPayload {
+	room_id: number;
+	removeFriend: string;
+	player: number;
+}
+
+export interface ProfilePagePayload {
+	id: number;
+	nickname: string;
+	email: string;
+	friends: string[];
+}
+
 export interface DrawingPayload {
 	room_id: number;
-	drawer: Number;
+  drawer: Number;
 	coordinate_x: number;
 	coordinate_y: number;
 	color: `#${string}`// e.g. "#ff00ff"
 }	
+	
+
+export type Point = { x: number; y: number };
+export type Stroke = {
+  id: string;
+  width: number;
+  color: `#${string}`;
+  points: Point[];
+};
+
+// Normalized point in range [0..1]
+// Used for STROKE_START (full stroke info).
+export interface DrawPayload {
+  room_id: number;
+  drawer: number;
+  strokes: Stroke[];
+}
+
+export interface InitDrawingPayload {
+  room_id: number;
+  strokes: Stroke[];
+}
+
+// Low-load append: send ONLY delta points + stroke id.
+export interface StrokeAppendPayload {
+  room_id: number;
+  id: string;
+  points: Point[];
+  // optional for debugging / future ordering guarantees:
+  // seq?: number;
+}

@@ -12,6 +12,27 @@ export type SignupRequest = {
 	username: string;
 };
 
+export type User = {
+	id: number;
+	//name: string;
+};
+
+export type UserProfileDto = {
+  id: number;
+  nickname: string;
+  email: string;
+  friends: FriendDto[]; // for showing usernames
+};
+
+export type FriendDto = {
+  id: number;
+  nickname: string;
+};
+
+export type RemoveFriendRequest = {
+  userId: number;
+  friendNickname: string;
+};
 
 export function login(req: LoginRequest) {
   return postJson<LoginResponse>("/auth/login", req);
@@ -19,4 +40,13 @@ export function login(req: LoginRequest) {
 
 export function signup(req: SignupRequest) {
   return postJson<SignupResponse>("/auth/signup", req);
+}
+
+export function getUserProfile(userId: number) {
+	console.log(`Fetching user profile for userId: ${userId}`);
+  return postJson<UserProfileDto>("/users/me", { userId });
+}
+
+export function removeFriend(req: RemoveFriendRequest) {
+  return postJson<{ success: boolean }>("/users/me/friends/remove", req);
 }

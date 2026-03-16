@@ -29,4 +29,65 @@ export class UsersService {
 			where: { id },
 		});
 	}
+	async getUserByNickname(nickname: string): Promise<User | null> {
+		console.log(`I am fetching User data by nickname: ${nickname}`);
+		return this.prisma.user.findUnique({
+			where: { nickname },
+		});
+	}
+	async addFriend(userID: number, friendID: number) {
+		console.log(`[addFriend] called. Attempting to add friend with ID ${friendID} to user with ID ${userID}`);
+		const user = await this.prisma.user.findUnique({
+			where: { id: userID },
+			select: { friends: true },
+		});
+		//console.log(`[addFriend] Adding friend with ID ${friendID} to user with ID ${userID}`);
+		if (!user) {
+			throw new Error("User not found");
+		}
+
+		const friends = user.friends ?? [];
+
+		if (!friends.includes(friendID)) {
+			await this.prisma.user.update({
+				where: { id: userID },
+				data: { friends: [...friends, friendID] },
+			});
+		}
+		console.log(`[addFriend] User with ID ${userID} now has friends: ${friends}`);
+	}
+	async removeFriend(userID: number, friendID: number) {
+		const user = await this.prisma.user.findUnique({
+			where: { id: userID },
+			select: { friends: true },
+		});
+
+		console.log(`[removeFriend] Removing friend with ID ${friendID} from user with ID ${userID}`);
+		if (!user) {
+			throw new Error("User not found");
+		}
+
+		const friends = user.friends ?? [];
+
+		if (friends.includes(friendID)) {
+			await this.prisma.user.update({
+				where: { id: userID },
+				data: { friends: friends.filter((id: number) => id !== friendID) },
+			});
+		}
+		console.log(`[removeFriend] User with ID ${userID} now has friends: ${friends}`);
+	}
+
+	async getFriendsNicknames(friendsIDs: number[]): Promise<string[]> {
+		let nicknames: string[] = [];
+		for(const id of friendsIDs) {
+			const user: User | null = await this.getUserById(id);
+			if (!user) {
+				throw new Error("User not found");
+			}
+			nicknames.push(user.nickname);
+		}
+		console.log(`[getFriendsNicknames] Retrieved nicknames for friends: ${nicknames}`);
+		return nicknames;
+	}
 }

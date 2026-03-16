@@ -5,12 +5,16 @@ import {
 	MessageBody,
 	ConnectedSocket,
 } from '@nestjs/websockets';
+import { Injectable } from "@nestjs/common";
 import { Server, Socket } from 'socket.io';
 import { ConnectionRegistry } from './websocket.service';
-import type { DrawPayload, GuessPayload, JoinRoomPayload, StrokeAppendPayload, TurnInfoPayload } from './dtos/ws.payloads';
+import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload, StrokeAppendPayload, AddFriendPayload, FriendListPayload, RemoveFriendPayload } from './dtos/ws.payloads';
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
+import { UsersService } from 'src/users/users.service';
+import { PlayerDto } from './dtos/player.dto';
+import { User } from "@prisma/client";
 import { TurnEmitService } from './turnemit.service';
 
 @WebSocketGateway()
@@ -19,10 +23,11 @@ export class WebsocketGateway {
 	@WebSocketServer()
 	server: Server;
 
-	constructor( 
+	constructor(
 		private readonly registry: ConnectionRegistry,
 		private readonly roomService: RoomsService,
 		private readonly gameService: GameService,
+		private readonly usersService: UsersService,
 		private readonly turnemitservice: TurnEmitService,
 	) {}
 	afterInit() { console.log('WebSocket Gateway initialized') }
@@ -77,7 +82,7 @@ export class WebsocketGateway {
 		this.registry.printRegistry();
 		await socket.join(`user-${data.userId}`);
 	}
-	
+
 	@SubscribeMessage('whoAmI')
 	handleWhoAmI(
 		@MessageBody() data: any,//call with empty data {}
@@ -124,9 +129,9 @@ export class WebsocketGateway {
 		this.emitFullDrawingState(room.id, client);
 		if (room.players.length === 3 && room.state === 'lobby') {
 			this.gameService.startTurn(room, this.server);
-		} 
+		}
 	}
-	
+
 	@SubscribeMessage(WS_EVENTS.GUESS)
 	handleGuess(
 		@ConnectedSocket() client: Socket,
@@ -185,7 +190,7 @@ export class WebsocketGateway {
 		if (client.data.userId !== room.drawer) return;
 		this.roomService.clearStrokes(client.data.roomId);
 		this.emitFullDrawingState(client.data.roomId);
-	}	
+	}
 
 	@SubscribeMessage(WS_EVENTS.CANVAS_UNDO)
 	handleCanvasUndo(
@@ -196,6 +201,48 @@ export class WebsocketGateway {
 		if (client.data.userId !== room.drawer) return;
 		this.roomService.popStroke(client.data.roomId);
 		this.emitFullDrawingState(client.data.roomId);
+	}
+
+	@SubscribeMessage('test:setDrawer')
+	handleTestSetDrawer(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: { room_id: number; drawer_id: number },
+	) {
+		console.log('[test] Setting drawer to', payload.drawer_id, 'in room', payload.room_id);
+
+		const room = this.roomService.getRoom(payload.room_id);
+		if (!room) {
+			client.emit('error', 'Room not found');
+			return;
+		}
+		//this.gameService.startTurn(room, this.server); // reset turn state, timers, etc. like normal turn start would
+		// Update room state
+		this.roomService.clearStrokes(room.id);
+		console.log('[test] Cleared strokes for room', room.id);
+		// server.to(socketRoom).emit(WS_EVENTS.CANVAS_CLEAR);
+		this.emitFullDrawingState(room.id);
+		console.log('[test] Emitted full drawing state for room', room.id);
+		room.drawer = payload.drawer_id;
+		room.turn = 1;
+		room.round = 1;
+		room.word = 'testword';
+		room.word_length = 8;
+
+		// Send to all players in room
+		const socketRoom = `room-${payload.room_id}`;
+		const response: TurnInfoPayload = {
+			room_id: room.id,
+			drawer: payload.drawer_id,
+			word: room.word,
+			word_length: room.word_length,
+			round: room.round,
+			turn: room.turn,
+			players: room.players,
+			time_to_display: 60_000,
+		};
+
+		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
+		console.log('[test] Sent TURN_INFO with drawer:', payload.drawer_id);
 	}
 
 	// SERVER -> CLIENT HELPERS
@@ -209,5 +256,51 @@ export class WebsocketGateway {
 			client.emit(WS_EVENTS.INIT_DRAWING, payload);
 		else
 			this.server.to('room-' + roomId).emit(WS_EVENTS.INIT_DRAWING, payload);
+	}
+
+	@SubscribeMessage(WS_EVENTS.ADD_FRIEND)
+	async handleAddFriend(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: AddFriendPayload,
+
+	) {
+		console.log(`[handleAddFriend][recv] AddFriend`, payload);
+		const newFriend: User | null = await this.usersService.getUserByNickname(payload.newFriend);
+		if (!newFriend) {
+			throw new Error("User not found");
+		}
+		await this.usersService.addFriend(payload.player, newFriend.id);
+		const room = this.roomService.getRoom(payload.room_id);
+		if (!room) {
+			throw new Error("Room not found");
+		}
+
+		const friendList: FriendListPayload = {
+			room_id: payload.room_id,
+			friends: await this.gameService.getFriends(payload.player, room),
+		}
+		client.emit(WS_EVENTS.FRIEND_LIST, friendList);
+	}
+
+	@SubscribeMessage(WS_EVENTS.REMOVE_FRIEND)
+	async handleRemoveFriend(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: RemoveFriendPayload,
+	) {
+		const friendToRemove: User | null = await this.usersService.getUserByNickname(payload.removeFriend);
+		if (!friendToRemove) {
+			throw new Error("User not found");
+		}
+		this.usersService.removeFriend(payload.player, friendToRemove.id);
+		const room = this.roomService.getRoom(payload.room_id);
+		if (!room) {
+			throw new Error("Room not found");
+		}
+
+		const friendList: FriendListPayload = {
+			room_id: payload.room_id,
+			friends: await this.gameService.getFriends(payload.player, room),
+		}
+		client.emit(WS_EVENTS.FRIEND_LIST, friendList);
 	}
 }

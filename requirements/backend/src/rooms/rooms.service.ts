@@ -86,6 +86,7 @@ export class RoomsService {
 			userId: newUserId,
 			nickname: user.nickname,
 			score: 0,
+			friends: [],
 		}
 		if (state === 'player' && room.players.length < room.maxPlayers)
 			room.players.push(player);
