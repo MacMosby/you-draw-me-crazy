@@ -94,7 +94,7 @@ export class WebsocketGateway {
 		});
 	}
 
-	@SubscribeMessage(WS_EVENTS.JOIN_ROOM) 
+	@SubscribeMessage(WS_EVENTS.JOIN_ROOM)
 	async handleJoinRoom(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: JoinRoomPayload,
@@ -110,7 +110,7 @@ export class WebsocketGateway {
 			else if (room.state == 'playing')
 				await this.roomService.addUser(payload.user_id, room.id, 'spectator');
 		} catch (e) {
-			console.log(`[JoinRoom] ${e.message}`); 
+			console.log(`[JoinRoom] ${e.message}`);
 		}
 
 		if (room.id === -1) {
@@ -144,6 +144,9 @@ export class WebsocketGateway {
 		const response: any = this.gameService.guessValidation(payload, room);
 		if (!response) return;
 		this.server.to(socketRoom).emit(WS_EVENTS.GUESS_UPDATE, response);
+		if (!response.guess) {
+			this.turnemitservice.emitTurnInfo(room, this.server);
+		}
 		this.gameService.checkEndOfTurn(room, this.server);
 	}
 
@@ -152,7 +155,7 @@ export class WebsocketGateway {
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: DrawPayload,
 	) {
-		console.log('[recv] stroke:start'); 
+		console.log('[recv] stroke:start');
 		const socketRoom = 'room-' + payload.room_id;
 		const room = this.roomService.getRoom(payload.room_id);
 		if (!room) return;
@@ -164,7 +167,7 @@ export class WebsocketGateway {
 		// add draw payload to the server?
 		this.roomService.appendStrokes(payload.strokes, payload.room_id);
 	}
-	
+
 	@SubscribeMessage(WS_EVENTS.STROKE_APPEND)
 	handleStrokeAppend(
 		@ConnectedSocket() client: Socket,
