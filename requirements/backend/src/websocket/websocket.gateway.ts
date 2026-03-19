@@ -107,8 +107,16 @@ export class WebsocketGateway {
 		try {
 			if (room.state === 'lobby' && room.players.length < room.maxPlayers)
 				await this.roomService.addUser(payload.user_id, room.id, 'player')
-			else if (room.state == 'playing')
+			else if (room.state == 'playing') {
 				await this.roomService.addUser(payload.user_id, room.id, 'spectator');
+
+				const friendList: FriendListPayload = {
+					room_id: room.id,
+					friends: await this.gameService.getFriends(payload.user_id, room),
+				}
+				client.emit(WS_EVENTS.FRIEND_LIST, friendList);
+			}
+
 		} catch (e) {
 			console.log(`[JoinRoom] ${e.message}`);
 		}
