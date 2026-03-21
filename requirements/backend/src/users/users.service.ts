@@ -1,6 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/database/prisma.service";
 import { User } from "@prisma/client"
+import { Prisma } from "@prisma/client";
 
 
 @Injectable()
@@ -8,13 +9,20 @@ export class UsersService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	createUser(nickname: string, email: string, password: string): Promise<User> {
-		console.log(`I am creating a user: ${nickname}, ${email}`);
-		//call database
-		//return {nickname, email, password };
-		return this.prisma.user.create({
-			data: { nickname, email, password },
+  	return this.prisma.user.create({
+		data: { nickname, email, password },
+		}).catch((error) => {
+		if (
+		error instanceof Prisma.PrismaClientKnownRequestError &&
+		error.code === 'P2002'
+		) {
+		const fields = error.meta?.target as string[];
+		throw new ConflictException(`A user with that ${fields?.join(', ')} already exists.`);
+		}
+		throw error;
 		});
 	}
+
 	getUser(email: string): Promise<User | null> {
 		console.log(`I am retrieving User data by email: ${email}`);
 		//call database
