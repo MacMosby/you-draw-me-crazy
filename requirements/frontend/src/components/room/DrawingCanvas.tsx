@@ -188,7 +188,8 @@ export function DrawingCanvas({
 
     canvas.setPointerCapture(e.pointerId);
 
-    const id = crypto.randomUUID();
+    //const id = crypto.randomUUID(); //doesn't work with HTTP
+	const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
     activeStrokeIdRef.current = id;
     lastSentPointRef.current = null;
 
