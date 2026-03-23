@@ -5,7 +5,7 @@ import { WS_EVENTS } from "../../shared/ws.events";
 import type { ResultsPayload, TurnInfoPayload, FriendListPayload, RemoveFriendPayload, AddFriendPayload } from "../../shared/ws.payloads";
 import { useSessionStore } from "../state/sessionStore";
 
-const WS_URL = import.meta.env.VITE_WS_URL ?? "http://localhost:3000";
+const WS_URL = import.meta.env.VITE_WS_URL ?? window.location.origin;//"http://localhost:3000";
 
 export type RoomStatePayload = {
   members: PlayerDto[];
