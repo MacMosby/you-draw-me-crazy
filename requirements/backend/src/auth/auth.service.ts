@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import type { LoginResponse, SignupResponse } from '../../shared/auth.types';
 
@@ -24,7 +24,7 @@ export class AuthService {
     const user = await this.usersService.getUser(email);
 
     if (user) {
-      throw new UnauthorizedException(`Email ${user.email} is already used.`);
+      throw new ConflictException(`Email ${user.email} is already used.`);
     }
 
     const passwordHash = await this.hashPassword(password);
