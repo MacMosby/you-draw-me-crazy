@@ -4,6 +4,10 @@ export interface JoinRoomPayload {
 	user_id: number;
 }
 
+export interface WatchGamePayload {
+	user_id: number;
+}
+
 export interface TurnInfoPayload {
 	room_id: number;
 	drawer: number;
@@ -13,7 +17,7 @@ export interface TurnInfoPayload {
 	turn: number;
 	players: PlayerDto[];
 	spectators: PlayerDto[];
-	time_to_display: number; // ? 
+	time_to_display: number; // ?
 }
 
 export interface GuessPayload {
