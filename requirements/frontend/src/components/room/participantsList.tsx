@@ -34,7 +34,7 @@ export default function ParticipantsList({ highlightedPlayerId, players, drawerI
     const onFriendList = (payload: FriendListPayload) => {
       if (payload.room_id !== roomId) return;
       setFriends(payload.friends);
-	  console.log("[ws] received friend list update:", payload.friends);
+	  console.log("[wss] received friend list update:", payload.friends);
     };
 
     const off = friendList(onFriendList);

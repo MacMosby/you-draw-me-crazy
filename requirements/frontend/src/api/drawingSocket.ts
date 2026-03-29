@@ -30,7 +30,7 @@ export function onInitDrawing(cb: (payload: { room_id: number; strokes: Stroke[]
 }
 
 export function onStrokeStart(cb: (payload: DrawPayload) => void) {
-	//console.log("[ws] Subscribing to stroke start events");
+	//console.log("[wss] Subscribing to stroke start events");
   socket.on(WS_EVENTS.STROKE_START, cb);
   return () => socket.off(WS_EVENTS.STROKE_START, cb);
 }
