@@ -25,6 +25,7 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const pendingOwnGuessesRef = useRef<string[]>([]);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const currentUserId = useSessionStore((s) => s.user?.id ?? -1);
   const roomId = useSessionStore((s) => s.roomId);
   const currentUsername = useSessionStore((s) => s.user?.username ?? "You");
@@ -69,7 +70,10 @@ if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) {
 	}
 
   useEffect(() => {
-    scrollAnchorRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Scroll only the chat container to the bottom, not the entire page
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [sortedMessages.length]);
 
   // this makes it possible for the drawer to send their own messages to the chat
@@ -166,7 +170,7 @@ return (
 
 
       {/* Chat/Guesses section */}
-      <div className="w-full lg:w-[18rem] xl:w-[20rem] lg:shrink-0 flex flex-col min-h-0 bg-surface border border-gray-200 rounded-lg p-3">
+      <div ref={chatContainerRef} className="w-full lg:w-[18rem] xl:w-[20rem] lg:shrink-0 flex flex-col min-h-0 bg-surface border border-gray-200 rounded-lg p-3">
         <div className="mb-3 flex-1 min-h-0 overflow-y-auto space-y-2">
           {sortedMessages.map((message) => (
             <ChatMessageRow
