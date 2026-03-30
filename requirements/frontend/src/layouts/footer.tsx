@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Footer() {
   return (
     <footer className="border-t border-gray-200 bg-background relative z-[100]">
@@ -9,24 +11,24 @@ export default function Footer() {
 
         {/* Right */}
         <nav className="flex gap-4 text-sm text-textMuted">
-          <a
-            href="/privacy"
+          <Link
+            to="/privacy"
             className="hover:text-textPrimary transition-colors"
           >
             Privacy Policy
-          </a>
-          <a
-            href="/terms"
+          </Link>
+          <Link
+            to="/terms"
             className="hover:text-textPrimary transition-colors"
           >
             Terms of Service
-          </a>
-          <a
-            href="/about"
+          </Link>
+          <Link
+            to="/about"
             className="hover:text-textPrimary transition-colors"
           >
             About
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>

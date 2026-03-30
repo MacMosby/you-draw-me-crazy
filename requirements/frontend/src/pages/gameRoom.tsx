@@ -1,11 +1,12 @@
 // import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useBlocker } from "react-router-dom";
 // import { RoomProvider } from "../features/room/RoomProvider";
 import { RoomLayout } from "../layouts/roomLayout";
 import DrawingBoard from "../components/room/drawingBoard";
 import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
+import ConfirmLeaveDialog from "../components/room/confirmLeaveDialog";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
 import { socket, joinRoom, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
@@ -99,6 +100,9 @@ export default function GamePage() {
   const [clockRemainingMs, setClockRemainingMs] = useState<number>(0);
   const [clockRunning, setClockRunning] = useState<boolean>(false);
   const [turnSummary, setTurnSummary] = useState<TurnSummary | null>(null);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const pendingNavigationRef = useRef<(() => void) | null>(null);
+  const isGameNavigatingRef = useRef(false);
   const prevWsStateRef = useRef<typeof wsState>("connecting");
   const prevMembersRef = useRef<TurnInfoPayload["players"]>([]);
   const membersInitializedRef = useRef(false);
@@ -111,6 +115,19 @@ export default function GamePage() {
     correctGuesserIdsRef.current.add(guesserId);
     setRecentlyCorrectGuesser(guesserId);
   };
+
+  // Block navigation when game is active
+  useBlocker(({ nextLocation }) => {
+    if (isGameNavigatingRef.current) {
+      return false;
+    }
+    if (wsState === "playing" && !showLeaveConfirm) {
+      pendingNavigationRef.current = () => navigate(nextLocation.pathname);
+      setShowLeaveConfirm(true);
+      return true;
+    }
+    return false;
+  });
 
   useEffect(() => {
     if (!membersInitializedRef.current) {
@@ -246,6 +263,7 @@ export default function GamePage() {
           if (payload.final) {
             clearRoom();
             socket.disconnect();
+            isGameNavigatingRef.current = true;
             navigate("/post-game", {
               replace: true,
               state: {
@@ -470,6 +488,19 @@ export default function GamePage() {
           title="Get Ready" 
           message={`Game will start in: ${startCountdown}`} 
           icon={rocketImage}/>
+      )}
+
+      {showLeaveConfirm && (
+        <ConfirmLeaveDialog
+          onConfirm={() => {
+            setShowLeaveConfirm(false);
+            pendingNavigationRef.current?.();
+          }}
+          onCancel={() => {
+            setShowLeaveConfirm(false);
+            pendingNavigationRef.current = null;
+          }}
+        />
       )}
     </RoomLayout>
   );
