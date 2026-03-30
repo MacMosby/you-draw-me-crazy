@@ -16,9 +16,12 @@ type Props = {
   players?: TurnInfoPayload["players"];
 };
 
+const MAX_CHAT_MESSAGE_LENGTH = 100;
+
 // changed some small things here, because it improved performance
 export default function DrawingBoard({ onGuessCorrect, systemMessages = [], players = [] }: Props) {
 	const [text, setText] = useState("");
+  const [inputError, setInputError] = useState<string | undefined>(undefined);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const pendingOwnGuessesRef = useRef<string[]>([]);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
@@ -46,6 +49,10 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
 function send() {
 const trimmed = text.trim();
 if (!trimmed || roomId === null || currentUserId === -1) return;
+if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) {
+  setInputError(`Message must be ${MAX_CHAT_MESSAGE_LENGTH} characters or fewer.`);
+  return;
+}
 
   if (!isDrawer) {
     pendingOwnGuessesRef.current.push(trimmed);
@@ -58,6 +65,7 @@ if (!trimmed || roomId === null || currentUserId === -1) return;
   });
 
 	setText("");
+  setInputError(undefined);
 	}
 
   useEffect(() => {
@@ -174,7 +182,14 @@ return (
             placeholder="Type your guess..."
             className="flex-1"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            maxLength={MAX_CHAT_MESSAGE_LENGTH}
+            error={inputError}
+            onChange={(e) => {
+              setText(e.target.value);
+              if (inputError) {
+                setInputError(undefined);
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") send();
             }}

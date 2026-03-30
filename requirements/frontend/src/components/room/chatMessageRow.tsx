@@ -42,7 +42,7 @@ export function ChatMessageRow({ message, isOwn }: ChatMessageProps) {
         isOwn ? "justify-end" : "justify-start"
       }`}
     >
-      <div className={`max-w-[75%] ${isOwn ? "text-right" : "text-left"}`}>
+      <div className={`max-w-[75%] min-w-0 ${isOwn ? "text-right" : "text-left"}`}>
         <div className="flex items-center gap-2">
           {!isOwn && (
             <span className="text-xs font-semibold text-gray-700">
@@ -59,13 +59,13 @@ export function ChatMessageRow({ message, isOwn }: ChatMessageProps) {
           </span>
         </div>
         <div
-          className={`mt-0.5 rounded-lg px-2.5 py-1.5 text-sm flex items-center gap-2 ${
+          className={`mt-0.5 rounded-lg px-2.5 py-1.5 text-sm flex items-center gap-2 flex-wrap ${
             isOwn
               ? "bg-amber-200/60 text-amber-900 border border-amber-200"
               : "bg-gray-100 text-gray-900"
           }`}
         >
-          <span className={isCorrect ? "blur-sm" : ""}>
+          <span className={`min-w-0 whitespace-pre-wrap break-words break-all ${isCorrect ? "blur-sm" : ""}`}>
             {message.text}
           </span>
           {isCorrect && (
