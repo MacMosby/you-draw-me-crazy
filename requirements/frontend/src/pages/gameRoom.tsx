@@ -149,7 +149,7 @@ export default function GamePage() {
         setWsState("connecting");
 
         connectTimeout = window.setTimeout(() => {
-          console.log("[ws] connect timeout -> clearing stale session");
+          console.log("[wss] connect timeout -> clearing stale session");
           setWsState("error");
           socket.disconnect();
           logout();
@@ -157,7 +157,7 @@ export default function GamePage() {
 
         // 2. subscribe to BE pushes before joinRoom so we don't miss the first turnInfo event
         unsubTurnInfo = onTurnInfo((payload) => {
-          console.log("[ws] turnInfo:", payload);
+          console.log("[wss] turnInfo:", payload);
           clearConnectTimeout();
 
           if (payload.room_id === -1) {
@@ -190,7 +190,7 @@ export default function GamePage() {
         });
 
         unsubStartGame = onStartGame((payload) => {
-          console.log("[ws] start_game:", payload);
+          console.log("[wss] start_game:", payload);
           clearConnectTimeout();
           const players = dedupePlayers(payload.members);
           setMembers(players);
@@ -202,13 +202,13 @@ export default function GamePage() {
         });
 
         unsubRoomFull = onRoomFull(() => {
-          console.log("[ws] room full");
+          console.log("[wss] room full");
           clearConnectTimeout();
           setWsState("full");
         });
 
         unsubResults = onResults((payload) => {
-          console.log("[ws] results:", payload);
+          console.log("[wss] results:", payload);
           clearConnectTimeout();
           setClockRunning(false);
           setClockRemainingMs(0);
