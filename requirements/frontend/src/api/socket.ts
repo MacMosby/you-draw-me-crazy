@@ -5,7 +5,7 @@ import { WS_EVENTS } from "../../shared/ws.events";
 import type { ResultsPayload, TurnInfoPayload, FriendListPayload, RemoveFriendPayload, AddFriendPayload } from "../../shared/ws.payloads";
 import { useSessionStore } from "../state/sessionStore";
 
-const WS_URL = import.meta.env.VITE_WS_URL ?? "http://localhost:3000";
+const WS_URL = import.meta.env.VITE_WS_URL ?? window.location.origin;//"http://localhost:3000";
 
 export type RoomStatePayload = {
   members: PlayerDto[];
@@ -27,35 +27,35 @@ export function initSocketWithIdentify(userId: number): Promise<void> {
 		listenersBound = true;
 
 		socket.on("connect", () => {
-		console.log("[ws] connected:", socket.id);
+		console.log("[wss] connected:", socket.id);
 		});// server will emit "pleaseIdentify" right after connect
 
 		socket.on("disconnect", (reason) => {
-		console.log("[ws] disconnected:", reason);
+		console.log("[wss] disconnected:", reason);
 		identifyInFlight = null; // allow re-identify after reconnect
 		});
 	}
 
     if (!socket.connected) {
-        console.log("[ws] initiating connection...");
+        console.log("[wss] initiating connection...");
         socket.connect();
     }
 
     if (!identifyInFlight) {
         identifyInFlight = new Promise<void>((resolve) => {
             socket.once("pleaseIdentify", () => {
-            console.log("[ws] pleaseIdentify received -> sending identify", userId);
+            console.log("[wss] pleaseIdentify received -> sending identify", userId);
             socket.emit("identify", { userId });
             });
 
             socket.once("identified", () => {
-            console.log("[ws] identified OK - promise resolved");
+            console.log("[wss] identified OK - promise resolved");
             resolve();
             });
 
 			// debug delete later
 			// socket.on("youAre", (payload) => {
-			// console.log("[ws] youAre:", payload);
+			// console.log("[wss] youAre:", payload);
 			// });
 		});
 	}
@@ -71,9 +71,9 @@ export function onStartGame(callback: (payload: RoomStatePayload) => void) {
 }
 
 export async function joinRoom(userId: number) {
-  console.log("[ws] joinRoom() called with userId:", userId);
+  console.log("[wss] joinRoom() called with userId:", userId);
   await initSocketWithIdentify(userId);
-  console.log("[ws] identified, now emitting joinRoom...");
+  console.log("[wss] identified, now emitting joinRoom...");
   socket.emit(WS_EVENTS.JOIN_ROOM, { user_id: userId });
 }
 
@@ -82,36 +82,36 @@ export async function joinRoom(userId: number) {
 // 	await initSocketWithIdentify(userId);
 
 // 	socket.emit("joinRoom", {userId}, (ack?: {ok :boolean; message?: string}) => {
-// 		if (ack) console.log("[ws] joinRoom ack:", ack);
+// 		if (ack) console.log("[wss] joinRoom ack:", ack);
 // 	});
 // }
 
 // Helper to subscribe/unsubscribe cleanly from BE events.
 // export function onRoomState(callback: (payload: RoomStatePayload) => void) {
-//   console.log("[ws] subscribing to roomState");
+//   console.log("[wss] subscribing to roomState");
 //   socket.on(WS_EVENTS.ROOM_STATE, callback);
 //   return () => socket.off(WS_EVENTS.ROOM_STATE, callback);
 // }
 
 export function onTurnInfo(callback: (payload: TurnInfoPayload) => void) {
-  console.log("[ws] subscribing to turn_info");
+  console.log("[wss] subscribing to turn_info");
   const handler = (payload: TurnInfoPayload) => {
-    console.log("[ws] turn_info received:", payload);
+    console.log("[wss] turn_info received:", payload);
     
     // Read userId from store at MESSAGE ARRIVAL TIME
     const currentUserId = useSessionStore.getState().user?.id;
     useSessionStore.getState().setRoom(payload.room_id); // update roomId in store on every turn_info, so it's always correct for other handlers that might need it
     if (currentUserId === undefined) {
-      console.warn("[ws] userId not set in store yet");
+      console.warn("[wss] userId not set in store yet");
       callback(payload);
       return;
     }
     
     if (payload.drawer === currentUserId) {
-      console.log("[ws] I am the drawer this turn!");
+      console.log("[wss] I am the drawer this turn!");
       useSessionStore.getState().setRole("drawer");
     } else {
-      console.log("[ws] I am a guesser this turn. i am user " + currentUserId + " drawer is " + payload.drawer);
+      console.log("[wss] I am a guesser this turn. i am user " + currentUserId + " drawer is " + payload.drawer);
       useSessionStore.getState().setRole("guesser");
     }
     
@@ -148,7 +148,7 @@ export function onResults(callback: (payload: ResultsPayload) => void) {
 
 export function friendList(callback: (payload: FriendListPayload) => void) {
   socket.on(WS_EVENTS.FRIEND_LIST, callback);
-  console.log("[ws] subscribed to friendList updates");
+  console.log("[wss] subscribed to friendList updates");
   return () => socket.off(WS_EVENTS.FRIEND_LIST, callback);
 }
 
@@ -163,12 +163,12 @@ export function friendList(callback: (payload: FriendListPayload) => void) {
 // }
 
 export function emitAddFriend(payload: AddFriendPayload) {
-	console.log("[ws] emitAddFriend called with payload:", payload);
+	console.log("[wss] emitAddFriend called with payload:", payload);
   socket.emit(WS_EVENTS.ADD_FRIEND, payload);
 }
 
 export function emitRemoveFriend(payload: RemoveFriendPayload) {
-	console.log("[ws] emitRemoveFriend called with payload:", payload);
+	console.log("[wss] emitRemoveFriend called with payload:", payload);
   socket.emit(WS_EVENTS.REMOVE_FRIEND, payload);
 }
 
@@ -176,7 +176,7 @@ export function emitRemoveFriend(payload: RemoveFriendPayload) {
 
 //remove later
 export function testSetDrawer(roomId: number, drawerId: number) {
-  console.log("[ws] test:setDrawer - room:", roomId, "drawer:", drawerId);
+  console.log("[wss] test:setDrawer - room:", roomId, "drawer:", drawerId);
   socket.emit('test:setDrawer', { room_id: roomId, drawer_id: drawerId });
 }
 //window.testSetDrawer(0, 1); // in console! to set user 1 as drawer in room 0 for testing

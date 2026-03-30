@@ -1,25 +1,37 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import fs from 'fs'
 
-
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
-		react(),
-		tailwindcss()
+    react(),
+    tailwindcss()
   ],
   server: {
-    host: true,     // or "0.0.0.0"
+    https: {
+		key: fs.readFileSync('/certs/backend.key'),
+		cert: fs.readFileSync('/certs/backend.crt'),
+	},
+    host: true,
     port: 5173,
-	proxy: {
-			"/auth": "http://backend:3000", // this is the servers address
-			"/users": "http://backend:3000",
-	// 		"/socket.io": {
-	// 			target: "http://localhost:3000",
-	// 			ws: true,
-    //   },
-		},
+    proxy: {
+      "/auth": {
+        target: "https://backend:3000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/users": {
+        target: "https://backend:3000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/socket.io": {
+        target: "https://backend:3000",
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   }
 })
-
