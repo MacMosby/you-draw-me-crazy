@@ -101,7 +101,7 @@ export class GameService {
 	}
 
 	increaseTurn(room: Room): void {
-		if (room.turn === room.players.length) {
+		if (room.turn >= room.players.length) {
 			this.increaseRound(room);
 			return;
 		}
