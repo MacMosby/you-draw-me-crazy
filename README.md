@@ -62,13 +62,56 @@ TODO
 ---
 
 ## Features List
-- Real-time multiplayer room flow
-- Turn-based game logic with drawer/guesser roles
-- WebSocket event handling for game state updates
-- Authentication module and user/session handling
-- Round/turn result handling and post-game summary flow
+The following list reflects the implemented project scope and ownership. 
 
-- TODO: should be more extensive and mention everyone who implemented the features
+### 1) User Management & Authentication
+
+| Task | Description | Notes / Design Decisions | Implemented by |
+| --- | --- | --- | --- |
+| [B] User sign up / login | Users can create accounts with email/password | NestJS auth flow with DB-backed user records | mrodenbu, nboer, nandreev, sgramsch |
+| [B] User session management | Keep users logged in during gameplay | Session/JWT-based auth state used by frontend socket/game flow | lde-taey, nboer, nandreev |
+| [B] Database for users | Store user credentials and basic profile | Prisma schema + migrations for user persistence | sgramsch |
+
+### 2) Rooms & Multiplayer
+
+| Task | Description | Notes / Design Decisions | Implemented by |
+| --- | --- | --- | --- |
+| [B] Automatic room assignment | Users automatically join a room with available players | Server handles room entry and capacity checks | mrodenbu, nboer |
+| [B] Server-controlled drawer rotation | Server determines who draws next | Deterministic turn order managed by backend game state | mrodenbu, nboer |
+| [B/F] Round timer & score tracking | Each round has a timer; scores tracked per player | Server-authoritative scoring/timing, frontend live rendering | mrodenbu, nboer, lde-taey, nandreev |
+| [B] Multiplayer support | Support at least 2+ simultaneous players | Real-time sync of canvas, guesses, and scores | mrodenbu, nboer, nandreev |
+
+### 3) Game Mechanics
+
+| Task | Description | Notes / Design Decisions | Implemented by |
+| --- | --- | --- | --- |
+| [F] Canvas drawing | Drawer can draw lines; guessers see updates in real-time | Frontend drawing board integrated with socket events | lde-taey, nandreev |
+| [B/F] Guess submission | Players submit guesses; server checks correctness | Server handles scoring and round completion | mrodenbu, nboer, lde-taey |
+| [B] Core game loop | Round starts, drawer draws, guessers submit guesses, round ends | Deterministic, server-authoritative state transitions | mrodenbu, nboer |
+
+### 4) Frontend & UI
+
+| Task | Description | Notes / Design Decisions | Implemented by |
+| --- | --- | --- | --- |
+| [F] Minimal UI layout | Canvas, player list, scoreboard, guess input | Tailwind-based responsive layout and reusable components | lde-taey, nandreev |
+| [F] Real-time updates | Canvas strokes, scores, guesses updated live | WebSocket client event handling + UI state updates | lde-taey, nandreev |
+| [F] Privacy Policy & Terms | Static pages accessible from navigation | Static legal/info pages integrated into navigation | lde-taey, nandreev |
+| [F] Responsive design | Works on desktop and mobile | Mobile-first adjustments with Tailwind utility classes | lde-taey, nandreev |
+
+### 5) Infrastructure / DevOps
+
+| Task | Description | Notes / Design Decisions | Implemented by |
+| --- | --- | --- | --- |
+| [B] Containerization | Backend, frontend, DB run in Docker / single command | `docker-compose.yml` + Makefile orchestration | sgramsch, mrodenbu |
+| [B] Environment variables | Store secrets (`.env`), include example file (`.env.example`) | Centralized env usage across services | sgramsch, nboer |
+| [B] HTTPS | Use HTTPS for backend endpoints | Self-signed certs accepted for dev; required for production | mrodenbu, nboer |
+
+### 6) Real-Time Communication
+
+| Task | Description | Notes / Design Decisions | Implemented by |
+| --- | --- | --- | --- |
+| [B] WebSocket setup | Connect clients to server for real-time updates | Handles canvas, guesses, and player events | mrodenbu, nboer, nandreev |
+| [B/F] Event handling | Drawer strokes, guess submissions, score updates | Server-authoritative events to prevent desync | mrodenbu, nboer, lde-taey, nandreev |
 
 ---
 
@@ -96,7 +139,7 @@ TODO: add justificaton for every module choice, and an explanation on how it was
 ### lde-taey:
 
 - Project owner
-- Frontend developer
+- Frontend developer: focused on UI components, layout, lobby management, and event flow integration with backend
 
 ### mrodenbu
 
@@ -118,8 +161,10 @@ TODO: add justificaton for every module choice, and an explanation on how it was
 - Database & Prisma
   
 TO DO: we need a more detailed breakdown of what each team member contributed.
-we should also mention specific features, modules, or components implemented by each person + challenges faced and how they were overcome.
+we should also mention specific features, modules, or components implemented by each person 
 
+
+---
 
 ## Team Information
 
@@ -145,15 +190,23 @@ we should also mention specific features, modules, or components implemented by 
 	- Pull requests and review workflow: we protected the main and each pull request was reviewed by another team member
 	- Issue/task tracking
 - **Notion**
-	- Gathered information and resources
+	- Was used to track the project in full
+    - Gathered information and resources
 	- Task distribution overview
-	- General notes
+	- Research notes
  - **Figma**
-	- Used in an initial phase to create a flow chart with a user story and succession of screens
+	- Used in an initial phase to create a flow chart with a usage visualization
  - **Canva**
 	- Tool used to support the layout design
 	- Source for images and icons
 
+### Challenges
+
+- Setup complexity: We spent significant time on Docker setup, frontend dependencies, rebasing branches, and understanding school environment constraints vs. real-world usage.
+- WebSocket integration: Coordinating WSS implementation across frontend and backend required dedicated research sprints, separate check-in calls, and careful assignment of ownership.
+- Frontend/backend sync: it took us a while to sync both sides, agree on shared types, and clarify who owns which event/endpoint.
+- Deadline pressure: the original deadline of 1.3.26 was missed
+- Scope management: ;odule selection (23.2) required explicit effort/desirability trade-off analysis, with some features (e.g. full User Management) deprioritized due to complexity.
 
 ---
 
