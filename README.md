@@ -128,11 +128,6 @@ The following list reflects the implemented project scope and ownership.
 | Remote players — Enable two players on separate computers to play the same game in real-time. | 2 | Real distributed play validates networked architecture beyond local-only testing. | Clients connect through backend WebSocket gateway; server-authoritative game state is broadcast to all connected players. | all |
 | Multiplayer game (more than two players). | 2 | Multi-user rounds are central to game design and module scoring requirements. | Room/member management and turn rotation support multiple concurrent players with synchronized scoreboard and event updates. | all |
 |  |  |  |  |  |
-| OPTIONAL |  |  |  |  |
-| Support for multiple languages (at least 3 languages). | 1 | Valuable for accessibility and broader usability, but lower priority than core multiplayer stability. | Not implemented in this version; UI text currently uses a single language and no i18n layer. | N/A |
-| Support for additional browsers. | 1 | Cross-browser support improves reach and resilience of the frontend experience. | Basic compatibility targeted through standard React/Vite stack; no formal cross-browser certification matrix was completed. | lde-taey, nandreev |
-| Game customization options | 1 | Customization improves replay value but was deprioritized versus core game reliability and delivery scope. | Not implemented in final scope; architecture leaves room for future options (e.g., timers/themes/rule presets). | N/A |
-
 
 ---
 
