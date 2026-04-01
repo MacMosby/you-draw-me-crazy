@@ -47,6 +47,7 @@ export class GameService {
 		room.usedWordIds.push(wordEntity.id);
 		console.log("usedWordIds:", room.usedWordIds);
 		room.drawer = room.players[(room.turn-1) % room.players.length].userId; //modulo to always pick an existing player index even when others disconnect.
+		room.turnStartTime = Date.now();
 
 		const payload = this.turnEmitService.emitTurnInfo(room, server);
 
@@ -58,27 +59,37 @@ export class GameService {
 		}, TURN_DURATION);
 	}
 
-	sendFriendsToAll(room: Room, server: Server) {
+	async sendFriendsToAll(room: Room, server: Server) {
 		const players = room.players;
 
-		const idToNickname = new Map<number, string>();
 		for (const p of players) {
-			idToNickname.set(p.userId, p.nickname);
-		}
-
-		for (const p of players) {
-			const friendsIds: number[] = (p.friends ?? []);
-			friendsIds.filter((friendId: number) => idToNickname.has(friendId));
-			const friendsInRoom: string[] =
-			friendsIds.map((friendId) => idToNickname.get(friendId)!);
-
+			const friendsInRoom = await this.getFriends(p.userId, room);
 			const payload: FriendListPayload = {
 				room_id: room.id,
 				friends: friendsInRoom,
 			}
 			console.log(`[sendFriendsToAll] [GameService] Sending friend list to user ${p.userId} in room ${room.id}:`, friendsInRoom);
-			server.to(p.userId.toString()).emit(WS_EVENTS.FRIEND_LIST, payload);
+			server.to(`user-${p.userId}`).emit(WS_EVENTS.FRIEND_LIST, payload);
 		}
+
+		// const idToNickname = new Map<number, string>();
+		// for (const p of players) {
+		// 	idToNickname.set(p.userId, p.nickname);
+		// }
+
+		// for (const p of players) {
+		// 	const friendsIds: number[] = (p.friends ?? []);
+		// 	friendsIds.filter((friendId: number) => idToNickname.has(friendId));
+		// 	const friendsInRoom: string[] =
+		// 	friendsIds.map((friendId) => idToNickname.get(friendId)!);
+
+		// 	const payload: FriendListPayload = {
+		// 		room_id: room.id,
+		// 		friends: friendsInRoom,
+		// 	}
+		// 	console.log(`[sendFriendsToAll] [GameService] Sending friend list to user ${p.userId} in room ${room.id}:`, friendsInRoom);
+		// 	server.to(p.userId.toString()).emit(WS_EVENTS.FRIEND_LIST, payload);
+		// }
 	}
 
 	async getFriends(userID: number, room: Room): Promise<string[]> {
