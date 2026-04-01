@@ -3,8 +3,9 @@
 _This project has been created as part of the 42 curriculum by lde-taey, mrodenbu, nandreev, nboer, sgramsch.
 _
 ## Description
-You Draw Me Crazy is a full-stack web application built as part of the 42 curriculum, within the project called ft_transcendence.
-The project combines real-time multiplayer gameplay with modern web technologies and a containerized development workflow.
+You Draw Me Crazy is a full-stack web application built as part of the 42 curriculum, within the project called ft_transcendence. We wanted to create a fun drawing game that we would love playing ourselves.
+
+The resulting project combines real-time multiplayer gameplay with modern web technologies and a containerized development workflow.
 
 Core goals of the project:
 - Build a responsive, browser-based multiplayer experience.
@@ -119,27 +120,28 @@ The following list reflects the implemented project scope and ownership.
 
 | Module | Points | Justification | Implementation | Worked on by |
 | --- | --- | --- | --- | --- |
-| total | 11 / 14 | - | - | -Maybe just use who could respond to the questions the best |
-| Use a framework for both the frontend and backend. | 2 |  | Backend: NestJS Frontend: Tailwind |  |
-|  Implement real-time features using WebSockets or similar technology. | 2 | Real time updates on the game progress (drawing, scores …) |  | all |
-| Use an ORM for the database. | 1 |  | Prisma | sgramsch |
-| Implement a complete web-based game where users can play against eachother. | 2 |  |  | all |
-| Remote players — Enable two players on separate computers to play the same game in real-time. | 2 |  |  | all |
-| Multiplayer game (more than two players). | 2 |  |  | all |
+| Total | 11 / 14 | Selected modules maximize gameplay quality and technical depth while staying realistic for timeline and team size. | Mandatory modules were prioritized first; optional modules were evaluated and partially deferred. | Team |
+| Use a framework for both the frontend and backend. | 2 | Frameworks improved maintainability, onboarding speed, and consistency across a multi-person codebase. | Backend built with NestJS module architecture (`auth`, `game`, `rooms`, `websocket`, `database`); frontend built with React + Vite + Tailwind component/layout structure. | all |
+| Implement real-time features using WebSockets or similar technology. | 2 | Real-time gameplay requires low-latency synchronization of drawing, guesses, scores, and player state. | Socket.IO channels/events connect frontend and backend; shared DTO/event typings synchronize payload contracts across both sides. | all |
+| Use an ORM for the database. | 1 | ORM reduced boilerplate, improved schema traceability, and made migrations/versioning reliable for collaborative development. | Prisma schema + migrations manage PostgreSQL entities; backend services query via Prisma client through database/prisma modules. | sgramsch |
+| Implement a complete web-based game where users can play against eachother. | 2 | This is the project core requirement and demonstrates full-stack integration end-to-end. | Implemented full loop: authentication, room join, turn progression, drawing/guessing, scoring, round transitions, and post-game summary. | all |
+| Remote players — Enable two players on separate computers to play the same game in real-time. | 2 | Real distributed play validates networked architecture beyond local-only testing. | Clients connect through backend WebSocket gateway; server-authoritative game state is broadcast to all connected players. | all |
+| Multiplayer game (more than two players). | 2 | Multi-user rounds are central to game design and module scoring requirements. | Room/member management and turn rotation support multiple concurrent players with synchronized scoreboard and event updates. | all |
 |  |  |  |  |  |
 | OPTIONAL |  |  |  |  |
-| Support for multiple languages (at least 3 languages). | 1 |  |  |  |
-| Support for additional browsers. | 1 |  |  |  |
-|  Game customization options | 1 |  |  |  |
+| Support for multiple languages (at least 3 languages). | 1 | Valuable for accessibility and broader usability, but lower priority than core multiplayer stability. | Not implemented in this version; UI text currently uses a single language and no i18n layer. | N/A |
+| Support for additional browsers. | 1 | Cross-browser support improves reach and resilience of the frontend experience. | Basic compatibility targeted through standard React/Vite stack; no formal cross-browser certification matrix was completed. | lde-taey, nandreev |
+| Game customization options | 1 | Customization improves replay value but was deprioritized versus core game reliability and delivery scope. | Not implemented in final scope; architecture leaves room for future options (e.g., timers/themes/rule presets). | N/A |
 
-TODO: add justificaton for every module choice, and an explanation on how it was implemented 
+
+---
 
 ## Individual Contributions:
 
 ### lde-taey:
 
 - Project owner
-- Frontend developer: focused on UI components, layout, lobby management, and event flow integration with backend
+- Frontend developer: focused on UI components, layout, lobby management, and event flow integration with backend (clock, scoreboard, guess updates in the chat)
 
 ### mrodenbu
 
@@ -180,7 +182,7 @@ we should also mention specific features, modules, or components implemented by 
 ## Project Management
 
 ### How the team organized the work
-- Work was split into backend, frontend, and integration streams.
+- Work was split into backend, frontend, database and integration streams.
 - Shared data contracts were synchronized across services.
 - Responsibilities were distributed by role and tracked continuously in biweekly meetings (online and in school), and conversations on Slack.
 
@@ -202,11 +204,11 @@ we should also mention specific features, modules, or components implemented by 
 
 ### Challenges
 
-- Setup complexity: We spent significant time on Docker setup, frontend dependencies, rebasing branches, and understanding school environment constraints vs. real-world usage.
+- Setup complexity: We spent significant time on Docker setup, frontend dependencies, rebasing branches, learning how to use Git, and understanding school environment constraints vs. real-world usage.
 - WebSocket integration: Coordinating WSS implementation across frontend and backend required dedicated research sprints, separate check-in calls, and careful assignment of ownership.
 - Frontend/backend sync: it took us a while to sync both sides, agree on shared types, and clarify who owns which event/endpoint.
-- Deadline pressure: the original deadline of 1.3.26 was missed
-- Scope management: ;odule selection (23.2) required explicit effort/desirability trade-off analysis, with some features (e.g. full User Management) deprioritized due to complexity.
+- Deadline pressure: the original deadline of 31.1.26 was missed, as well as the second deadline of 5.3.26. We set these deadlines to force ourselves to work efficiently but it was still surprising that the work took longer than expected
+- Scope management: module selection required explicit effort/desirability trade-off analysis, with some features (e.g. full User Management) deprioritized due to complexity.
 
 ---
 
