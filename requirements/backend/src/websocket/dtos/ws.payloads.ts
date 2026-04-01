@@ -18,6 +18,7 @@ export interface TurnInfoPayload {
 	players: PlayerDto[];
 	spectators: PlayerDto[];
 	time_to_display: number; // ?
+	turn_start_time: number;
 }
 
 export interface GuessPayload {
