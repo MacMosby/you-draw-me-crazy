@@ -1,7 +1,7 @@
 # ft_transcendence
 
-_This project has been created as part of the 42 curriculum by lde-taey, mrodenbu, nandreev, nboer, sgramsch.
-_
+_This project has been created as part of the 42 curriculum by lde-taey, mrodenbu, nandreev, nboer, sgramsch._
+
 ## Description
 You Draw Me Crazy is a full-stack web application built as part of the 42 curriculum, within the project called ft_transcendence. We wanted to create a fun drawing game that we would love playing ourselves.
 
@@ -54,12 +54,21 @@ This command:
 - **Backend:** NestJS, TypeScript, Socket.IO
 - **Database:** PostgreSQL + Prisma ORM
 - **Infra:** Docker, Docker Compose, Makefile workflow
---> TODO: explain major architectural decisions
+
+### Major Architectural Decisions
+- **Server-authoritative game state:** Game-critical logic (room assignment, turn rotation, scoring, round progression) is handled on the backend to prevent client-side desync and inconsistent results.
+- **Real-time event architecture with Socket.IO:** The application uses event-driven communication for drawing updates, guesses, and score changes so all connected clients stay synchronized with low latency.
+- **Shared contracts between frontend and backend:** DTOs and WebSocket payload/event types are maintained in shared files and synchronized across services, reducing integration bugs and type mismatches.
+- **Modular backend structure (NestJS):** Backend responsibilities are split into focused modules (`auth`, `game`, `rooms`, `websocket`, `database`) to improve maintainability, ownership, and feature iteration speed.
+- **Component/state-driven frontend:** React components are organized by feature/layout, with Zustand for session and app state, making UI updates predictable during fast real-time changes.
+- **Container-first development workflow:** Frontend, backend, and PostgreSQL run in Docker Compose with Make targets, ensuring reproducible local setups and minimizing environment drift across team members.
+
 ---
 
 ## Database Scheme
 
 TODO
+
 ---
 
 ## Features List
@@ -69,7 +78,7 @@ The following list reflects the implemented project scope and ownership.
 
 | Task | Description | Notes / Design Decisions | Implemented by |
 | --- | --- | --- | --- |
-| [B] User sign up / login | Users can create accounts with email/password | NestJS auth flow with DB-backed user records | mrodenbu, nboer, nandreev, sgramsch |
+| [B] User sign up / login | Users can create accounts with email and password | NestJS auth flow with DB-backed user records | mrodenbu, nboer, nandreev, sgramsch |
 | [B] User session management | Keep users logged in during gameplay | Session/JWT-based auth state used by frontend socket/game flow | lde-taey, nboer, nandreev |
 | [B] Database for users | Store user credentials and basic profile | Prisma schema + migrations for user persistence | sgramsch |
 
@@ -79,7 +88,7 @@ The following list reflects the implemented project scope and ownership.
 | --- | --- | --- | --- |
 | [B] Automatic room assignment | Users automatically join a room with available players | Server handles room entry and capacity checks | mrodenbu, nboer, sgramsch |
 | [B] Server-controlled drawer rotation | Server determines who draws next | Deterministic turn order managed by backend game state | sgramsch |
-| [B/F] Round timer & score tracking | Each round has a timer; scores tracked per player | Server-authoritative scoring/timing, frontend live rendering | mrodenbu, nboer, lde-taey |
+| [B/F] Round timer & score tracking | Each round has a timer, and scores are tracked per player | Server-authoritative scoring/timing, frontend live rendering | mrodenbu, nboer, lde-taey |
 | [B] Multiplayer support | Support at least 2+ simultaneous players | Real-time sync of canvas, guesses, and scores | mrodenbu, nboer, nandreev |
 
 ### 3) Game Mechanics
@@ -121,11 +130,11 @@ The following list reflects the implemented project scope and ownership.
 | Module | Points | Justification | Implementation | Worked on by |
 | --- | --- | --- | --- | --- |
 | Total | 11 / 14 | Selected modules maximize gameplay quality and technical depth while staying realistic for timeline and team size. | Mandatory modules were prioritized first; optional modules were evaluated and partially deferred. | Team |
-| Use a framework for both the frontend and backend. | 2 | Frameworks improved maintainability, onboarding speed, and consistency across a multi-person codebase. | Backend built with NestJS module architecture (`auth`, `game`, `rooms`, `websocket`, `database`); frontend built with React + Vite + Tailwind component/layout structure. | all |
+| Use a framework for both the frontend and backend. | 2 | Frameworks improved maintainability, onboarding speed, and consistency across a multi-person codebase. | Backend built with NestJS module architecture (`auth`, `game`, `rooms`, `websocket`, `database`); frontend built with React + Vite + Tailwind component/layout structure. | nandreev |
 | Implement real-time features using WebSockets or similar technology. | 2 | Real-time gameplay requires low-latency synchronization of drawing, guesses, scores, and player state. | Socket.IO channels/events connect frontend and backend; shared DTO/event typings synchronize payload contracts across both sides. | all |
 | Use an ORM for the database. | 1 | ORM reduced boilerplate, improved schema traceability, and made migrations/versioning reliable for collaborative development. | Prisma schema + migrations manage PostgreSQL entities; backend services query via Prisma client through database/prisma modules. | sgramsch |
-| Implement a complete web-based game where users can play against eachother. | 2 | This is the project core requirement and demonstrates full-stack integration end-to-end. | Implemented full loop: authentication, room join, turn progression, drawing/guessing, scoring, round transitions, and post-game summary. | all |
-| Remote players — Enable two players on separate computers to play the same game in real-time. | 2 | Real distributed play validates networked architecture beyond local-only testing. | Clients connect through backend WebSocket gateway; server-authoritative game state is broadcast to all connected players. | all |
+| Implement a complete web-based game where users can play against each other. | 2 | This is the core project requirement and demonstrates end-to-end full-stack integration. | Implemented full loop: authentication, room join, turn progression, drawing/guessing, scoring, round transitions, and post-game summary. | all |
+| Remote players — Enable two players on separate computers to play the same game in real-time. | 2 | Real distributed play validates networked architecture beyond local-only testing. | Clients connect through backend WebSocket gateway; server-authoritative game state is broadcast to all connected players. | nandreev |
 | Multiplayer game (more than two players). | 2 | Multi-user rounds are central to game design and module scoring requirements. | Room/member management and turn rotation support multiple concurrent players with synchronized scoreboard and event updates. | all |
 |  |  |  |  |  |
 
@@ -177,24 +186,24 @@ we should also mention specific features, modules, or components implemented by 
 ## Project Management
 
 ### How the team organized the work
-- Work was split into backend, frontend, database and integration streams.
+- Work was split into backend, frontend, database, and integration streams.
 - Shared data contracts were synchronized across services.
-- Responsibilities were distributed by role and tracked continuously in biweekly meetings (online and in school), and conversations on Slack.
+- Responsibilities were distributed by role and tracked continuously through biweekly meetings (online and at school) and Slack conversations.
 
 ### Tools used for project management
 - **GitHub**
 	- Source control
-	- Pull requests and review workflow: we protected the main and each pull request was reviewed by another team member
+	- Pull request and review workflow: we protected `main`, and every pull request was reviewed by another team member
 	- Issue/task tracking
 - **Notion**
-	- Was used to track the project in full
+	- Used to track the full project
     - Gathered information and resources
 	- Task distribution overview
 	- Research notes
  - **Figma**
-	- Used in an initial phase to create a flow chart with a usage visualization
+	- Used in an early phase to create a user-flow visualization
  - **Canva**
-	- Tool used to support the layout design
+	- Used to support layout design
 	- Source for images and icons
 
 ### Challenges
