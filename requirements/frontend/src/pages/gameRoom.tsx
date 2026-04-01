@@ -110,6 +110,7 @@ export default function GamePage() {
   const roundRef = useRef<number>(0);
   const membersRef = useRef<TurnInfoPayload["players"]>([]);
   const correctGuesserIdsRef = useRef<Set<number>>(new Set());
+  const isSpectator = members.every((member) => member.userId !== userId);
 
   const handleGuessCorrect = (guesserId: number) => {
     correctGuesserIdsRef.current.add(guesserId);
@@ -483,7 +484,7 @@ export default function GamePage() {
         />
       )}
 
-      {wsState === "playing" && startCountdown !== null && (
+      {wsState === "playing" && startCountdown !== null && !isSpectator && (
         <Lobby 
           title="Get Ready" 
           message={`Game will start in: ${startCountdown}`} 
