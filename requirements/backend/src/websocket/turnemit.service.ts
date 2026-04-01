@@ -20,7 +20,8 @@ export class TurnEmitService {
         turn: room.turn,
         players: room.players,
         spectators: room.spectators,
-        time_to_display: TURN_DURATION,
+        time_to_display: TURN_DURATION - (Date.now() - (room.turnStartTime?? Date.now())),
+		turn_start_time: room.turnStartTime?? Date.now(),
       };
 
       server.to(`user-${p.userId}`).emit(WS_EVENTS.TURN_INFO, payload);
