@@ -88,15 +88,15 @@ The following list reflects the implemented project scope and ownership.
 | --- | --- | --- | --- |
 | [B] Automatic room assignment | Users automatically join a room with available players | Server handles room entry and capacity checks | mrodenbu, nboer, sgramsch |
 | [B] Server-controlled drawer rotation | Server determines who draws next | Deterministic turn order managed by backend game state | sgramsch |
-| [B/F] Round timer & score tracking | Each round has a timer, and scores are tracked per player | Server-authoritative scoring/timing, frontend live rendering | mrodenbu, nboer, lde-taey |
+| [B/F] Round timer & score tracking | Each round has a timer, and scores are tracked per player | Server-authoritative scoring/timing, frontend live rendering | lde-taey, mrodenbu, nboer |
 | [B] Multiplayer support | Support at least 2+ simultaneous players | Real-time sync of canvas, guesses, and scores | mrodenbu, nboer, nandreev |
 
 ### 3) Game Mechanics
 
 | Task | Description | Notes / Design Decisions | Implemented by |
 | --- | --- | --- | --- |
-| [F] Canvas drawing | Drawer can draw lines; guessers see updates in real-time | Frontend drawing board integrated with socket events | lde-taey, nandreev |
-| [B/F] Guess submission | Players submit guesses; server checks correctness | Server handles scoring and round completion | mrodenbu, nboer, lde-taey |
+| [F] Canvas drawing | Drawer can draw lines; guessers see updates in real-time | Frontend drawing board integrated with socket events | nandreev |
+| [B/F] Guess submission | Players submit guesses; server checks correctness | Server handles scoring and round completion | lde-taey, mrodenbu, nboer |
 | [B] Core game loop | Round starts, drawer draws, guessers submit guesses, round ends | Deterministic, server-authoritative state transitions | mrodenbu, nboer, sgramsch |
 
 ### 4) Frontend & UI
@@ -112,8 +112,8 @@ The following list reflects the implemented project scope and ownership.
 
 | Task | Description | Notes / Design Decisions | Implemented by |
 | --- | --- | --- | --- |
-| [B] Containerization | Backend, frontend, DB run in Docker / single command | `docker-compose.yml` + Makefile orchestration | sgramsch, mrodenbu |
-| [B] Environment variables | Store secrets (`.env`), include example file (`.env.example`) | Centralized env usage across services | sgramsch, nboer |
+| [B] Containerization | Backend, frontend, DB run in Docker / single command | `docker-compose.yml` + Makefile orchestration | mrodenbu, sgramsch |
+| [B] Environment variables | Store secrets (`.env`), include example file (`.env.example`) | Centralized env usage across services | nboer, sgramsch |
 | [B] HTTPS | Use HTTPS for backend endpoints | Self-signed certs accepted for dev; required for production | mrodenbu, nboer, sgramsch |
 
 ### 6) Real-Time Communication
