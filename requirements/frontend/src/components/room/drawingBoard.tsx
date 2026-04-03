@@ -21,7 +21,6 @@ const MAX_CHAT_MESSAGE_LENGTH = 100;
 // changed some small things here, because it improved performance
 export default function DrawingBoard({ onGuessCorrect, systemMessages = [], players = [] }: Props) {
 	const [text, setText] = useState("");
-  const [inputError, setInputError] = useState<string | undefined>(undefined);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const pendingOwnGuessesRef = useRef<string[]>([]);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
@@ -32,6 +31,13 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
   const [color, setColor] = useState<`#${string}`>("#111111"); // this to avoid that VSCode complains about unitiliazed types
   const role = useSessionStore((s) => s.role);
   const isDrawer = role === "drawer";
+  const characterCount = text.length;
+  const isOverCharacterLimit = characterCount > MAX_CHAT_MESSAGE_LENGTH;
+  const canSendMessage =
+    text.trim().length > 0 &&
+    !isOverCharacterLimit &&
+    roomId !== null &&
+    currentUserId !== -1;
 
   const handleColorChange = (next: string) => {
     setColor(next as `#${string}`);
@@ -50,10 +56,7 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
 function send() {
 const trimmed = text.trim();
 if (!trimmed || roomId === null || currentUserId === -1) return;
-if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) {
-  setInputError(`Message must be ${MAX_CHAT_MESSAGE_LENGTH} characters or fewer.`);
-  return;
-}
+if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) return;
 
   if (!isDrawer) {
     pendingOwnGuessesRef.current.push(trimmed);
@@ -66,7 +69,6 @@ if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) {
   });
 
 	setText("");
-  setInputError(undefined);
 	}
 
   useEffect(() => {
@@ -186,21 +188,21 @@ return (
             placeholder="Type your guess..."
             className="flex-1"
             value={text}
-            maxLength={MAX_CHAT_MESSAGE_LENGTH}
-            error={inputError}
             onChange={(e) => {
               setText(e.target.value);
-              if (inputError) {
-                setInputError(undefined);
-              }
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") send();
+              if (e.key === "Enter" && canSendMessage) send();
             }}
           />
-          <Button variant="primary" onClick={send}>
+          <Button variant="primary" onClick={send} disabled={!canSendMessage}>
             Send
           </Button>
+        </div>
+        <div className="mt-1 text-right text-xs">
+          <span className={isOverCharacterLimit ? "text-red-500" : "text-gray-500"}>
+            {characterCount}/{MAX_CHAT_MESSAGE_LENGTH}
+          </span>
         </div>
       </div>
     </div>

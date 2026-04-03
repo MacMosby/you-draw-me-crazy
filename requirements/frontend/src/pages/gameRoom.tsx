@@ -10,7 +10,7 @@ import ConfirmLeaveDialog from "../components/room/confirmLeaveDialog";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
 import { socket, joinRoom, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
-import rocketImage from "../assets/rocket.png";
+import rocketImage from "../assets/rocket2.png";
 import beeImage from "../assets/bee.png";
 import cloudImage from "../assets/cloud.png";
 import type { ChatMessage } from "../components/room/chatMessageRow";
