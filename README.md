@@ -176,8 +176,7 @@ we should also mention specific features, modules, or components implemented by 
 
 | Team member | Role | Responsibilities |
 | --- | --- | --- |
-| mrodenbu, nboer | Developer | Implementation and feature development |
-| sgramsch | Project Manager | Organize the team’s work, plan and moderate team meetings, maintain task board, documentation, balance ideas with time and effort constraints |
+| mrodenbu, nboer, sgramsch | Developer | Implementation and feature development |
 | lde-taey | Project Owner | Defines product vision, prioritizes features, considers user needs, evaluation organization |
 | nandreev | Tech Lead | Technical direction, architecture decisions, implementation guidance |
 
