@@ -67,7 +67,38 @@ This command:
 
 ## Database Scheme
 
-TODO
+The backend uses **PostgreSQL** with **Prisma ORM**.  
+The current schema is intentionally minimal and focused on authentication and game word storage.
+
+### Models
+
+| Model | Fields | Purpose |
+| --- | --- | --- |
+| `User` | `id`, `nickname`, `email`, `password`, `friends` | Stores user account and login-related data |
+| `Word` | `id`, `text` | Stores unique words used by the drawing/guessing game |
+
+### Prisma schema summary
+
+- `User.id` → primary key (`Int`, auto-increment)
+- `User.nickname` → unique
+- `User.email` → unique
+- `User.password` → hashed password string
+- `User.friends` → `Int[]` list of user IDs (simple friend reference list)
+
+- `Word.id` → primary key (`Int`, auto-increment)
+- `Word.text` → unique word value
+
+### Constraints and integrity rules
+
+- Unique constraints prevent duplicate users by `nickname` or `email`.
+- Unique constraint on `Word.text` prevents duplicate words.
+- At this stage, there are **no explicit relational foreign keys** between models in Prisma (the `friends` field is stored as an integer array).
+
+### Source of truth
+
+The authoritative database definition is:
+
+`requirements/backend/prisma/schema.prisma`
 
 ---
 
