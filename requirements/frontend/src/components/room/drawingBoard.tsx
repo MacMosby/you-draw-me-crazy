@@ -33,11 +33,17 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
   const isDrawer = role === "drawer";
   const characterCount = text.length;
   const isOverCharacterLimit = characterCount > MAX_CHAT_MESSAGE_LENGTH;
+  const isCurrentUserPlayer = useMemo(
+    () => players.some((player) => player.userId === currentUserId),
+    [players, currentUserId]
+  );
+
   const canSendMessage =
     text.trim().length > 0 &&
     !isOverCharacterLimit &&
     roomId !== null &&
-    currentUserId !== -1;
+    currentUserId !== -1 && 
+	isCurrentUserPlayer;
 
   const handleColorChange = (next: string) => {
     setColor(next as `#${string}`);
@@ -53,10 +59,6 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
     [players]
   );
 
-  const isCurrentUserPlayer = useMemo(
-    () => players.some((player) => player.userId === currentUserId),
-    [players, currentUserId]
-  );
 
 function send() {
 const trimmed = text.trim();

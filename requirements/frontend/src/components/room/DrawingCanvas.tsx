@@ -123,12 +123,12 @@ export function DrawingCanvas({
   useEffect(() => {
     const offInit = onInitDrawing((payload) => {
       if (payload.room_id !== roomId) return;
-	  console.log("[wss] init drawing received:", payload);
+	  //console.log("[wss] init drawing received:", payload);
       setStrokes(payload.strokes);
     });
 
     const offStart = onStrokeStart((payload: DrawPayload) => {
-		console.log("[wss] stroke start received:", payload);
+		//console.log("[wss] stroke start received:", payload);
       if (payload.room_id !== roomId) return;
       const s = payload.strokes?.[0];
       if (!s) return;
@@ -137,7 +137,7 @@ export function DrawingCanvas({
 
     const offAppend = onStrokeAppend((payload: StrokeAppendPayload) => {
       if (payload.room_id !== roomId) return;
-      console.log("[wss] stroke append received:", payload);
+      //console.log("[wss] stroke append received:", payload);
 
       if (!payload.id || payload.points.length === 0) return;
 
