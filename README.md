@@ -205,8 +205,9 @@ The following list reflects the implemented project scope and ownership.
 | Team member | Role | Responsibilities |
 | --- | --- | --- |
 | mrodenbu, nboer, sgramsch | Developer | Implementation and feature development |
-| lde-taey | Project Owner | Defines product vision, prioritizes features, considers user needs, evaluation organization |
+| lde-taey | Product Owner | Defines product vision, prioritizes features, considers user needs, evaluation organization |
 | nandreev | Tech Lead | Technical direction, architecture decisions, implementation guidance |
+| mrodenbu | Project Manager | Organization of the team, setting up meetings, time management |
 
 ---
 
