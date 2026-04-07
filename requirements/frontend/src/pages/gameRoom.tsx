@@ -8,7 +8,17 @@ import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
 import ConfirmLeaveDialog from "../components/room/confirmLeaveDialog";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
-import { socket, joinRoom, watchGame, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
+import {
+  socket,
+  joinRoom,
+  watchGame,
+  onTurnInfo,
+  onRoomFull,
+  onResults,
+  onStartGame,
+  cancelScheduledSocketDisconnect,
+  scheduleSocketDisconnect,
+} from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
 import rocketImage from "../assets/rocket2.png";
 import beeImage from "../assets/bee.png";
@@ -92,6 +102,7 @@ export default function GamePage() {
 
   const [wsState, setWsState] = useState<"connecting" | "waiting" | "playing" | "full" | "finished" | "error">("connecting");
   const [members, setMembers] = useState<TurnInfoPayload["players"]>([]);
+  const [spectators, setSpectators] = useState<TurnInfoPayload["spectators"]>([]);
   const [drawerId, setDrawerId] = useState<number>(-1);
   const [currentWord, setCurrentWord] = useState<string | null>(null);
   const [currentWordLength, setCurrentWordLength] = useState<number>(0);
@@ -164,6 +175,8 @@ export default function GamePage() {
       }
     };
 
+    cancelScheduledSocketDisconnect();
+
     (async () => {
       try {
         setWsState("connecting");
@@ -186,7 +199,9 @@ export default function GamePage() {
           }
 
           const players = dedupePlayers(payload.players);
+          const spectatorList = dedupePlayers(payload.spectators ?? []);
           setMembers(players);
+          setSpectators(spectatorList);
           membersRef.current = players;
           roundRef.current = payload.round;
           turnRef.current = payload.turn;
@@ -214,6 +229,7 @@ export default function GamePage() {
           clearConnectTimeout();
           const players = dedupePlayers(payload.members);
           setMembers(players);
+          setSpectators([]);
           membersRef.current = players;
           roundRef.current = payload.round;
           turnRef.current = payload.turn;
@@ -302,7 +318,7 @@ export default function GamePage() {
       unsubRoomFull();
       unsubStartGame();
       unsubResults();
-      socket.disconnect();
+      scheduleSocketDisconnect();
     };
   }, [userId, logout, navigate, clearRoom, roomMode]);
 
@@ -381,6 +397,7 @@ export default function GamePage() {
     <RoomLayout
       highlightedPlayerId={recentlyCorrectGuesser}
       players={members}
+      spectators={spectators}
       drawerId={drawerId}
       clockRemainingMs={clockRemainingMs}
       clockRunning={clockRunning}
