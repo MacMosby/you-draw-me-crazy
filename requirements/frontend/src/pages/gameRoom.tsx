@@ -200,7 +200,6 @@ export default function GamePage() {
 
           const players = dedupePlayers(payload.players);
           const spectatorList = dedupePlayers(payload.spectators ?? []);
-          const dedupedSpectators = dedupePlayers(payload.spectators);
           setMembers(players);
           setSpectators(spectatorList);
           membersRef.current = players;
