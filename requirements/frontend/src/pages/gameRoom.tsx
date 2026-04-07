@@ -8,7 +8,17 @@ import PromptBox from "../components/room/promptBox";
 import Lobby from "../components/room/lobby";
 import ConfirmLeaveDialog from "../components/room/confirmLeaveDialog";
 import type { TurnInfoPayload } from "../../shared/ws.payloads";
-import { socket, joinRoom, watchGame, onTurnInfo, onRoomFull, onResults, onStartGame } from "../api/socket";
+import {
+  socket,
+  joinRoom,
+  watchGame,
+  onTurnInfo,
+  onRoomFull,
+  onResults,
+  onStartGame,
+  cancelScheduledSocketDisconnect,
+  scheduleSocketDisconnect,
+} from "../api/socket";
 import { useSessionStore } from "../state/sessionStore";
 import rocketImage from "../assets/rocket2.png";
 import beeImage from "../assets/bee.png";
@@ -165,6 +175,8 @@ export default function GamePage() {
       }
     };
 
+    cancelScheduledSocketDisconnect();
+
     (async () => {
       try {
         setWsState("connecting");
@@ -187,9 +199,10 @@ export default function GamePage() {
           }
 
           const players = dedupePlayers(payload.players);
+          const spectatorList = dedupePlayers(payload.spectators ?? []);
           const dedupedSpectators = dedupePlayers(payload.spectators);
           setMembers(players);
-          setSpectators(dedupedSpectators);
+          setSpectators(spectatorList);
           membersRef.current = players;
           roundRef.current = payload.round;
           turnRef.current = payload.turn;
@@ -306,7 +319,7 @@ export default function GamePage() {
       unsubRoomFull();
       unsubStartGame();
       unsubResults();
-      socket.disconnect();
+      scheduleSocketDisconnect();
     };
   }, [userId, logout, navigate, clearRoom, roomMode]);
 
