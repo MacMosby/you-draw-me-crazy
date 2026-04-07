@@ -4,14 +4,21 @@ export interface JoinRoomPayload {
 	user_id: number;
 }
 
+export interface WatchGamePayload {
+	user_id: number;
+}
+
 export interface TurnInfoPayload {
 	room_id: number;
 	drawer: number;
-	word: string | null;
-	word_length: number;
+	word: string | null; // dont give to spectator&player
+	word_length: number; //not for spectator
 	round: number;
 	turn: number;
 	players: PlayerDto[];
+	spectators: PlayerDto[];
+	time_to_display: number; // ?
+	turn_start_time: number;
 }
 
 export interface GuessPayload {
@@ -64,8 +71,8 @@ export interface DrawingPayload {
 	coordinate_x: number;
 	coordinate_y: number;
 	color: `#${string}`// e.g. "#ff00ff"
-}	
-	
+}
+
 
 export type Point = { x: number; y: number };
 export type Stroke = {

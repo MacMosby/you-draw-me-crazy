@@ -29,6 +29,10 @@ export class GameService {
 	async startTurn(room: Room, server: Server) {
 		console.log(`Room ${room.id} at start of turn ${room.turn}: players ${room.players.map(p => p.userId)}, spectators ${room.spectators.map(s => s.userId)}`);
 
+		if (room.players.length < 2) {
+			this.gameOver(room, server, true);
+			return;
+		}
 		//clear drawing board for new turn
 		this.roomsService.clearStrokes(room.id);
 		server.to(`room-${room.id}`).emit(WS_EVENTS.INIT_DRAWING, {
@@ -47,6 +51,7 @@ export class GameService {
 		room.usedWordIds.push(wordEntity.id);
 		console.log("usedWordIds:", room.usedWordIds);
 		room.drawer = room.players[(room.turn-1) % room.players.length].userId; //modulo to always pick an existing player index even when others disconnect.
+		room.turnStartTime = Date.now();
 
 		const payload = this.turnEmitService.emitTurnInfo(room, server);
 
@@ -58,27 +63,37 @@ export class GameService {
 		}, TURN_DURATION);
 	}
 
-	sendFriendsToAll(room: Room, server: Server) {
+	async sendFriendsToAll(room: Room, server: Server) {
 		const players = room.players;
 
-		const idToNickname = new Map<number, string>();
 		for (const p of players) {
-			idToNickname.set(p.userId, p.nickname);
-		}
-
-		for (const p of players) {
-			const friendsIds: number[] = (p.friends ?? []);
-			friendsIds.filter((friendId: number) => idToNickname.has(friendId));
-			const friendsInRoom: string[] =
-			friendsIds.map((friendId) => idToNickname.get(friendId)!);
-
+			const friendsInRoom = await this.getFriends(p.userId, room);
 			const payload: FriendListPayload = {
 				room_id: room.id,
 				friends: friendsInRoom,
 			}
 			console.log(`[sendFriendsToAll] [GameService] Sending friend list to user ${p.userId} in room ${room.id}:`, friendsInRoom);
-			server.to(p.userId.toString()).emit(WS_EVENTS.FRIEND_LIST, payload);
+			server.to(`user-${p.userId}`).emit(WS_EVENTS.FRIEND_LIST, payload);
 		}
+
+		// const idToNickname = new Map<number, string>();
+		// for (const p of players) {
+		// 	idToNickname.set(p.userId, p.nickname);
+		// }
+
+		// for (const p of players) {
+		// 	const friendsIds: number[] = (p.friends ?? []);
+		// 	friendsIds.filter((friendId: number) => idToNickname.has(friendId));
+		// 	const friendsInRoom: string[] =
+		// 	friendsIds.map((friendId) => idToNickname.get(friendId)!);
+
+		// 	const payload: FriendListPayload = {
+		// 		room_id: room.id,
+		// 		friends: friendsInRoom,
+		// 	}
+		// 	console.log(`[sendFriendsToAll] [GameService] Sending friend list to user ${p.userId} in room ${room.id}:`, friendsInRoom);
+		// 	server.to(p.userId.toString()).emit(WS_EVENTS.FRIEND_LIST, payload);
+		// }
 	}
 
 	async getFriends(userID: number, room: Room): Promise<string[]> {
@@ -160,11 +175,11 @@ export class GameService {
 		this.roomsService.admitSpectators(room.id);
 
 		// check if there are enough players to continue
-		if (room.players.length < 3) {
+		if (room.players.length < 2) {
     		console.log(`Room ${room.id} has to little players, aborting startTurn`);
 			this.gameOver(room, server, true);
 		}
-		else if (room.round === room.maxRounds && room.turn === room.players.length) {
+		else if (room.round === room.maxRounds && room.turn >= room.players.length) {
 			console.log(`Room ${room.id} finished the game`);
 			this.gameOver(room, server, true);
 		}

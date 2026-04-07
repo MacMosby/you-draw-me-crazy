@@ -8,7 +8,7 @@ import {
 import { Injectable } from "@nestjs/common";
 import { Server, Socket } from 'socket.io';
 import { ConnectionRegistry } from './websocket.service';
-import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload, StrokeAppendPayload, AddFriendPayload, FriendListPayload, RemoveFriendPayload } from './dtos/ws.payloads';
+import type { DrawPayload, GuessPayload, GuessUpdatePayload, JoinRoomPayload, TurnInfoPayload, StrokeAppendPayload, AddFriendPayload, FriendListPayload, RemoveFriendPayload, WatchGamePayload } from './dtos/ws.payloads';
 import { WS_EVENTS } from './dtos/ws.events';
 import { RoomsService } from 'src/rooms/rooms.service';
 import { GameService } from 'src/game/game.service';
@@ -47,6 +47,7 @@ export class WebsocketGateway {
 	}
 
 	handleDisconnect(client: Socket) {
+		console.log(`Client ${client.id} with user id ${client.data.userId} disconnected`);
 		//automatically removes socket from socket.io rooms
 		const userId = client.data.userId;
 		if (!userId) return;
@@ -65,7 +66,9 @@ export class WebsocketGateway {
 		}
 		this.roomService.removeUser(userId);
 		this.registry.removeConnection(userId, client);
-		console.log(`Client ${client.id} with user id ${client.data.userId} disconnected`);
+		if (room) {
+			this.turnemitservice.emitTurnInfo(room, this.server);
+		}
 	}
 
 	//events from here on downwards
@@ -106,9 +109,9 @@ export class WebsocketGateway {
 
 		try {
 			if (room.state === 'lobby' && room.players.length < room.maxPlayers)
-				await this.roomService.addUser(payload.user_id, room.id, 'player')
+				await this.roomService.addUser(payload.user_id, room.id, 'player', 'player')
 			else if (room.state == 'playing') {
-				await this.roomService.addUser(payload.user_id, room.id, 'spectator');
+				await this.roomService.addUser(payload.user_id, room.id, 'spectator', 'player');
 
 				const friendList: FriendListPayload = {
 					room_id: room.id,
@@ -133,11 +136,54 @@ export class WebsocketGateway {
 		// build and emit payload for every player & spectator individually.
 		this.turnemitservice.emitTurnInfo(room, this.server);
 
+		// send friends to every player in the room
+		this.gameService.sendFriendsToAll(room, this.server);
+
 		// emit drawing state to everybody
 		this.emitFullDrawingState(room.id, client);
-		if (room.players.length === 3 && room.state === 'lobby') {
+		if (room.players.length === 2 && room.state === 'lobby') {
 			this.gameService.startTurn(room, this.server);
 		}
+	}
+
+	@SubscribeMessage(WS_EVENTS.WATCH_GAME)
+	async handleWatchGame(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: WatchGamePayload,
+	) {
+		console.log('[recv] WatchGame', payload);
+
+		// add user to available room in the backend
+		const room = await this.roomService.findAvailableRoom(payload.user_id);
+
+		try {
+
+			await this.roomService.addUser(payload.user_id, room.id, 'spectator', 'spectator');
+
+			const friendList: FriendListPayload = {
+				room_id: room.id,
+				friends: await this.gameService.getFriends(payload.user_id, room),
+			}
+			client.emit(WS_EVENTS.FRIEND_LIST, friendList);
+
+		} catch (e) {
+			console.log(`[WatchGame] ${e.message}`);
+		}
+
+		if (room.id === -1) {
+			client.emit(WS_EVENTS.ROOM_FULL);
+			return;
+		}
+		// add user to the socket.io room
+		const socketRoom = `room-${room.id}`;
+		await client.join(socketRoom);
+		client.data.roomId = room.id;
+
+		// build and emit payload for every player & spectator individually.
+		this.turnemitservice.emitTurnInfo(room, this.server);
+
+		// emit drawing state to everybody
+		this.emitFullDrawingState(room.id, client);
 	}
 
 	@SubscribeMessage(WS_EVENTS.GUESS)
@@ -250,7 +296,8 @@ export class WebsocketGateway {
 			turn: room.turn,
 			players: room.players,
 			spectators: room.spectators,
-			time_to_display: 60_000,
+			time_to_display: 60_000 - (Date.now() - (room.turnStartTime?? Date.now())),
+			turn_start_time: room.turnStartTime?? Date.now(),
 		};
 
 		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
