@@ -1,24 +1,17 @@
-import type { PlayerDto } from "./player.dto";
+import { PlayerDto } from "./player.dto";
 
 export interface JoinRoomPayload {
-	user_id: number;
-}
-
-export interface WatchGamePayload {
 	user_id: number;
 }
 
 export interface TurnInfoPayload {
 	room_id: number;
 	drawer: number;
-	word: string | null; // dont give to spectator&player
-	word_length: number; //not for spectator
+	word: string | null;
+	word_length: number;
 	round: number;
 	turn: number;
 	players: PlayerDto[];
-	spectators: PlayerDto[];
-	time_to_display: number; // ?
-	turn_start_time: number;
 }
 
 export interface GuessPayload {

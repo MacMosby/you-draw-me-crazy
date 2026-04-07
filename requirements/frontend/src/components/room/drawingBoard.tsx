@@ -88,6 +88,7 @@ if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) return;
     // Scroll only the chat container to the bottom, not the entire page
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+	}
   }, [sortedMessages.length]);
 
   // this makes it possible for the drawer to send their own messages to the chat
@@ -197,7 +198,7 @@ return (
         </div>
         <div className="flex gap-2 border-t border-gray-200 pt-3">
           <Input
-            placeholder={isCurrentUserPlayer ? "Type your guess..." : "You are a spectator now, you will join the game on the next turn"}
+            placeholder={isCurrentUserPlayer ? "Type your guess..." : "Spectators cannot send messages"}
             className="flex-1"
             value={text}
             disabled={!isCurrentUserPlayer}

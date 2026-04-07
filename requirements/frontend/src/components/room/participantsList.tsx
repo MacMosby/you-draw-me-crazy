@@ -9,12 +9,13 @@ import { useSessionStore } from "../../state/sessionStore";
 interface ParticipantsListProps {
   highlightedPlayerId?: number | null;
   players: PlayerDto[];
+  spectators?: PlayerDto[];
   drawerId?: number;
   clockRemainingMs?: number;
   clockRunning?: boolean;
 }
 
-export default function ParticipantsList({ highlightedPlayerId, players, drawerId, clockRemainingMs = 0, clockRunning = false }: ParticipantsListProps) {
+export default function ParticipantsList({ highlightedPlayerId, players, spectators = [], drawerId, clockRemainingMs = 0, clockRunning = false }: ParticipantsListProps) {
 
   const [activeHighlight, setActiveHighlight] = useState<number | null>(null);
   const [friends, setFriends] = useState<string[]>([]);
@@ -42,6 +43,9 @@ export default function ParticipantsList({ highlightedPlayerId, players, drawerI
   }, [roomId]);
 
   const friendSet = useMemo(() => new Set(friends), [friends]);
+
+  const spectatorSet = useMemo(() => new Set(spectators.map((spectator) => spectator.userId)), [spectators]);
+
   function toggleFriend(targetNickname: string) {
     const isFriend = friendSet.has(targetNickname);
 
@@ -134,6 +138,10 @@ export default function ParticipantsList({ highlightedPlayerId, players, drawerI
 		 );
 		})}
       </div>
+    {spectators.length > 0 && (
+    <h2 className="text-lg font-semibold mb-3 text-textPrimary">
+        Spectators :  {spectators.map((s) => s.nickname).join(", ")}
+      </h2>)}
       
       {/* Clock below participants */}
       <div className="mt-auto pt-3 flex justify-center">
