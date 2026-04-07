@@ -24,9 +24,11 @@ export default function Header() {
 
         {/* Navigation */}
         <nav className="flex items-center gap-6 text-sm text-textMuted">
-          <Link to="/" className="hover:text-textPrimary transition-colors">
-            Home
-          </Link>
+          {!user && (
+            <Link to="/" className="hover:text-textPrimary transition-colors">
+              Home
+            </Link>
+          )}
           <Link to="/play" className="hover:text-textPrimary transition-colors">
             Play
           </Link>

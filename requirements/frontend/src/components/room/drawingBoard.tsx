@@ -16,18 +16,28 @@ type Props = {
   players?: TurnInfoPayload["players"];
 };
 
+const MAX_CHAT_MESSAGE_LENGTH = 100;
+
 // changed some small things here, because it improved performance
 export default function DrawingBoard({ onGuessCorrect, systemMessages = [], players = [] }: Props) {
 	const [text, setText] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const pendingOwnGuessesRef = useRef<string[]>([]);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const currentUserId = useSessionStore((s) => s.user?.id ?? -1);
   const roomId = useSessionStore((s) => s.roomId);
   const currentUsername = useSessionStore((s) => s.user?.username ?? "You");
   const [color, setColor] = useState<`#${string}`>("#111111"); // this to avoid that VSCode complains about unitiliazed types
   const role = useSessionStore((s) => s.role);
   const isDrawer = role === "drawer";
+  const characterCount = text.length;
+  const isOverCharacterLimit = characterCount > MAX_CHAT_MESSAGE_LENGTH;
+  const canSendMessage =
+    text.trim().length > 0 &&
+    !isOverCharacterLimit &&
+    roomId !== null &&
+    currentUserId !== -1;
 
   const handleColorChange = (next: string) => {
     setColor(next as `#${string}`);
@@ -46,6 +56,7 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
 function send() {
 const trimmed = text.trim();
 if (!trimmed || roomId === null || currentUserId === -1) return;
+if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) return;
 
   if (!isDrawer) {
     pendingOwnGuessesRef.current.push(trimmed);
@@ -61,7 +72,10 @@ if (!trimmed || roomId === null || currentUserId === -1) return;
 	}
 
   useEffect(() => {
-    scrollAnchorRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Scroll only the chat container to the bottom, not the entire page
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [sortedMessages.length]);
 
   // this makes it possible for the drawer to send their own messages to the chat
@@ -158,7 +172,7 @@ return (
 
 
       {/* Chat/Guesses section */}
-      <div className="w-full lg:w-[18rem] xl:w-[20rem] lg:shrink-0 flex flex-col min-h-0 bg-surface border border-gray-200 rounded-lg p-3">
+      <div ref={chatContainerRef} className="w-full lg:w-[18rem] xl:w-[20rem] lg:shrink-0 flex flex-col min-h-0 bg-surface border border-gray-200 rounded-lg p-3">
         <div className="mb-3 flex-1 min-h-0 overflow-y-auto space-y-2">
           {sortedMessages.map((message) => (
             <ChatMessageRow
@@ -174,14 +188,21 @@ return (
             placeholder="Type your guess..."
             className="flex-1"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+            }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") send();
+              if (e.key === "Enter" && canSendMessage) send();
             }}
           />
-          <Button variant="primary" onClick={send}>
+          <Button variant="primary" onClick={send} disabled={!canSendMessage}>
             Send
           </Button>
+        </div>
+        <div className="mt-1 text-right text-xs">
+          <span className={isOverCharacterLimit ? "text-red-500" : "text-gray-500"}>
+            {characterCount}/{MAX_CHAT_MESSAGE_LENGTH}
+          </span>
         </div>
       </div>
     </div>

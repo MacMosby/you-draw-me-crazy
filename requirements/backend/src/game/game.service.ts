@@ -11,6 +11,8 @@ import { UsersService } from 'src/users/users.service';
 import { TurnEmitService } from 'src/websocket/turnemit.service';
 import { TURN_DURATION, RESULTS_DURATION } from './game.constants';
 
+const MAX_GUESS_LENGTH = 100;
+
 
 @Injectable()
 export class GameService {
@@ -126,6 +128,7 @@ export class GameService {
 		if (player.userId == room.drawer) return null;//drawers do not guess
 
 		const typedGuess = payload.guess.trim();
+		if (typedGuess.length === 0 || typedGuess.length > MAX_GUESS_LENGTH) return null;
 		const normalizedGuess = typedGuess.toLowerCase();
 		const normalizedWord = (room.word ?? "").toLowerCase();
 		const iscorrect = normalizedGuess === normalizedWord;
@@ -139,7 +142,7 @@ export class GameService {
 
 		const response: GuessUpdatePayload = {
 			guesser_id: payload.guesser_id,
-			guess: iscorrect ? null : payload.guess,//only send wrong guesses
+			guess: iscorrect ? null : typedGuess,//only send wrong guesses
 			room_id: room.id,
 			score: player.score,
 			correct: iscorrect,
