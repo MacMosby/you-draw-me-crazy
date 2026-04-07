@@ -92,6 +92,7 @@ export default function GamePage() {
 
   const [wsState, setWsState] = useState<"connecting" | "waiting" | "playing" | "full" | "finished" | "error">("connecting");
   const [members, setMembers] = useState<TurnInfoPayload["players"]>([]);
+  const [spectators, setSpectators] = useState<TurnInfoPayload["spectators"]>([]);
   const [drawerId, setDrawerId] = useState<number>(-1);
   const [currentWord, setCurrentWord] = useState<string | null>(null);
   const [currentWordLength, setCurrentWordLength] = useState<number>(0);
@@ -186,7 +187,9 @@ export default function GamePage() {
           }
 
           const players = dedupePlayers(payload.players);
+          const dedupedSpectators = dedupePlayers(payload.spectators);
           setMembers(players);
+          setSpectators(dedupedSpectators);
           membersRef.current = players;
           roundRef.current = payload.round;
           turnRef.current = payload.turn;
@@ -214,6 +217,7 @@ export default function GamePage() {
           clearConnectTimeout();
           const players = dedupePlayers(payload.members);
           setMembers(players);
+          setSpectators([]);
           membersRef.current = players;
           roundRef.current = payload.round;
           turnRef.current = payload.turn;
@@ -381,6 +385,7 @@ export default function GamePage() {
     <RoomLayout
       highlightedPlayerId={recentlyCorrectGuesser}
       players={members}
+      spectators={spectators}
       drawerId={drawerId}
       clockRemainingMs={clockRemainingMs}
       clockRunning={clockRunning}
@@ -425,7 +430,11 @@ export default function GamePage() {
     )}
 
       {wsState === "waiting" && (
-        <DrawingBoard systemMessages={systemMessages} players={members} />
+        <DrawingBoard
+          systemMessages={systemMessages}
+          players={members}
+          spectatorIntent={roomMode === "watch" ? "stay-spectator" : "join-player"}
+        />
       )}
 
       {wsState === "playing" && (
@@ -448,6 +457,7 @@ export default function GamePage() {
             onGuessCorrect={handleGuessCorrect}
             systemMessages={systemMessages}
             players={members}
+            spectatorIntent={roomMode === "watch" ? "stay-spectator" : "join-player"}
           />
         </>
       )}

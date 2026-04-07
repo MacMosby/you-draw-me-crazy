@@ -118,7 +118,7 @@ export class RoomsService {
 		{
 			const spectator = waitingPlayers.shift()!;
 			room.players.push(spectator);
-			room.spectators = room.spectators.filter(p => p.nickname !== spectator.nickname);
+			room.spectators = room.spectators.filter(p => p.userId !== spectator.userId);
 		}
 		if (waitingPlayers.length > 0) //debug
 			console.log('Players filled, number of waiting players: ', waitingPlayers.length); //debug
@@ -139,6 +139,7 @@ export class RoomsService {
 		}
 		// clear players array (keep reference)
 		room.players.length = 0;
+		room.spectators.length = 0;
 		console.log('all players and spectators removed from room', roomId);
 	}
 

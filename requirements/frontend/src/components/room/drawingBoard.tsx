@@ -14,12 +14,18 @@ type Props = {
   onGuessCorrect?: (userId: number) => void;
   systemMessages?: ChatMessage[];
   players?: TurnInfoPayload["players"];
+  spectatorIntent?: "stay-spectator" | "join-player";
 };
 
 const MAX_CHAT_MESSAGE_LENGTH = 100;
 
 // changed some small things here, because it improved performance
-export default function DrawingBoard({ onGuessCorrect, systemMessages = [], players = [] }: Props) {
+export default function DrawingBoard({
+  onGuessCorrect,
+  systemMessages = [],
+  players = [],
+  spectatorIntent = "join-player",
+}: Props) {
 	const [text, setText] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const pendingOwnGuessesRef = useRef<string[]>([]);
@@ -220,7 +226,9 @@ return (
         </div>
         {!isCurrentUserPlayer && (
           <p className="mt-2 text-xs text-text-muted">
-            You are a spectator now, you will join the game on the next turn
+            {spectatorIntent === "stay-spectator"
+              ? "You are watching this game as a spectator. You will stay spectator for the whole match."
+              : "You are a spectator for now. You will automatically become a player on the next turn."}
           </p>
         )}
       </div>
