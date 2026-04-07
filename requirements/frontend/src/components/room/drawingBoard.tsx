@@ -212,16 +212,16 @@ return (
             Send
           </Button>
         </div>
-        {!isCurrentUserPlayer && (
-          <p className="mt-2 text-xs text-text-muted">
-            You are a spectator now, you will join the game on the next turn
-          </p>
-        )}
         <div className="mt-1 text-right text-xs">
           <span className={isOverCharacterLimit ? "text-red-500" : "text-gray-500"}>
             {characterCount}/{MAX_CHAT_MESSAGE_LENGTH}
           </span>
         </div>
+        {!isCurrentUserPlayer && (
+          <p className="mt-2 text-xs text-text-muted">
+            You are a spectator now, you will join the game on the next turn
+          </p>
+        )}
       </div>
     </div>
   );
