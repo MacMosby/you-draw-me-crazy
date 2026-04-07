@@ -175,7 +175,7 @@ The following list reflects the implemented project scope and ownership.
 
 ### lde-taey:
 
-- Project owner
+- Project owner: created a visual game flow and user story on Figma, created a list of features for the MVP, tested the app with family and friends to gather feedback about the UI experience that helped improve screen clarity, usability, and overall game flow
 - Frontend developer: focused on UI components, layout, lobby management, and event flow integration with backend (clock, scoreboard, guess updates in the chat)
 
 ### mrodenbu
@@ -196,9 +196,6 @@ The following list reflects the implemented project scope and ownership.
 
 - Backend developer
 - Database & Prisma
-  
-TO DO: we need a more detailed breakdown of what each team member contributed.
-we should also mention specific features, modules, or components implemented by each person 
 
 
 ---
@@ -243,6 +240,7 @@ we should also mention specific features, modules, or components implemented by 
 - Frontend/backend sync: it took us a while to sync both sides, agree on shared types, and clarify who owns which event/endpoint.
 - Deadline pressure: the original deadline of 31.1.26 was missed, as well as the second deadline of 5.3.26. We set these deadlines to force ourselves to work efficiently but it was still surprising that the work took longer than expected
 - Scope management: module selection required explicit effort/desirability trade-off analysis, with some features (e.g. full User Management) deprioritized due to complexity.
+- React 18 development mode caused some logic (for example code triggered from `useEffect`) to run twice because `StrictMode` intentionally re-runs it to detect unsafe side effects. This initially broke parts of our game loop during local development, so we added proper cleanup and guard logic to prevent duplicate initialization while keeping production behavior unchanged.
 
 ---
 
