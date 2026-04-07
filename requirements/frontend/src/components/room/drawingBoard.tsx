@@ -53,9 +53,14 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
     [players]
   );
 
+  const isCurrentUserPlayer = useMemo(
+    () => players.some((player) => player.userId === currentUserId),
+    [players, currentUserId]
+  );
+
 function send() {
 const trimmed = text.trim();
-if (!trimmed || roomId === null || currentUserId === -1) return;
+if (!trimmed || roomId === null || currentUserId === -1 || !isCurrentUserPlayer) return;
 if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) return;
 
   if (!isDrawer) {
@@ -72,10 +77,15 @@ if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) return;
 	}
 
   useEffect(() => {
+    if (!isCurrentUserPlayer && text) {
+      setText("");
+    }
+  }, [isCurrentUserPlayer, text]);
+
+  useEffect(() => {
     // Scroll only the chat container to the bottom, not the entire page
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
   }, [sortedMessages.length]);
 
   // this makes it possible for the drawer to send their own messages to the chat
@@ -185,9 +195,10 @@ return (
         </div>
         <div className="flex gap-2 border-t border-gray-200 pt-3">
           <Input
-            placeholder="Type your guess..."
+            placeholder={isCurrentUserPlayer ? "Type your guess..." : "You are a spectator now, you will join the game on the next turn"}
             className="flex-1"
             value={text}
+            disabled={!isCurrentUserPlayer}
             onChange={(e) => {
               setText(e.target.value);
             }}
@@ -199,6 +210,11 @@ return (
             Send
           </Button>
         </div>
+        {!isCurrentUserPlayer && (
+          <p className="mt-2 text-xs text-text-muted">
+            You are a spectator now, you will join the game on the next turn
+          </p>
+        )}
         <div className="mt-1 text-right text-xs">
           <span className={isOverCharacterLimit ? "text-red-500" : "text-gray-500"}>
             {characterCount}/{MAX_CHAT_MESSAGE_LENGTH}
