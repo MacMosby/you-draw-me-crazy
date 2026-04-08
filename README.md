@@ -197,27 +197,26 @@ As a reference, here are the literal sections from the subject:
 
 ### lde-taey:
 
-- Product Owner: created a visual game flow and user story on Figma, created a list of features for the MVP, tested the app with family and friends to gather feedback about the UI experience that helped improve screen clarity, usability, and overall game flow
-- Frontend Developer: focused on UI components, layout, lobby management, and event flow integration with backend (clock, scoreboard, guess updates in the chat)
+- **Product Owner**: created a visual game flow and user story on Figma, created a list of features for the MVP, tested the app with family and friends to gather feedback about the UI experience that helped improve screen clarity, usability, and overall game flow
+- **Frontend Developer**: focused on UI components, layout, lobby management, and event flow integration with backend (clock, scoreboard, guess updates in the chat)
 
 ### mrodenbu
 
-- Project Manager: Facilitated and moderated team meetings, tracked project progress, and ensured milestones were met. Organized workflow and task distribution within the team, addressed blockers quickly, and maintained an overview of the project timeline to keep development on track.
-- Backend Developer: Implemented core backend features including user authentication with password hashing, the spectator mode module, and the friend system. Contributed to general backend development tasks such as debugging, improving documentation, and supporting overall system stability.
+- **Project Manager**: facilitated and moderated team meetings, tracked project progress, and ensured milestones were met. Organized workflow and task distribution within the team, addressed blockers quickly, and maintained an overview of the project timeline to keep development on track.
+- **Backend Developer**: implemented core backend features including user authentication with password hashing, the spectator mode module, and the friend system. Contributed to general backend development tasks such as debugging, improving documentation, and supporting overall system stability.
 
 ### nandreev:
 
-- Tech Lead: defined the technical architecture and project structure, coordinated frontend–backend integration (REST + WebSockets), guided implementation decisions, and ensured consistency and maintainability across the codebase
-- Frontend Developer: focused on real-time features and application logic, implemented efficient drawing synchronization using incremental updates (append-based strokes to reduce load), contributed to event protocol design (start/append flows), handled routing and overall app structure, developed profile and friends systems, and integrated WebSocket communication for multiplayer interactions
+- **Tech Lead**: defined the technical architecture and project structure, coordinated frontend–backend integration (REST + WebSockets), guided implementation decisions, and ensured consistency and maintainability across the codebase
+- **Frontend Developer**: focused on real-time features and application logic, implemented efficient drawing synchronization using incremental updates (append-based strokes to reduce load), contributed to event protocol design (start/append flows), handled routing and overall app structure, developed profile and friends systems, and integrated WebSocket communication for multiplayer interactions
 
 ### nboer
 
-- Backend developer
-- DTOs
+- **Backend Developer**: implemented core backend systems including room management, spectator mode functionality, and game and turn logic. Developed WebSocket turn event emissions to support real-time gameplay and created DTOs to structure and standardize data exchange between backend and frontend components.
 
 ### sgramsch:
 
-- Backend Developer: focused on Database, ORM, Docker, HTTPS and WSS
+- **Backend Developer**: focused on database architecture, ORM integration, and infrastructure setup, including Docker-based containerization and secure communication via HTTPS and WSS. Responsible for designing and maintaining a reliable backend environment, ensuring consistent data handling, smooth deployment workflows, and secure real-time connections across the application.
 
 ## Team Information
 
