@@ -50,7 +50,14 @@ const setAuth = useSessionStore((s) => s.setAuth);
 
     try {
       const result = await login({ email, password });
-      console.log("SERVER RESPONSE:", result); //delete
+
+      if (!result.ok) {
+        console.info("[auth] login rejected:", result.message);
+        setFormError(result.message);
+        return;
+      }
+
+      console.info("[auth] login success:", result.message);
       // step 3 later: save auth + navigate("/play")
 	//   setLoggedIn({ email: email.trim() });
 	   setAuth("temp-token", {
@@ -61,9 +68,9 @@ const setAuth = useSessionStore((s) => s.setAuth);
 
   		navigate("/play");
     } catch (err) {
-		console.log(err);
       const message =
         err instanceof Error ? err.message : "Login failed. Please try again.";
+		console.info("[auth] login request failed:", message);
       setFormError(message);
     } finally {
       setIsSubmitting(false);

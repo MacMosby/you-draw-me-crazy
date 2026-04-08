@@ -31,6 +31,7 @@ export class AuthService {
 
     const newUser = await this.usersService.createUser(username, email, passwordHash);
     return {
+      ok: true,
       message: `Account for ${newUser.nickname} successfully created.`,
       id: newUser.id,
       username: newUser.nickname,
@@ -59,6 +60,7 @@ export class AuthService {
 
     // later: return JWT here
     return {
+      ok: true,
       message: `${user.nickname} has successfully logged in.`,
       id: user.id,
       username: user.nickname,
