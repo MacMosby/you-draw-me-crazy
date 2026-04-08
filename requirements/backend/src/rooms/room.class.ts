@@ -2,8 +2,7 @@
 import type { PlayerDto } from "src/websocket/dtos/player.dto"
 import type { Stroke } from "src/websocket/dtos/ws.payloads"
 
-/*Where all room related variables are stored. This was purely used to store data.
-No thought has been put into weither things shoudl be public or whatever.*/
+/*Where all room related variables are stored.*/
 export class Room {
 	public state: 'lobby' | 'playing' | 'finished';
 	public id: number

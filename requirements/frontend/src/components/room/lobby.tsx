@@ -22,7 +22,7 @@ export default function Lobby({
           <img
             src={icon}
             alt={title}
-            className="w-auto h-auto max-w-32 max-h-32 object-contain mx-auto mb-6"
+            className="max-w-20 sm:max-w-32 max-h-20 sm:max-h-32 object-contain mx-auto mb-6"
           />
         </div>
         
