@@ -31,12 +31,49 @@ This command:
 2. Builds Docker images.
 3. Starts containers in detached mode.
 
-### Access the app
-- Frontend: `http://localhost:5173`
-- Backend service runs inside Docker and is used by the frontend.
+### 🌐 Open the app from another device
+
+1. On the host machine (where the project is running), find the local IP:
+
+```bash
+ip addr | grep "inet " 
+```
+
+
+2. Look for an address like: `192.168.X.X` or "10.15.X.X"
+
+3. On another device (same network), open in browser:
+
+```
+http://X.X.X.X:5173
+```
+(replace `X.X.X.X` with the found IP)
+
+⚠️ Notes:
+
+- Both devices must be on the same network
+
+### Exposing the App via Tunnel (Cloudflare)
+To make the application accessible from outside your local network (e.g. mobile devices on different networks), we use Cloudflare Tunnel (cloudflared).
+
+1. Download cloudflared
+Download the standalone binary from the official source:
+https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/
+Choose the correct version for your OS.
+
+2. Make it executable
+```
+chmod +x cloudflared-linux-amd64
+```
+
+3. Run tunnel for frontend
+If your frontend runs on HTTPS (e.g. Vite with self-signed cert):
+```
+./cloudflared-linux-amd64 tunnel --url https://<insert ip adreess here>:5173 --no-tls-verify
+```
 
 ### Useful commands
-- `make clean` → Stop containers and remove volumes (keeps images).
+- `make schoolclean` → Stop containers and remove volumes (keeps images).
 - `make fclean` → Full cleanup (containers, volumes, images).
 - `make re` → Full rebuild from scratch.
 
@@ -51,6 +88,8 @@ This command:
 - **Backend:** NestJS, TypeScript, Socket.IO
 - **Database:** PostgreSQL + Prisma ORM
 - **Infra:** Docker, Docker Compose, Makefile workflow
+
+We chose PostgreSQL as database system for its reliability, strong consistency guarantees, and robust support for relational data, which made it ideal for managing users, game sessions, and real-time state.
 
 ### Major Architectural Decisions
 - **Server-authoritative game state:** Game-critical logic (room assignment, turn rotation, scoring, round progression) is handled on the backend to prevent client-side desync and inconsistent results.
@@ -153,8 +192,8 @@ The following list reflects the implemented project scope and ownership.
 | --- | --- | --- | --- | --- |
 | Total | 14 | Selected modules cover core mandatory requirements and reinforce a complete real-time multiplayer experience. | All selected modules were implemented and integrated in the current stack. | Team |
 | Use a framework for both the frontend and backend | 2 | Frameworks improve maintainability, code organization, and development speed in a team project. | Frontend uses React; backend uses NestJS with modular structure (`auth`, `game`, `rooms`, `websocket`, `database`). | nandreev |
-| Implement real-time features using WebSockets or similar technology | 2 | Real-time synchronization is required for gameplay, lobby state, and live interactions between users. | Socket.IO powers real-time updates, graceful connection/disconnection handling, and efficient server-to-client broadcasting. | lde-taey, nandreev |
-| Allow users to interact with other users (chat, profile, friends) | 2 | Social interaction is essential for multiplayer engagement and user retention. | Implemented basic chat, user profile access, and friend management/list features in the app flow. | lde-taey, nboer, nandreev |
+| Implement real-time features using WebSockets or similar technology | 2 | Real-time synchronization is required for gameplay, lobby state, and live interactions between users. | Socket.IO powers real-time updates, graceful connection/disconnection handling, and efficient server-to-client broadcasting. | lde-taey, mrodenbu, nandreev |
+| Allow users to interact with other users (chat, profile, friends) | 2 | Social interaction is essential for multiplayer engagement and user retention. | Implemented basic chat, user profile access, and friend management/list features in the app flow. | lde-taey, mrodenbu, nandreev, nboer |
 | Use an ORM for the database | 1 | ORM simplifies schema evolution, migrations, and typed data access in backend services. | Prisma ORM is used with PostgreSQL, migrations, and generated client access in backend modules. | sgramsch |
 | Implement a complete web-based game where users can play against each other | 2 | The full playable game loop is the core functional goal of the project. | Built a complete live multiplayer game with clear rules, win/loss conditions, round flow, and score tracking. | all |
 | Remote players (2 players on separate computers in real-time) | 2 | Networked remote play validates real-world multiplayer behavior beyond local testing. | Remote clients can join and play live; latency/disconnection handling and reconnection logic are supported. | mrodenbu, nboer, nandreev |
@@ -216,7 +255,7 @@ As a reference, here are the literal sections from the subject:
 
 ### sgramsch:
 
-- **Backend Developer**: focused on database architecture, ORM integration, and infrastructure setup, including Docker-based containerization and secure communication via HTTPS and WSS. Responsible for designing and maintaining a reliable backend environment, ensuring consistent data handling, smooth deployment workflows, and secure real-time connections across the application.
+- **Backend Developer**: focused on database architecture, ORM integration, and infrastructure setup, including Docker-based containerization and secure communication via HTTPS and WSS. Responsible for creating and Maintaining Database tables, ensuring persistent data where necessary (example: Words) and enforcing HTTPS/WSS for the Backend.
 
 ## Team Information
 
