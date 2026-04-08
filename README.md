@@ -53,24 +53,6 @@ http://X.X.X.X:5173
 
 - Both devices must be on the same network
 
-### Exposing the App via Tunnel (Cloudflare)
-To make the application accessible from outside your local network (e.g. mobile devices on different networks), we use Cloudflare Tunnel (cloudflared).
-
-1. Download cloudflared
-Download the standalone binary from the official source:
-https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/
-Choose the correct version for your OS.
-
-2. Make it executable
-```
-chmod +x cloudflared-linux-amd64
-```
-
-3. Run tunnel for frontend
-If your frontend runs on HTTPS (e.g. Vite with self-signed cert):
-```
-./cloudflared-linux-amd64 tunnel --url https://<insert ip adreess here>:5173 --no-tls-verify
-```
 
 ### Useful commands
 - `make schoolclean` → Stop containers and remove volumes (keeps images).
