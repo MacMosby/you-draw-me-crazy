@@ -5,7 +5,7 @@ import { WS_EVENTS } from "../../shared/ws.events";
 import type { ResultsPayload, TurnInfoPayload, FriendListPayload, RemoveFriendPayload, AddFriendPayload } from "../../shared/ws.payloads";
 import { useSessionStore } from "../state/sessionStore";
 
-const WS_URL = import.meta.env.VITE_WS_URL ?? window.location.origin;//"http://localhost:3000";
+const WS_URL = import.meta.env.VITE_WS_URL ?? "/";//"http://localhost:3000";
 
 //const WS_URL =
 //  import.meta.env.VITE_WS_URL ??
@@ -25,8 +25,27 @@ export const socket: Socket = io(WS_URL, {
 
 let listenersBound = false;
 let identifyInFlight: Promise<void> | null = null;
+let scheduledDisconnectTimer: number | undefined;
+
+export function cancelScheduledSocketDisconnect() {
+  if (scheduledDisconnectTimer !== undefined) {
+    window.clearTimeout(scheduledDisconnectTimer);
+    scheduledDisconnectTimer = undefined;
+  }
+}
+
+export function scheduleSocketDisconnect(delayMs = 250) {
+  cancelScheduledSocketDisconnect();
+  scheduledDisconnectTimer = window.setTimeout(() => {
+    scheduledDisconnectTimer = undefined;
+    if (socket.connected || socket.active) {
+      socket.disconnect();
+    }
+  }, delayMs);
+}
 
 export function initSocketWithIdentify(userId: number): Promise<void> {
+  cancelScheduledSocketDisconnect();
   	if (!listenersBound) {
 		listenersBound = true;
 

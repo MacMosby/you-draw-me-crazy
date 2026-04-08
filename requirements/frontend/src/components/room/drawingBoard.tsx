@@ -14,12 +14,18 @@ type Props = {
   onGuessCorrect?: (userId: number) => void;
   systemMessages?: ChatMessage[];
   players?: TurnInfoPayload["players"];
+  spectatorIntent?: "stay-spectator" | "join-player";
 };
 
 const MAX_CHAT_MESSAGE_LENGTH = 100;
 
 // changed some small things here, because it improved performance
-export default function DrawingBoard({ onGuessCorrect, systemMessages = [], players = [] }: Props) {
+export default function DrawingBoard({
+  onGuessCorrect,
+  systemMessages = [],
+  players = [],
+  spectatorIntent = "join-player",
+}: Props) {
 	const [text, setText] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const pendingOwnGuessesRef = useRef<string[]>([]);
@@ -33,11 +39,17 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
   const isDrawer = role === "drawer";
   const characterCount = text.length;
   const isOverCharacterLimit = characterCount > MAX_CHAT_MESSAGE_LENGTH;
+  const isCurrentUserPlayer = useMemo(
+    () => players.some((player) => player.userId === currentUserId),
+    [players, currentUserId]
+  );
+
   const canSendMessage =
     text.trim().length > 0 &&
     !isOverCharacterLimit &&
     roomId !== null &&
-    currentUserId !== -1;
+    currentUserId !== -1 && 
+	isCurrentUserPlayer;
 
   const handleColorChange = (next: string) => {
     setColor(next as `#${string}`);
@@ -53,9 +65,10 @@ export default function DrawingBoard({ onGuessCorrect, systemMessages = [], play
     [players]
   );
 
+
 function send() {
 const trimmed = text.trim();
-if (!trimmed || roomId === null || currentUserId === -1) return;
+if (!trimmed || roomId === null || currentUserId === -1 || !isCurrentUserPlayer) return;
 if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) return;
 
   if (!isDrawer) {
@@ -72,10 +85,16 @@ if (trimmed.length > MAX_CHAT_MESSAGE_LENGTH) return;
 	}
 
   useEffect(() => {
+    if (!isCurrentUserPlayer && text) {
+      setText("");
+    }
+  }, [isCurrentUserPlayer, text]);
+
+  useEffect(() => {
     // Scroll only the chat container to the bottom, not the entire page
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
+	}
   }, [sortedMessages.length]);
 
   // this makes it possible for the drawer to send their own messages to the chat
@@ -185,9 +204,10 @@ return (
         </div>
         <div className="flex gap-2 border-t border-gray-200 pt-3">
           <Input
-            placeholder="Type your guess..."
+            placeholder={isCurrentUserPlayer ? "Type your guess..." : "Spectators cannot send messages"}
             className="flex-1"
             value={text}
+            disabled={!isCurrentUserPlayer}
             onChange={(e) => {
               setText(e.target.value);
             }}
@@ -204,6 +224,13 @@ return (
             {characterCount}/{MAX_CHAT_MESSAGE_LENGTH}
           </span>
         </div>
+        {!isCurrentUserPlayer && (
+          <p className="mt-2 text-xs text-text-muted">
+            {spectatorIntent === "stay-spectator"
+              ? "You are watching this game as a spectator. You will stay spectator for the whole match."
+              : "You are a spectator for now. You will automatically become a player on the next turn."}
+          </p>
+        )}
       </div>
     </div>
   );

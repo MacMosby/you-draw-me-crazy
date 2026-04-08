@@ -209,13 +209,13 @@ export class WebsocketGateway {
 		@ConnectedSocket() client: Socket,
 		@MessageBody() payload: DrawPayload,
 	) {
-		console.log('[recv] stroke:start');
+		//console.log('[recv] stroke:start');
 		const socketRoom = 'room-' + payload.room_id;
 		const room = this.roomService.getRoom(payload.room_id);
 		if (!room) return;
 		if (client.data.userId != room.drawer) return;
 		// emit batch payload to the rooms clients
-		console.log('[send] stroke:start');
+		//console.log('[send] stroke:start');
 		client.to(socketRoom).emit(WS_EVENTS.STROKE_START, payload);
 
 		// add draw payload to the server?
@@ -260,49 +260,48 @@ export class WebsocketGateway {
 		this.emitFullDrawingState(client.data.roomId);
 	}
 
-	@SubscribeMessage('test:setDrawer')
-	handleTestSetDrawer(
-		@ConnectedSocket() client: Socket,
-		@MessageBody() payload: { room_id: number; drawer_id: number },
-	) {
-		console.log('[test] Setting drawer to', payload.drawer_id, 'in room', payload.room_id);
+	// @SubscribeMessage('test:setDrawer')
+	// handleTestSetDrawer(
+	// 	@ConnectedSocket() client: Socket,
+	// 	@MessageBody() payload: { room_id: number; drawer_id: number },
+	// ) {
+	// 	console.log('[test] Setting drawer to', payload.drawer_id, 'in room', payload.room_id);
 
-		const room = this.roomService.getRoom(payload.room_id);
-		if (!room) {
-			client.emit('error', 'Room not found');
-			return;
-		}
-		//this.gameService.startTurn(room, this.server); // reset turn state, timers, etc. like normal turn start would
-		// Update room state
-		this.roomService.clearStrokes(room.id);
-		console.log('[test] Cleared strokes for room', room.id);
-		// server.to(socketRoom).emit(WS_EVENTS.CANVAS_CLEAR);
-		this.emitFullDrawingState(room.id);
-		console.log('[test] Emitted full drawing state for room', room.id);
-		room.drawer = payload.drawer_id;
-		room.turn = 1;
-		room.round = 1;
-		room.word = 'testword';
-		room.word_length = 8;
+	// 	const room = this.roomService.getRoom(payload.room_id);
+	// 	if (!room) {
+	// 		client.emit('error', 'Room not found');
+	// 		return;
+	// 	}
+	// 	//this.gameService.startTurn(room, this.server); // reset turn state, timers, etc. like normal turn start would
+	// 	// Update room state
+	// 	this.roomService.clearStrokes(room.id);
+	// 	//console.log('[test] Cleared strokes for room', room.id);
+	// 	// server.to(socketRoom).emit(WS_EVENTS.CANVAS_CLEAR);
+	// 	this.emitFullDrawingState(room.id);
+	// 	//console.log('[test] Emitted full drawing state for room', room.id);
+	// 	room.drawer = payload.drawer_id;
+	// 	room.turn = 1;
+	// 	room.round = 1;
+	// 	room.word = 'testword';
+	// 	room.word_length = 8;
 
-		// Send to all players in room
-		const socketRoom = `room-${payload.room_id}`;
-		const response: TurnInfoPayload = {
-			room_id: room.id,
-			drawer: payload.drawer_id,
-			word: room.word,
-			word_length: room.word_length,
-			round: room.round,
-			turn: room.turn,
-			players: room.players,
-			spectators: room.spectators,
-			time_to_display: 60_000 - (Date.now() - (room.turnStartTime?? Date.now())),
-			turn_start_time: room.turnStartTime?? Date.now(),
-		};
+	// 	// Send to all players in room
+	// 	const socketRoom = `room-${payload.room_id}`;
+	// 	const response: TurnInfoPayload = {
+	// 		room_id: room.id,
+	// 		drawer: payload.drawer_id,
+	// 		word: room.word,
+	// 		word_length: room.word_length,
+	// 		round: room.round,
+	// 		turn: room.turn,
+	// 		players: room.players,
+	// 		spectators: room.spectators,
+	// 		time_to_display: 60_000,
+	// 	};
 
-		this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
-		console.log('[test] Sent TURN_INFO with drawer:', payload.drawer_id);
-	}
+	// 	this.server.to(socketRoom).emit(WS_EVENTS.TURN_INFO, response);
+	// 	console.log('[test] Sent TURN_INFO with drawer:', payload.drawer_id);
+	// }
 
 	// SERVER -> CLIENT HELPERS
 	private emitFullDrawingState(roomId: number, client?: Socket) {
