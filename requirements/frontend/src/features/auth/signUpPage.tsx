@@ -64,6 +64,14 @@ const setAuth = useSessionStore((s) => s.setAuth);
         username: username.trim(),
         password,
       });
+
+	  if (!result.ok) {
+        console.info("[auth] signup rejected:", result.message);
+        setFormError(result.message);
+        setIsSubmitting(false);
+        return;
+      }
+
 	  	// setAuth("temp-token", {
 		// 	id: result.id,
 		// 	email: result.email,
@@ -88,6 +96,7 @@ const setAuth = useSessionStore((s) => s.setAuth);
     } catch (err) {
       const msg =
         err instanceof Error ? err.message : "Signup failed. Please try again.";
+      console.info("[auth] signup request failed:", msg);
       setFormError(msg);
       setIsSubmitting(false);
     }

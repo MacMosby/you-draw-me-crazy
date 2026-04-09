@@ -306,7 +306,7 @@ export default function GamePage() {
           console.log("[gameRoom] joinRoom successful");
         }
       } catch (e) {
-        console.error(e);
+        console.info("[gameRoom] join/watch denied:", e);
         clearConnectTimeout();
         setWsState("error");
       }
