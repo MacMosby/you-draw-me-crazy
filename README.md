@@ -20,7 +20,8 @@ I contributed to this project as **Project Manager and Backend Engineer** in a t
 * Contributed to backend architecture using **NestJS**
 * Implemented and integrated **real-time communication** using WebSockets
 * Worked on game logic and core server-side functionality
-* Collaborated closely with frontend to ensure smooth data flow and synchronization
+* Helped design and ensure reliable data flow between client and server
+* Collaborated closely with frontend to align API contracts and real-time event handling
 
 ---
 
