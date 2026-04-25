@@ -1,3 +1,37 @@
+# 🎨 You Draw Me Crazy
+
+> Forked from the 42 Berlin `ft_transcendence` project
+> (listed as **mrodenbu** in the original README — my 42 Berlin username)
+
+---
+
+## 🧑‍💻 My Contributions
+
+I contributed to this project as **Project Manager and Backend Engineer** in a team environment at 42 Berlin.
+
+### Project Management
+
+* Coordinated team workflow and task distribution
+* Facilitated communication between frontend and backend development
+* Helped structure development phases and align implementation efforts
+
+### Backend Development
+
+* Contributed to backend architecture using **NestJS**
+* Implemented and integrated **real-time communication** using WebSockets
+* Worked on game logic and core server-side functionality
+* Collaborated closely with frontend to ensure smooth data flow and synchronization
+
+---
+
+## 🎯 Key Impact
+
+Contributed to the successful development of a real-time multiplayer application by combining backend engineering with strong team coordination, ensuring reliable communication between clients and a smooth user experience.
+
+---
+
+## 🧠 Project Overview
+
 # ft_transcendence
 
 _This project has been created as part of the 42 curriculum by lde-taey, mrodenbu, nandreev, nboer, sgramsch._
